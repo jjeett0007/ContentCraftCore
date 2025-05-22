@@ -297,7 +297,7 @@ export default function ApiDocumentation() {
                   
                   <TabsContent value="rest" className="space-y-4">
                     <div className="text-sm text-muted-foreground">
-                      <p>These endpoints allow you to manage {contentTypeDetails.displayName.toLowerCase()} content.</p>
+                      <p>These endpoints allow you to manage {contentTypeDetails?.displayName ? contentTypeDetails.displayName.toLowerCase() : 'content'} entries.</p>
                     </div>
                     
                     <Accordion type="single" collapsible className="w-full">
@@ -305,47 +305,47 @@ export default function ApiDocumentation() {
                         <>
                           <MethodDoc 
                             method="GET" 
-                            endpoint={getApiEndpoint(contentTypeDetails.apiId)}
+                            endpoint={getApiEndpoint(contentTypeDetails?.apiId || '')}
                             responseSample={samples.get.response} 
-                            description={`Retrieves a list of all ${contentTypeDetails.displayName.toLowerCase()}. Supports pagination with query parameters ?page=1&limit=10.`}
+                            description={`Retrieves a list of all ${contentTypeDetails?.displayName ? contentTypeDetails.displayName.toLowerCase() : 'items'}. Supports pagination with query parameters ?page=1&limit=10.`}
                           />
                           
                           <MethodDoc 
                             method="GET" 
-                            endpoint={getApiEndpoint(contentTypeDetails.apiId, true)}
+                            endpoint={getApiEndpoint(contentTypeDetails?.apiId || '', true)}
                             responseSample={samples.getById.response} 
-                            description={`Retrieves a specific ${contentTypeDetails.displayName.toLowerCase()} by its ID.`}
+                            description={`Retrieves a specific ${contentTypeDetails?.displayName ? contentTypeDetails.displayName.toLowerCase() : 'item'} by its ID.`}
                           />
                           
                           <MethodDoc 
                             method="POST" 
-                            endpoint={getApiEndpoint(contentTypeDetails.apiId)}
+                            endpoint={getApiEndpoint(contentTypeDetails?.apiId || '')}
                             requestSample={samples.post.request} 
                             responseSample={samples.post.response} 
-                            description={`Creates a new ${contentTypeDetails.displayName.toLowerCase()}.`}
+                            description={`Creates a new ${contentTypeDetails?.displayName ? contentTypeDetails.displayName.toLowerCase() : 'item'}.`}
                           />
                           
                           <MethodDoc 
                             method="PUT" 
-                            endpoint={getApiEndpoint(contentTypeDetails.apiId, true)}
+                            endpoint={getApiEndpoint(contentTypeDetails?.apiId || '', true)}
                             requestSample={samples.put.request} 
                             responseSample={samples.put.response} 
-                            description={`Replaces an existing ${contentTypeDetails.displayName.toLowerCase()} with the provided data.`}
+                            description={`Replaces an existing ${contentTypeDetails?.displayName ? contentTypeDetails.displayName.toLowerCase() : 'item'} with the provided data.`}
                           />
                           
                           <MethodDoc 
                             method="PATCH" 
-                            endpoint={getApiEndpoint(contentTypeDetails.apiId, true)}
+                            endpoint={getApiEndpoint(contentTypeDetails?.apiId || '', true)}
                             requestSample={samples.patch.request} 
                             responseSample={samples.patch.response} 
-                            description={`Updates specific fields of an existing ${contentTypeDetails.displayName.toLowerCase()}.`}
+                            description={`Updates specific fields of an existing ${contentTypeDetails?.displayName ? contentTypeDetails.displayName.toLowerCase() : 'item'}.`}
                           />
                           
                           <MethodDoc 
                             method="DELETE" 
-                            endpoint={getApiEndpoint(contentTypeDetails.apiId, true)}
+                            endpoint={getApiEndpoint(contentTypeDetails?.apiId || '', true)}
                             responseSample={samples.delete.response} 
-                            description={`Deletes a ${contentTypeDetails.displayName.toLowerCase()} by its ID.`}
+                            description={`Deletes a ${contentTypeDetails?.displayName ? contentTypeDetails.displayName.toLowerCase() : 'item'} by its ID.`}
                           />
                         </>
                       )}
