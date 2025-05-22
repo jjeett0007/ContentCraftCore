@@ -481,7 +481,14 @@ export default function DeploymentTemplates() {
       // Deploy each content type in sequence
       for (const contentType of template.contentTypes) {
         try {
-          await apiRequest('/api/content-types', 'POST', contentType);
+          // Using proper HTTP method in the apiRequest function
+          const response = await apiRequest('/api/content-types', {
+            method: 'POST',
+            body: JSON.stringify(contentType),
+            headers: {
+              'Content-Type': 'application/json'
+            }
+          });
           
           deploymentResults.push({
             success: true,
