@@ -13,7 +13,7 @@ import { Switch } from "@/components/ui/switch";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { format } from "date-fns";
-import { CalendarIcon } from "lucide-react";
+import { CalendarIcon, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface DynamicFormProps {
@@ -74,7 +74,10 @@ export function DynamicForm({ fields, initialData, onSubmit, onCancel, isSubmitt
           }
           break;
         case "media":
-          fieldSchema = z.string().optional();
+          // Handle different validation for single vs multiple media uploads
+          fieldSchema = field.multiple 
+            ? z.array(z.string()).optional() 
+            : z.string().optional();
           break;
         case "relation":
           fieldSchema = field.relationMany 
@@ -93,10 +96,15 @@ export function DynamicForm({ fields, initialData, onSubmit, onCancel, isSubmitt
           });
         } else if (field.type === "boolean") {
           // Boolean fields don't need required modifier
-        } else if (field.type === "relation" && field.relationMany) {
+        } else if ((field.type === "relation" && field.relationMany) || (field.type === "media" && field.multiple)) {
           fieldSchema = z.array(z.string()).min(1, `At least one ${field.displayName} is required`);
-        } else {
+        } else if (typeof fieldSchema.min === 'function') {
           fieldSchema = fieldSchema.min(1, `${field.displayName} is required`);
+        } else {
+          // If min isn't available, use refine instead
+          fieldSchema = fieldSchema.refine(val => !!val, {
+            message: `${field.displayName} is required`
+          });
         }
       }
       
@@ -483,42 +491,119 @@ export function DynamicForm({ fields, initialData, onSubmit, onCancel, isSubmitt
       // For media and relation fields, we'll use simplified versions
       // since we don't have the full implementation here
       case "media":
-        return (
-          <FormField
-            key={field.name}
-            control={form.control}
-            name={field.name}
-            render={({ field: formField }) => (
-              <FormItem>
-                <FormLabel>{field.displayName}</FormLabel>
-                <FormControl>
-                  <div className="flex items-center space-x-2">
-                    <Input
-                      placeholder="Select media file..."
-                      readOnly
-                      value={formField.value || ""}
-                    />
-                    <Button 
-                      type="button" 
-                      variant="outline"
-                      onClick={() => {
-                        // This would open a media selection dialog
-                        // For now, just set a placeholder value
-                        formField.onChange("media-placeholder-id");
-                      }}
-                    >
-                      Select
-                    </Button>
-                  </div>
-                </FormControl>
-                <FormDescription>
-                  Select a media file from the library
-                </FormDescription>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        );
+        // Handle single or multiple media uploads based on field configuration
+        if (field.multiple) {
+          // Multiple file upload UI
+          return (
+            <FormField
+              key={field.name}
+              control={form.control}
+              name={field.name}
+              render={({ field: formField }) => (
+                <FormItem>
+                  <FormLabel>{field.displayName}</FormLabel>
+                  <FormControl>
+                    <div className="space-y-2">
+                      <div className="flex items-center space-x-2">
+                        <Button 
+                          type="button" 
+                          variant="outline"
+                          onClick={() => {
+                            // This would open a media selection dialog
+                            // For demo, add a media ID to the array
+                            const currentValue = Array.isArray(formField.value) ? formField.value : [];
+                            formField.onChange([...currentValue, `media-${Date.now()}`]);
+                          }}
+                        >
+                          Add Media
+                        </Button>
+                      </div>
+                      
+                      {/* Display selected media files */}
+                      <div className="grid grid-cols-2 gap-2 mt-2">
+                        {Array.isArray(formField.value) && formField.value.length > 0 ? (
+                          formField.value.map((mediaId, index) => (
+                            <div key={index} className="relative rounded border p-2 flex items-center justify-between">
+                              <span className="text-sm truncate">{mediaId}</span>
+                              <Button
+                                type="button"
+                                variant="ghost"
+                                size="icon"
+                                className="h-6 w-6"
+                                onClick={() => {
+                                  const newValue = [...formField.value];
+                                  newValue.splice(index, 1);
+                                  formField.onChange(newValue);
+                                }}
+                              >
+                                <X className="h-4 w-4" />
+                              </Button>
+                            </div>
+                          ))
+                        ) : (
+                          <div className="text-sm text-muted-foreground">No media files selected</div>
+                        )}
+                      </div>
+                    </div>
+                  </FormControl>
+                  <FormDescription>
+                    Select multiple media files from the library
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          );
+        } else {
+          // Single file upload UI
+          return (
+            <FormField
+              key={field.name}
+              control={form.control}
+              name={field.name}
+              render={({ field: formField }) => (
+                <FormItem>
+                  <FormLabel>{field.displayName}</FormLabel>
+                  <FormControl>
+                    <div className="flex items-center space-x-2">
+                      <Input
+                        placeholder="Select media file..."
+                        readOnly
+                        value={formField.value || ""}
+                      />
+                      <Button 
+                        type="button" 
+                        variant="outline"
+                        onClick={() => {
+                          // This would open a media selection dialog
+                          // For now, just set a placeholder value
+                          formField.onChange(`media-${Date.now()}`);
+                        }}
+                      >
+                        Select
+                      </Button>
+                      {formField.value && (
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8"
+                          onClick={() => formField.onChange("")}
+                        >
+                          <X className="h-4 w-4" />
+                        </Button>
+                      )}
+                    </div>
+                  </FormControl>
+                  <FormDescription>
+                    Select a media file from the library
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          );
+        }
       
       case "relation":
         return (
