@@ -2587,6 +2587,31 @@ export default function DeploymentTemplates() {
             Jump-start your project with pre-built content models
           </p>
         </div>
+        
+        {selectedCategory === "ecommerce" && (
+          <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 p-6 rounded-lg border border-blue-100 dark:border-blue-800">
+            <h2 className="text-xl font-semibold mb-2 text-blue-700 dark:text-blue-300 flex items-center">
+              <ShoppingBag className="h-5 w-5 mr-2" /> E-commerce Templates
+            </h2>
+            <p className="text-blue-700 dark:text-blue-300 mb-4">
+              Quick-start your online store with these specialized e-commerce templates. Each template includes carefully designed content types with fields optimized for different business models.
+            </p>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="bg-white dark:bg-gray-800 p-4 rounded-md shadow-sm">
+                <h3 className="font-medium text-blue-600 dark:text-blue-300">General Store</h3>
+                <p className="text-sm text-gray-600 dark:text-gray-300 mt-1">Products, categories, customers, and orders for a traditional e-commerce business.</p>
+              </div>
+              <div className="bg-white dark:bg-gray-800 p-4 rounded-md shadow-sm">
+                <h3 className="font-medium text-blue-600 dark:text-blue-300">Digital Products</h3>
+                <p className="text-sm text-gray-600 dark:text-gray-300 mt-1">Downloadable products with licenses, automated delivery, and usage tracking.</p>
+              </div>
+              <div className="bg-white dark:bg-gray-800 p-4 rounded-md shadow-sm">
+                <h3 className="font-medium text-blue-600 dark:text-blue-300">Fashion & Clothing</h3>
+                <p className="text-sm text-gray-600 dark:text-gray-300 mt-1">Specialized for apparel with collections, sizes, colors, materials, and seasonal organization.</p>
+              </div>
+            </div>
+          </div>
+        )}
 
         <Tabs
           defaultValue={selectedCategory}
@@ -2824,15 +2849,29 @@ interface TemplateCardProps {
 
 function TemplateCard({ template, onSelect, conflicts }: TemplateCardProps) {
   const hasConflicts = conflicts.length > 0;
+  const isEcommerce = template.category === "ecommerce";
 
   return (
-    <Card className="overflow-hidden transition-shadow hover:shadow-md">
-      <CardHeader>
+    <Card className={`overflow-hidden transition-all ${
+      isEcommerce ? "hover:shadow-md hover:-translate-y-1 duration-300" : "hover:shadow-sm"
+    }`}>
+      <CardHeader className={isEcommerce ? 
+        "bg-gradient-to-r from-blue-50/50 to-indigo-50/50 dark:from-blue-900/30 dark:to-indigo-900/30 border-b" : 
+        ""}>
         <CardTitle className="flex items-center gap-2">
-          <div className="p-2 rounded-md bg-primary/10 text-primary">
+          <div className={`p-2 rounded-md ${
+            isEcommerce 
+              ? "bg-blue-100 text-blue-600 dark:bg-blue-900/50 dark:text-blue-300" 
+              : "bg-primary/10 text-primary"
+          }`}>
             {template.icon}
           </div>
           <span>{template.name}</span>
+          {isEcommerce && (
+            <Badge className="ml-2 bg-blue-100 text-blue-600 hover:bg-blue-200 dark:bg-blue-900/50 dark:text-blue-300">
+              E-commerce
+            </Badge>
+          )}
         </CardTitle>
         <CardDescription>{template.description}</CardDescription>
       </CardHeader>
@@ -2841,12 +2880,14 @@ function TemplateCard({ template, onSelect, conflicts }: TemplateCardProps) {
           <div>
             <h4 className="text-sm font-medium mb-2">Content Types</h4>
             <ul className="space-y-1">
-              {template.contentTypes.map((contentType: any) => (
+              {template.contentTypes.slice(0, 5).map((contentType: any) => (
                 <li
                   key={contentType.apiId}
                   className="text-sm flex items-center gap-1"
                 >
-                  <span className="inline-block w-1.5 h-1.5 rounded-full bg-primary/60 mr-1"></span>
+                  <span className={`inline-block w-1.5 h-1.5 rounded-full ${
+                    isEcommerce ? "bg-blue-500" : "bg-primary/60"
+                  } mr-1`}></span>
                   {contentType.displayName}
                   {conflicts.includes(contentType.apiId) && (
                     <Badge
@@ -2858,6 +2899,11 @@ function TemplateCard({ template, onSelect, conflicts }: TemplateCardProps) {
                   )}
                 </li>
               ))}
+              {template.contentTypes.length > 5 && (
+                <li className="text-sm text-muted-foreground italic mt-1">
+                  + {template.contentTypes.length - 5} more content types
+                </li>
+              )}
             </ul>
           </div>
         </div>
@@ -2865,8 +2911,13 @@ function TemplateCard({ template, onSelect, conflicts }: TemplateCardProps) {
       <CardFooter>
         <Dialog>
           <DialogTrigger asChild>
-            <Button variant="outline" className="w-full" onClick={onSelect}>
-              {hasConflicts ? "View Conflicts" : "Deploy Template"}
+            <Button 
+              variant={isEcommerce ? "default" : "outline"} 
+              className="w-full"
+              onClick={onSelect}
+              {...(isEcommerce && {className: "w-full bg-blue-600 hover:bg-blue-700 dark:bg-blue-700 dark:hover:bg-blue-600"})}
+            >
+              {hasConflicts ? "View Conflicts" : (isEcommerce ? "Quick Deploy" : "Deploy Template")}
             </Button>
           </DialogTrigger>
         </Dialog>
