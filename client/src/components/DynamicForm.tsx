@@ -17,6 +17,7 @@ import { CalendarIcon, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { MediaSelectionDialog } from "@/components/MediaSelectionDialog";
 import { MediaPreview } from "@/components/MediaPreview";
+import { RelationSelectionDialog } from "@/components/RelationSelectionDialog";
 
 interface DynamicFormProps {
   fields: any[];
@@ -635,35 +636,135 @@ export function DynamicForm({ fields, initialData, onSubmit, onCancel, isSubmitt
             key={field.name}
             control={form.control}
             name={field.name}
-            render={({ field: formField }) => (
-              <FormItem>
-                <FormLabel>{field.displayName}</FormLabel>
-                <FormControl>
-                  <div className="flex items-center space-x-2">
-                    <Input
-                      placeholder={`Select related ${field.relationTo || "item"}...`}
-                      readOnly
-                      value={formField.value || ""}
-                    />
+            render={({ field: formField }) => {
+              const [relationDialogOpen, setRelationDialogOpen] = useState(false);
+              const { data: relatedContentType } = useQuery({
+                queryKey: [`/api/content-types/${field.relationTo}`],
+                enabled: !!field.relationTo,
+              });
+              
+              // Function to render related item preview
+              const renderRelatedItemPreview = () => {
+                // For single relation (default)
+                if (!field.relationMany) {
+                  return (
+                    <div className="space-y-2">
+                      <div className="flex items-center space-x-2">
+                        <Input
+                          placeholder={`Select ${field.relationTo} item...`}
+                          readOnly
+                          value={formField.value || ""}
+                          onClick={() => setRelationDialogOpen(true)}
+                          className="cursor-pointer"
+                        />
+                        <Button 
+                          type="button" 
+                          variant="outline"
+                          onClick={() => setRelationDialogOpen(true)}
+                        >
+                          Select
+                        </Button>
+                        {formField.value && (
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8"
+                            onClick={() => formField.onChange("")}
+                          >
+                            <X className="h-4 w-4" />
+                          </Button>
+                        )}
+                      </div>
+                      
+                      {/* Preview of selected related item */}
+                      {formField.value && (
+                        <div className="border rounded-md p-3 bg-muted/20">
+                          <div className="flex justify-between items-center">
+                            <span className="text-sm font-medium">{relatedContentType?.displayName || field.relationTo}</span>
+                            <span className="text-xs text-muted-foreground">ID: {formField.value}</span>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  );
+                }
+                
+                // For multiple relations
+                return (
+                  <div className="space-y-4">
                     <Button 
                       type="button" 
                       variant="outline"
-                      onClick={() => {
-                        // This would open a relation selection dialog
-                        // For now, just set a placeholder value
-                        formField.onChange("relation-placeholder-id");
-                      }}
+                      onClick={() => setRelationDialogOpen(true)}
                     >
-                      Select
+                      Select {relatedContentType?.displayName || field.relationTo} Items
                     </Button>
+                    
+                    {/* Display selected related items */}
+                    <div className="space-y-2">
+                      {Array.isArray(formField.value) && formField.value.length > 0 ? (
+                        <div className="border rounded-md divide-y">
+                          {formField.value.map((itemId, index) => (
+                            <div key={index} className="flex justify-between items-center p-3">
+                              <div>
+                                <div className="font-medium">{relatedContentType?.displayName || field.relationTo}</div>
+                                <div className="text-xs text-muted-foreground">ID: {itemId}</div>
+                              </div>
+                              <Button
+                                type="button"
+                                variant="ghost"
+                                size="icon"
+                                className="h-8 w-8"
+                                onClick={() => {
+                                  const newValue = [...formField.value];
+                                  newValue.splice(index, 1);
+                                  formField.onChange(newValue);
+                                }}
+                              >
+                                <X className="h-4 w-4" />
+                              </Button>
+                            </div>
+                          ))}
+                        </div>
+                      ) : (
+                        <div className="text-sm text-muted-foreground py-2">
+                          No {relatedContentType?.displayName || field.relationTo} items selected
+                        </div>
+                      )}
+                    </div>
                   </div>
-                </FormControl>
-                <FormDescription>
-                  Select a related {field.relationTo || "item"}
-                </FormDescription>
-                <FormMessage />
-              </FormItem>
-            )}
+                );
+              };
+              
+              return (
+                <FormItem>
+                  <FormLabel>{field.displayName}</FormLabel>
+                  <FormControl>
+                    {renderRelatedItemPreview()}
+                  </FormControl>
+                  <FormDescription>
+                    {field.relationMany 
+                      ? `Select one or more related ${field.relationTo || "items"}`
+                      : `Select a related ${field.relationTo || "item"}`
+                    }
+                  </FormDescription>
+                  <FormMessage />
+                  
+                  {/* Relation Selection Dialog */}
+                  <RelationSelectionDialog
+                    open={relationDialogOpen}
+                    onOpenChange={setRelationDialogOpen}
+                    multiple={!!field.relationMany}
+                    relationTo={field.relationTo || ""}
+                    currentSelection={formField.value}
+                    onSelect={(selectedItems) => {
+                      formField.onChange(selectedItems);
+                    }}
+                  />
+                </FormItem>
+              );
+            }}
           />
         );
       
