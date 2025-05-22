@@ -16,6 +16,7 @@ import UserManagement from "@/pages/UserManagement";
 import MediaLibrary from "@/pages/MediaLibrary";
 import Settings from "@/pages/Settings";
 import ApiDocumentation from "@/pages/ApiDocumentation";
+import DeploymentTemplates from "@/pages/DeploymentTemplates";
 
 // Auth Provider
 import { AuthProvider } from "@/hooks/use-auth";
@@ -41,6 +42,7 @@ function Router() {
       <Route path="/media" component={MediaLibrary} />
       <Route path="/settings" component={Settings} />
       <Route path="/api-docs" component={ApiDocumentation} />
+      <Route path="/deployment-templates" component={DeploymentTemplates} />
       
       {/* Fallback to 404 */}
       <Route component={NotFound} />

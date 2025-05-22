@@ -42,6 +42,12 @@ export function Sidebar({ open, onClose }: SidebarProps) {
           icon: "extension",
           path: "/content-manager",
         },
+        {
+          name: "Deployment Templates",
+          icon: "rocket_launch",
+          path: "/deployment-templates",
+          requiredRole: "admin",
+        },
       ],
     },
     {

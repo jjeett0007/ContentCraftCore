@@ -45,42 +45,46 @@ export default function ApiDocumentation() {
   const generateSamples = (contentType: any) => {
     if (!contentType) return { post: {}, get: {}, getById: {}, put: {}, patch: {}, delete: {} };
     
-    const fields = contentType.fields;
+    const fields = contentType.fields || [];
     const sampleData: any = {};
     const sampleId = "123456789";
     
     // Create sample data based on field types
-    fields.forEach((field: any) => {
-      switch (field.type) {
-        case 'text':
-          sampleData[field.name] = `Sample ${field.displayName}`;
-          break;
-        case 'number':
-          sampleData[field.name] = 42;
-          break;
-        case 'boolean':
-          sampleData[field.name] = true;
-          break;
-        case 'date':
-          sampleData[field.name] = new Date().toISOString();
-          break;
-        case 'email':
-          sampleData[field.name] = "user@example.com";
-          break;
-        case 'url':
-          sampleData[field.name] = "https://example.com";
-          break;
-        case 'select':
-          if (field.options && field.options.length > 0) {
-            sampleData[field.name] = field.options[0];
-          } else {
-            sampleData[field.name] = "option1";
-          }
-          break;
-        default:
-          sampleData[field.name] = "Sample value";
-      }
-    });
+    if (Array.isArray(fields)) {
+      fields.forEach((field: any) => {
+        if (!field || typeof field !== 'object') return;
+        
+        switch (field.type) {
+          case 'text':
+            sampleData[field.name] = `Sample ${field.displayName}`;
+            break;
+          case 'number':
+            sampleData[field.name] = 42;
+            break;
+          case 'boolean':
+            sampleData[field.name] = true;
+            break;
+          case 'date':
+            sampleData[field.name] = new Date().toISOString();
+            break;
+          case 'email':
+            sampleData[field.name] = "user@example.com";
+            break;
+          case 'url':
+            sampleData[field.name] = "https://example.com";
+            break;
+          case 'select':
+            if (field.options && field.options.length > 0) {
+              sampleData[field.name] = field.options[0];
+            } else {
+              sampleData[field.name] = "option1";
+            }
+            break;
+          default:
+            sampleData[field.name] = "Sample value";
+        }
+      });
+    }
 
     return {
       post: {
