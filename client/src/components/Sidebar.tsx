@@ -78,6 +78,12 @@ export function Sidebar({ open, onClose }: SidebarProps) {
           path: "/settings",
           requiredRole: "admin",
         },
+        {
+          name: "API Documentation",
+          icon: "code",
+          path: "/api-docs",
+          requiredRole: "admin",
+        },
       ],
     },
   ];
