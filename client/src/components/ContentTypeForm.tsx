@@ -12,6 +12,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { FieldTypeSelector } from "@/components/FieldTypeSelector";
 import { AlertCircle, ChevronRight, Plus, Trash2 } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { useQuery } from "@tanstack/react-query";
 
 interface ContentTypeFormProps {
   initialData?: any;
@@ -64,6 +65,12 @@ type ContentTypeFormValues = z.infer<typeof contentTypeSchema>;
 
 export function ContentTypeForm({ initialData, onSubmit, onCancel, isSubmitting }: ContentTypeFormProps) {
   const [activeTab, setActiveTab] = useState("general");
+  
+  // Fetch content types for relation fields
+  const { data: contentTypes = [] } = useQuery({
+    queryKey: ['/api/content-types'],
+    staleTime: 60000,
+  });
 
   // Initialize the form
   const form = useForm<ContentTypeFormValues>({
@@ -333,7 +340,7 @@ export function ContentTypeForm({ initialData, onSubmit, onCancel, isSubmitting 
                       <FieldTypeSelector 
                         fieldIndex={index} 
                         control={form.control} 
-                        contentTypes={[]} // Will be populated with actual content types for relation fields
+                        contentTypes={contentTypes} 
                         fieldTypeOptions={fieldTypeOptions} 
                       />
                     </div>
