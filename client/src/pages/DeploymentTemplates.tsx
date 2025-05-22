@@ -310,7 +310,7 @@ const templates = [
             required: false,
             unique: false,
             relationMany: false,
-            relationTo: "product-categories",
+            relationTo: "product_categories",
           },
           {
             name: "featured",
@@ -333,7 +333,7 @@ const templates = [
       },
       {
         displayName: "Product Categories",
-        apiId: "product-categories",
+        apiId: "product_categories",
         description: "Categories for products",
         fields: [
           {
@@ -526,7 +526,7 @@ const templates = [
     contentTypes: [
       {
         displayName: "Digital Products",
-        apiId: "digital-products",
+        apiId: "digital_products",
         description: "Digital products for your store",
         fields: [
           {
@@ -657,7 +657,7 @@ const templates = [
       },
       {
         displayName: "Digital Product Categories",
-        apiId: "digital-product-categories",
+        apiId: "digital_product_categories",
         description: "Categories for digital products",
         fields: [
           {
@@ -812,7 +812,7 @@ const templates = [
     contentTypes: [
       {
         displayName: "Subscription Plans",
-        apiId: "subscription-plans",
+        apiId: "subscription_plans",
         description: "Subscription plans for your services",
         fields: [
           {
@@ -951,7 +951,7 @@ const templates = [
       },
       {
         displayName: "Billing History",
-        apiId: "billing-history",
+        apiId: "billing_history",
         description: "Subscription billing history",
         fields: [
           {
@@ -1009,7 +1009,7 @@ const templates = [
     contentTypes: [
       {
         displayName: "Clothing Products",
-        apiId: "clothing-products",
+        apiId: "clothing_products",
         description: "Clothing and fashion products",
         fields: [
           {
@@ -1149,7 +1149,7 @@ const templates = [
       },
       {
         displayName: "Clothing Categories",
-        apiId: "clothing-categories",
+        apiId: "clothing_categories",
         description: "Categories for clothing products",
         fields: [
           {
