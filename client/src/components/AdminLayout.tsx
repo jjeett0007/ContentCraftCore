@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useLocation } from "wouter";
 import { useTheme } from "@/lib/theme";
+import { ThemeToggle } from "@/components/ThemeToggle";
 
 interface AdminLayoutProps {
   children: ReactNode;
@@ -60,6 +61,9 @@ export function AdminLayout({ children, pageTitle = "Dashboard" }: AdminLayoutPr
                 <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-200">{pageTitle}</h2>
               </div>
               <div className="ml-4 flex items-center md:ml-6 space-x-2">
+                {/* Theme Toggle */}
+                <ThemeToggle />
+                
                 {/* Notification Bell */}
                 <Button 
                   variant="ghost" 
@@ -107,8 +111,8 @@ export function AdminLayout({ children, pageTitle = "Dashboard" }: AdminLayoutPr
                     <DropdownMenuItem onSelect={() => navigate("/settings")}>
                       Settings
                     </DropdownMenuItem>
-                    <DropdownMenuItem onSelect={() => setTheme(theme === "dark" ? "light" : "dark")}>
-                      Toggle Theme
+                    <DropdownMenuItem onSelect={() => navigate("/settings")}>
+                      Profile
                     </DropdownMenuItem>
                     <DropdownMenuSeparator />
                     <DropdownMenuItem onSelect={handleLogout}>
