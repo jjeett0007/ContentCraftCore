@@ -8,6 +8,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import { queryClient } from "@/lib/queryClient";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { 
   Table, 
   TableBody, 
@@ -62,6 +63,8 @@ export default function ContentEntries() {
   
   // State
   const [page, setPage] = useState(1);
+  const [sortField, setSortField] = useState("createdAt");
+  const [sortOrder, setSortOrder] = useState("desc");
   const [search, setSearch] = useState("");
   const [showForm, setShowForm] = useState(false);
   const [editingEntry, setEditingEntry] = useState<any>(null);
@@ -84,7 +87,13 @@ export default function ContentEntries() {
 
   // Fetch content entries
   const { data: entriesData, isLoading: entriesLoading } = useQuery({
-    queryKey: [`/api/content/${contentType}`, page, search],
+    queryKey: [`/api/content/${contentType}`, page, search, sortField, sortOrder],
+    queryFn: async () => {
+      const searchParam = search ? `&search=${encodeURIComponent(search)}` : '';
+      const sortParams = `&sortField=${sortField}&sortOrder=${sortOrder}`;
+      const response = await fetch(`/api/content/${contentType}?page=${page}&limit=${limit}${searchParam}${sortParams}`);
+      return response.json();
+    },
     enabled: isAuthenticated && !!contentType,
   });
 
