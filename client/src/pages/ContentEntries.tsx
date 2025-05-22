@@ -429,7 +429,25 @@ function formatFieldValue(value: any, type: string): React.ReactNode {
         return <MediaPreview mediaIds={value} small={true} />;
       }
     case 'relation':
-      return <span className="text-accent">Related item</span>;
+      // Display relation differently based on whether it's a single or multiple relation
+      if (Array.isArray(value)) {
+        return (
+          <div className="flex items-center">
+            <span className="text-accent text-sm font-medium">
+              {value.length} related {value.length === 1 ? 'item' : 'items'}
+            </span>
+          </div>
+        );
+      } else {
+        return (
+          <div className="flex items-center">
+            <span className="text-accent text-sm font-medium">
+              {value ? 'Related item' : 'No relation'}
+            </span>
+            {value && <span className="text-xs text-muted-foreground ml-1">ID: {value}</span>}
+          </div>
+        );
+      }
     case 'richtext':
       return value.length > 50 ? `${value.substring(0, 50)}...` : value;
     default:
