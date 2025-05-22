@@ -59,7 +59,7 @@ const templates = [
     contentTypes: [
       {
         displayName: "Blog Posts",
-        apiId: "blog-posts",
+        apiId: "blog_posts",
         description: "Blog posts for your site",
         fields: [
           {
@@ -109,7 +109,7 @@ const templates = [
             required: false,
             unique: false,
             relationMany: false,
-            relationTo: "blog-categories",
+            relationTo: "blog_categories",
           },
           {
             name: "author",
@@ -118,7 +118,7 @@ const templates = [
             required: true,
             unique: false,
             relationMany: false,
-            relationTo: "blog-authors",
+            relationTo: "blog_authors",
           },
           {
             name: "tags",
@@ -149,7 +149,7 @@ const templates = [
       },
       {
         displayName: "Categories",
-        apiId: "blog-categories",
+        apiId: "blog_categories",
         description: "Categories for blog posts",
         fields: [
           {
@@ -180,7 +180,7 @@ const templates = [
       },
       {
         displayName: "Authors",
-        apiId: "blog-authors",
+        apiId: "blog_authors",
         description: "Authors for blog posts",
         fields: [
           {
@@ -609,7 +609,7 @@ const templates = [
             required: false,
             unique: false,
             relationMany: false,
-            relationTo: "digital-product-categories",
+            relationTo: "digital_product_categories",
           },
           {
             name: "featured",
@@ -714,7 +714,7 @@ const templates = [
             required: true,
             unique: false,
             relationMany: false,
-            relationTo: "digital-products",
+            relationTo: "digital_products",
           },
           {
             name: "customer",
@@ -764,7 +764,7 @@ const templates = [
             required: true,
             unique: false,
             relationMany: false,
-            relationTo: "digital-products",
+            relationTo: "digital_products",
           },
           {
             name: "customer",
@@ -904,7 +904,7 @@ const templates = [
             required: true,
             unique: false,
             relationMany: false,
-            relationTo: "subscription-plans",
+            relationTo: "subscription_plans",
           },
           {
             name: "startDate",
@@ -1076,7 +1076,7 @@ const templates = [
             required: true,
             unique: false,
             relationMany: false,
-            relationTo: "clothing-categories",
+            relationTo: "clothing_categories",
           },
           {
             name: "gender",
@@ -1191,7 +1191,7 @@ const templates = [
             required: false,
             unique: false,
             relationMany: false,
-            relationTo: "clothing-categories",
+            relationTo: "clothing_categories",
           },
         ],
       },
@@ -1423,7 +1423,7 @@ const templates = [
       },
       {
         displayName: "Project Categories",
-        apiId: "project-categories",
+        apiId: "project_categories",
         description: "Categories for projects",
         fields: [
           {
@@ -1574,7 +1574,7 @@ const templates = [
     contentTypes: [
       {
         displayName: "Team Members",
-        apiId: "team-members",
+        apiId: "team_members",
         description: "Team member profiles",
         fields: [
           {
@@ -1818,7 +1818,7 @@ const templates = [
       },
       {
         displayName: "Event Categories",
-        apiId: "event-categories",
+        apiId: "event_categories",
         description: "Categories for events",
         fields: [
           {
@@ -1915,7 +1915,7 @@ const templates = [
     contentTypes: [
       {
         displayName: "Articles",
-        apiId: "kb-articles",
+        apiId: "kb_articles",
         description: "Knowledge base articles",
         fields: [
           {
@@ -1988,7 +1988,7 @@ const templates = [
       },
       {
         displayName: "Categories",
-        apiId: "kb-categories",
+        apiId: "kb_categories",
         description: "Knowledge base categories",
         fields: [
           {
@@ -2093,7 +2093,7 @@ const templates = [
     contentTypes: [
       {
         displayName: "Tickets",
-        apiId: "support-tickets",
+        apiId: "support_tickets",
         description: "Support tickets",
         fields: [
           {
@@ -2199,7 +2199,7 @@ const templates = [
       },
       {
         displayName: "Ticket Responses",
-        apiId: "ticket-responses",
+        apiId: "ticket_responses",
         description: "Responses to support tickets",
         fields: [
           {
@@ -2256,7 +2256,7 @@ const templates = [
       },
       {
         displayName: "Ticket Categories",
-        apiId: "ticket-categories",
+        apiId: "ticket_categories",
         description: "Categories for support tickets",
         fields: [
           {
@@ -2297,7 +2297,7 @@ const templates = [
     contentTypes: [
       {
         displayName: "API Endpoints",
-        apiId: "api-endpoints",
+        apiId: "api_endpoints",
         description: "API endpoints documentation",
         fields: [
           {
@@ -2386,7 +2386,7 @@ const templates = [
       },
       {
         displayName: "API Groups",
-        apiId: "api-groups",
+        apiId: "api_groups",
         description: "Logical grouping of API endpoints",
         fields: [
           {
