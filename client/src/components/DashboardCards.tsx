@@ -1,0 +1,84 @@
+import { useQuery } from "@tanstack/react-query";
+
+interface DashboardCardsProps {
+  contentTypes: any[];
+}
+
+export function DashboardCards({ contentTypes }: DashboardCardsProps) {
+  // Fetch media count
+  const { data: mediaData, isLoading: mediaLoading } = useQuery({
+    queryKey: ["/api/media/count"],
+  });
+  
+  // Fetch user count
+  const { data: userData, isLoading: userLoading } = useQuery({
+    queryKey: ["/api/users/count"],
+  });
+  
+  // Calculate API endpoint count (4 endpoints per content type)
+  const apiEndpointCount = contentTypes.length * 4;
+  
+  return (
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+      {/* Content Types Card */}
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-4">
+        <div className="flex items-center">
+          <div className="flex-shrink-0 p-3 rounded-md bg-primary/10">
+            <span className="material-icons text-primary">data_object</span>
+          </div>
+          <div className="ml-4">
+            <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400">Content Types</h3>
+            <p className="text-lg font-semibold text-gray-800 dark:text-gray-200">
+              {contentTypes.length}
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* API Endpoints Card */}
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-4">
+        <div className="flex items-center">
+          <div className="flex-shrink-0 p-3 rounded-md bg-secondary/10">
+            <span className="material-icons text-secondary">api</span>
+          </div>
+          <div className="ml-4">
+            <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400">API Endpoints</h3>
+            <p className="text-lg font-semibold text-gray-800 dark:text-gray-200">
+              {apiEndpointCount}
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* Media Files Card */}
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-4">
+        <div className="flex items-center">
+          <div className="flex-shrink-0 p-3 rounded-md bg-accent/10">
+            <span className="material-icons text-accent">perm_media</span>
+          </div>
+          <div className="ml-4">
+            <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400">Media Files</h3>
+            <p className="text-lg font-semibold text-gray-800 dark:text-gray-200">
+              {mediaLoading ? "..." : mediaData?.count || 0}
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* Users Card */}
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-4">
+        <div className="flex items-center">
+          <div className="flex-shrink-0 p-3 rounded-md bg-dark/10">
+            <span className="material-icons text-dark">people</span>
+          </div>
+          <div className="ml-4">
+            <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400">Users</h3>
+            <p className="text-lg font-semibold text-gray-800 dark:text-gray-200">
+              {userLoading ? "..." : userData?.count || 0}
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
