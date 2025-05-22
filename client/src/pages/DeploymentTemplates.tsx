@@ -3,12 +3,39 @@ import { useQuery, useMutation } from "@tanstack/react-query";
 import { useLocation } from "wouter";
 import { AdminLayout } from "@/components/AdminLayout";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
-import { Terminal, CheckCircle, AlertTriangle, FileText, ShoppingBag, Users, Calendar, Image, FileCode, Newspaper, MessageSquare, AlertCircle } from "lucide-react";
+import {
+  Terminal,
+  CheckCircle,
+  AlertTriangle,
+  FileText,
+  ShoppingBag,
+  Users,
+  Calendar,
+  Image,
+  FileCode,
+  Newspaper,
+  MessageSquare,
+  AlertCircle,
+} from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 
@@ -35,40 +62,169 @@ const templates = [
         apiId: "blog-posts",
         description: "Blog posts for your site",
         fields: [
-          { name: "title", displayName: "Title", type: "text", required: true, unique: true, relationMany: false },
-          { name: "content", displayName: "Content", type: "richText", required: true, unique: false, relationMany: false },
-          { name: "slug", displayName: "Slug", type: "text", required: true, unique: true, relationMany: false },
-          { name: "featuredImage", displayName: "Featured Image", type: "media", required: false, unique: false, relationMany: false },
-          { name: "excerpt", displayName: "Excerpt", type: "text", required: false, unique: false, relationMany: false },
-          { name: "category", displayName: "Category", type: "relation", required: false, unique: false, relationMany: false, relationTo: "blog-categories" },
-          { name: "author", displayName: "Author", type: "relation", required: true, unique: false, relationMany: false, relationTo: "blog-authors" },
-          { name: "tags", displayName: "Tags", type: "text", required: false, unique: false, relationMany: true },
-          { name: "publishedDate", displayName: "Published Date", type: "date", required: false, unique: false, relationMany: false },
-          { name: "status", displayName: "Status", type: "select", required: true, unique: false, relationMany: false, options: ["draft", "published", "archived"] },
-        ]
+          {
+            name: "title",
+            displayName: "Title",
+            type: "text",
+            required: true,
+            unique: true,
+            relationMany: false,
+          },
+          {
+            name: "content",
+            displayName: "Content",
+            type: "richText",
+            required: true,
+            unique: false,
+            relationMany: false,
+          },
+          {
+            name: "slug",
+            displayName: "Slug",
+            type: "text",
+            required: true,
+            unique: true,
+            relationMany: false,
+          },
+          {
+            name: "featuredImage",
+            displayName: "Featured Image",
+            type: "media",
+            required: false,
+            unique: false,
+            relationMany: false,
+          },
+          {
+            name: "excerpt",
+            displayName: "Excerpt",
+            type: "text",
+            required: false,
+            unique: false,
+            relationMany: false,
+          },
+          {
+            name: "category",
+            displayName: "Category",
+            type: "relation",
+            required: false,
+            unique: false,
+            relationMany: false,
+            relationTo: "blog-categories",
+          },
+          {
+            name: "author",
+            displayName: "Author",
+            type: "relation",
+            required: true,
+            unique: false,
+            relationMany: false,
+            relationTo: "blog-authors",
+          },
+          {
+            name: "tags",
+            displayName: "Tags",
+            type: "text",
+            required: false,
+            unique: false,
+            relationMany: true,
+          },
+          {
+            name: "publishedDate",
+            displayName: "Published Date",
+            type: "date",
+            required: false,
+            unique: false,
+            relationMany: false,
+          },
+          {
+            name: "status",
+            displayName: "Status",
+            type: "select",
+            required: true,
+            unique: false,
+            relationMany: false,
+            options: ["draft", "published", "archived"],
+          },
+        ],
       },
       {
         displayName: "Categories",
         apiId: "blog-categories",
         description: "Categories for blog posts",
         fields: [
-          { name: "name", displayName: "Name", type: "text", required: true, unique: true, relationMany: false },
-          { name: "slug", displayName: "Slug", type: "text", required: true, unique: true, relationMany: false },
-          { name: "description", displayName: "Description", type: "text", required: false, unique: false, relationMany: false },
-        ]
+          {
+            name: "name",
+            displayName: "Name",
+            type: "text",
+            required: true,
+            unique: true,
+            relationMany: false,
+          },
+          {
+            name: "slug",
+            displayName: "Slug",
+            type: "text",
+            required: true,
+            unique: true,
+            relationMany: false,
+          },
+          {
+            name: "description",
+            displayName: "Description",
+            type: "text",
+            required: false,
+            unique: false,
+            relationMany: false,
+          },
+        ],
       },
       {
         displayName: "Authors",
         apiId: "blog-authors",
         description: "Authors for blog posts",
         fields: [
-          { name: "name", displayName: "Name", type: "text", required: true, unique: true, relationMany: false },
-          { name: "bio", displayName: "Biography", type: "text", required: false, unique: false, relationMany: false },
-          { name: "email", displayName: "Email", type: "email", required: false, unique: true, relationMany: false },
-          { name: "avatar", displayName: "Avatar", type: "media", required: false, unique: false, relationMany: false },
-          { name: "socialLinks", displayName: "Social Links", type: "json", required: false, unique: false, relationMany: false },
-        ]
-      }
+          {
+            name: "name",
+            displayName: "Name",
+            type: "text",
+            required: true,
+            unique: true,
+            relationMany: false,
+          },
+          {
+            name: "bio",
+            displayName: "Biography",
+            type: "text",
+            required: false,
+            unique: false,
+            relationMany: false,
+          },
+          {
+            name: "email",
+            displayName: "Email",
+            type: "email",
+            required: false,
+            unique: true,
+            relationMany: false,
+          },
+          {
+            name: "avatar",
+            displayName: "Avatar",
+            type: "media",
+            required: false,
+            unique: false,
+            relationMany: false,
+          },
+          {
+            name: "socialLinks",
+            displayName: "Social Links",
+            type: "json",
+            required: false,
+            unique: false,
+            relationMany: false,
+          },
+        ],
+      },
     ],
   },
   {
@@ -83,59 +239,282 @@ const templates = [
         apiId: "products",
         description: "Products for your store",
         fields: [
-          { name: "name", displayName: "Name", type: "text", required: true, unique: true, relationMany: false },
-          { name: "description", displayName: "Description", type: "richText", required: true, unique: false, relationMany: false },
-          { name: "price", displayName: "Price", type: "number", required: true, unique: false, relationMany: false },
-          { name: "salePrice", displayName: "Sale Price", type: "number", required: false, unique: false, relationMany: false },
-          { name: "slug", displayName: "Slug", type: "text", required: true, unique: true, relationMany: false },
-          { name: "sku", displayName: "SKU", type: "text", required: true, unique: true, relationMany: false },
-          { name: "inventory", displayName: "Inventory Count", type: "number", required: true, unique: false, relationMany: false },
-          { name: "images", displayName: "Product Images", type: "media", required: false, unique: false, relationMany: true },
-          { name: "category", displayName: "Category", type: "relation", required: false, unique: false, relationMany: false, relationTo: "product-categories" },
-          { name: "featured", displayName: "Featured Product", type: "boolean", required: false, unique: false, relationMany: false },
-          { name: "status", displayName: "Status", type: "select", required: true, unique: false, relationMany: false, options: ["draft", "published", "out-of-stock"] },
-        ]
+          {
+            name: "name",
+            displayName: "Name",
+            type: "text",
+            required: true,
+            unique: true,
+            relationMany: false,
+          },
+          {
+            name: "description",
+            displayName: "Description",
+            type: "richText",
+            required: true,
+            unique: false,
+            relationMany: false,
+          },
+          {
+            name: "price",
+            displayName: "Price",
+            type: "number",
+            required: true,
+            unique: false,
+            relationMany: false,
+          },
+          {
+            name: "salePrice",
+            displayName: "Sale Price",
+            type: "number",
+            required: false,
+            unique: false,
+            relationMany: false,
+          },
+          {
+            name: "slug",
+            displayName: "Slug",
+            type: "text",
+            required: true,
+            unique: true,
+            relationMany: false,
+          },
+          {
+            name: "sku",
+            displayName: "SKU",
+            type: "text",
+            required: true,
+            unique: true,
+            relationMany: false,
+          },
+          {
+            name: "inventory",
+            displayName: "Inventory Count",
+            type: "number",
+            required: true,
+            unique: false,
+            relationMany: false,
+          },
+          {
+            name: "images",
+            displayName: "Product Images",
+            type: "media",
+            required: false,
+            unique: false,
+            relationMany: true,
+          },
+          {
+            name: "category",
+            displayName: "Category",
+            type: "relation",
+            required: false,
+            unique: false,
+            relationMany: false,
+            relationTo: "product-categories",
+          },
+          {
+            name: "featured",
+            displayName: "Featured Product",
+            type: "boolean",
+            required: false,
+            unique: false,
+            relationMany: false,
+          },
+          {
+            name: "status",
+            displayName: "Status",
+            type: "select",
+            required: true,
+            unique: false,
+            relationMany: false,
+            options: ["draft", "published", "out-of-stock"],
+          },
+        ],
       },
       {
         displayName: "Product Categories",
         apiId: "product-categories",
         description: "Categories for products",
         fields: [
-          { name: "name", displayName: "Name", type: "text", required: true, unique: true, relationMany: false },
-          { name: "slug", displayName: "Slug", type: "text", required: true, unique: true, relationMany: false },
-          { name: "description", displayName: "Description", type: "text", required: false, unique: false, relationMany: false },
-          { name: "image", displayName: "Category Image", type: "media", required: false, unique: false, relationMany: false },
-        ]
+          {
+            name: "name",
+            displayName: "Name",
+            type: "text",
+            required: true,
+            unique: true,
+            relationMany: false,
+          },
+          {
+            name: "slug",
+            displayName: "Slug",
+            type: "text",
+            required: true,
+            unique: true,
+            relationMany: false,
+          },
+          {
+            name: "description",
+            displayName: "Description",
+            type: "text",
+            required: false,
+            unique: false,
+            relationMany: false,
+          },
+          {
+            name: "image",
+            displayName: "Category Image",
+            type: "media",
+            required: false,
+            unique: false,
+            relationMany: false,
+          },
+        ],
       },
       {
         displayName: "Orders",
         apiId: "orders",
         description: "Customer orders",
         fields: [
-          { name: "orderNumber", displayName: "Order Number", type: "text", required: true, unique: true, relationMany: false },
-          { name: "customer", displayName: "Customer", type: "relation", required: true, unique: false, relationMany: false, relationTo: "customers" },
-          { name: "products", displayName: "Products", type: "relation", required: true, unique: false, relationMany: true, relationTo: "products" },
-          { name: "totalPrice", displayName: "Total Price", type: "number", required: true, unique: false, relationMany: false },
-          { name: "status", displayName: "Status", type: "select", required: true, unique: false, relationMany: false, options: ["pending", "processing", "shipped", "delivered", "cancelled"] },
-          { name: "shippingAddress", displayName: "Shipping Address", type: "json", required: true, unique: false, relationMany: false },
-          { name: "billingAddress", displayName: "Billing Address", type: "json", required: true, unique: false, relationMany: false },
-          { name: "paymentMethod", displayName: "Payment Method", type: "select", required: true, unique: false, relationMany: false, options: ["credit-card", "paypal", "bank-transfer"] },
-          { name: "orderDate", displayName: "Order Date", type: "date", required: true, unique: false, relationMany: false },
-        ]
+          {
+            name: "orderNumber",
+            displayName: "Order Number",
+            type: "text",
+            required: true,
+            unique: true,
+            relationMany: false,
+          },
+          {
+            name: "customer",
+            displayName: "Customer",
+            type: "relation",
+            required: true,
+            unique: false,
+            relationMany: false,
+            relationTo: "customers",
+          },
+          {
+            name: "products",
+            displayName: "Products",
+            type: "relation",
+            required: true,
+            unique: false,
+            relationMany: true,
+            relationTo: "products",
+          },
+          {
+            name: "totalPrice",
+            displayName: "Total Price",
+            type: "number",
+            required: true,
+            unique: false,
+            relationMany: false,
+          },
+          {
+            name: "status",
+            displayName: "Status",
+            type: "select",
+            required: true,
+            unique: false,
+            relationMany: false,
+            options: [
+              "pending",
+              "processing",
+              "shipped",
+              "delivered",
+              "cancelled",
+            ],
+          },
+          {
+            name: "shippingAddress",
+            displayName: "Shipping Address",
+            type: "json",
+            required: true,
+            unique: false,
+            relationMany: false,
+          },
+          {
+            name: "billingAddress",
+            displayName: "Billing Address",
+            type: "json",
+            required: true,
+            unique: false,
+            relationMany: false,
+          },
+          {
+            name: "paymentMethod",
+            displayName: "Payment Method",
+            type: "select",
+            required: true,
+            unique: false,
+            relationMany: false,
+            options: ["credit-card", "paypal", "bank-transfer"],
+          },
+          {
+            name: "orderDate",
+            displayName: "Order Date",
+            type: "date",
+            required: true,
+            unique: false,
+            relationMany: false,
+          },
+        ],
       },
       {
         displayName: "Customers",
         apiId: "customers",
         description: "Store customers",
         fields: [
-          { name: "email", displayName: "Email", type: "email", required: true, unique: true, relationMany: false },
-          { name: "firstName", displayName: "First Name", type: "text", required: true, unique: false, relationMany: false },
-          { name: "lastName", displayName: "Last Name", type: "text", required: true, unique: false, relationMany: false },
-          { name: "phone", displayName: "Phone Number", type: "text", required: false, unique: false, relationMany: false },
-          { name: "addresses", displayName: "Addresses", type: "json", required: false, unique: false, relationMany: false },
-          { name: "orders", displayName: "Orders", type: "relation", required: false, unique: false, relationMany: true, relationTo: "orders" },
-        ]
-      }
+          {
+            name: "email",
+            displayName: "Email",
+            type: "email",
+            required: true,
+            unique: true,
+            relationMany: false,
+          },
+          {
+            name: "firstName",
+            displayName: "First Name",
+            type: "text",
+            required: true,
+            unique: false,
+            relationMany: false,
+          },
+          {
+            name: "lastName",
+            displayName: "Last Name",
+            type: "text",
+            required: true,
+            unique: false,
+            relationMany: false,
+          },
+          {
+            name: "phone",
+            displayName: "Phone Number",
+            type: "text",
+            required: false,
+            unique: false,
+            relationMany: false,
+          },
+          {
+            name: "addresses",
+            displayName: "Addresses",
+            type: "json",
+            required: false,
+            unique: false,
+            relationMany: false,
+          },
+          {
+            name: "orders",
+            displayName: "Orders",
+            type: "relation",
+            required: false,
+            unique: false,
+            relationMany: true,
+            relationTo: "orders",
+          },
+        ],
+      },
     ],
   },
   {
@@ -150,53 +529,232 @@ const templates = [
         apiId: "projects",
         description: "Portfolio projects",
         fields: [
-          { name: "title", displayName: "Title", type: "text", required: true, unique: true, relationMany: false },
-          { name: "description", displayName: "Description", type: "richText", required: true, unique: false, relationMany: false },
-          { name: "slug", displayName: "Slug", type: "text", required: true, unique: true, relationMany: false },
-          { name: "images", displayName: "Project Images", type: "media", required: false, unique: false, relationMany: true },
-          { name: "thumbnail", displayName: "Thumbnail", type: "media", required: true, unique: false, relationMany: false },
-          { name: "category", displayName: "Category", type: "relation", required: false, unique: false, relationMany: false, relationTo: "project-categories" },
-          { name: "technologies", displayName: "Technologies", type: "relation", required: false, unique: false, relationMany: true, relationTo: "skills" },
-          { name: "projectUrl", displayName: "Project URL", type: "url", required: false, unique: false, relationMany: false },
-          { name: "featured", displayName: "Featured Project", type: "boolean", required: false, unique: false, relationMany: false },
-          { name: "completionDate", displayName: "Completion Date", type: "date", required: false, unique: false, relationMany: false },
-        ]
+          {
+            name: "title",
+            displayName: "Title",
+            type: "text",
+            required: true,
+            unique: true,
+            relationMany: false,
+          },
+          {
+            name: "description",
+            displayName: "Description",
+            type: "richText",
+            required: true,
+            unique: false,
+            relationMany: false,
+          },
+          {
+            name: "slug",
+            displayName: "Slug",
+            type: "text",
+            required: true,
+            unique: true,
+            relationMany: false,
+          },
+          {
+            name: "images",
+            displayName: "Project Images",
+            type: "media",
+            required: false,
+            unique: false,
+            relationMany: true,
+          },
+          {
+            name: "thumbnail",
+            displayName: "Thumbnail",
+            type: "media",
+            required: true,
+            unique: false,
+            relationMany: false,
+          },
+          {
+            name: "category",
+            displayName: "Category",
+            type: "relation",
+            required: false,
+            unique: false,
+            relationMany: false,
+            relationTo: "project-categories",
+          },
+          {
+            name: "technologies",
+            displayName: "Technologies",
+            type: "relation",
+            required: false,
+            unique: false,
+            relationMany: true,
+            relationTo: "skills",
+          },
+          {
+            name: "projectUrl",
+            displayName: "Project URL",
+            type: "url",
+            required: false,
+            unique: false,
+            relationMany: false,
+          },
+          {
+            name: "featured",
+            displayName: "Featured Project",
+            type: "boolean",
+            required: false,
+            unique: false,
+            relationMany: false,
+          },
+          {
+            name: "completionDate",
+            displayName: "Completion Date",
+            type: "date",
+            required: false,
+            unique: false,
+            relationMany: false,
+          },
+        ],
       },
       {
         displayName: "Project Categories",
         apiId: "project-categories",
         description: "Categories for projects",
         fields: [
-          { name: "name", displayName: "Name", type: "text", required: true, unique: true, relationMany: false },
-          { name: "slug", displayName: "Slug", type: "text", required: true, unique: true, relationMany: false },
-          { name: "description", displayName: "Description", type: "text", required: false, unique: false, relationMany: false },
-        ]
+          {
+            name: "name",
+            displayName: "Name",
+            type: "text",
+            required: true,
+            unique: true,
+            relationMany: false,
+          },
+          {
+            name: "slug",
+            displayName: "Slug",
+            type: "text",
+            required: true,
+            unique: true,
+            relationMany: false,
+          },
+          {
+            name: "description",
+            displayName: "Description",
+            type: "text",
+            required: false,
+            unique: false,
+            relationMany: false,
+          },
+        ],
       },
       {
         displayName: "Skills",
         apiId: "skills",
         description: "Professional skills and technologies",
         fields: [
-          { name: "name", displayName: "Name", type: "text", required: true, unique: true, relationMany: false },
-          { name: "icon", displayName: "Icon", type: "media", required: false, unique: false, relationMany: false },
-          { name: "proficiencyLevel", displayName: "Proficiency Level", type: "select", required: false, unique: false, relationMany: false, options: ["beginner", "intermediate", "advanced", "expert"] },
-          { name: "category", displayName: "Category", type: "select", required: false, unique: false, relationMany: false, options: ["frontend", "backend", "database", "design", "devops", "other"] },
-        ]
+          {
+            name: "name",
+            displayName: "Name",
+            type: "text",
+            required: true,
+            unique: true,
+            relationMany: false,
+          },
+          {
+            name: "icon",
+            displayName: "Icon",
+            type: "media",
+            required: false,
+            unique: false,
+            relationMany: false,
+          },
+          {
+            name: "proficiencyLevel",
+            displayName: "Proficiency Level",
+            type: "select",
+            required: false,
+            unique: false,
+            relationMany: false,
+            options: ["beginner", "intermediate", "advanced", "expert"],
+          },
+          {
+            name: "category",
+            displayName: "Category",
+            type: "select",
+            required: false,
+            unique: false,
+            relationMany: false,
+            options: [
+              "frontend",
+              "backend",
+              "database",
+              "design",
+              "devops",
+              "other",
+            ],
+          },
+        ],
       },
       {
         displayName: "Testimonials",
         apiId: "testimonials",
         description: "Client testimonials",
         fields: [
-          { name: "clientName", displayName: "Client Name", type: "text", required: true, unique: false, relationMany: false },
-          { name: "clientTitle", displayName: "Client Title", type: "text", required: false, unique: false, relationMany: false },
-          { name: "clientCompany", displayName: "Client Company", type: "text", required: false, unique: false, relationMany: false },
-          { name: "testimonial", displayName: "Testimonial", type: "text", required: true, unique: false, relationMany: false },
-          { name: "clientAvatar", displayName: "Client Avatar", type: "media", required: false, unique: false, relationMany: false },
-          { name: "rating", displayName: "Rating", type: "number", required: false, unique: false, relationMany: false },
-          { name: "featured", displayName: "Featured Testimonial", type: "boolean", required: false, unique: false, relationMany: false },
-        ]
-      }
+          {
+            name: "clientName",
+            displayName: "Client Name",
+            type: "text",
+            required: true,
+            unique: false,
+            relationMany: false,
+          },
+          {
+            name: "clientTitle",
+            displayName: "Client Title",
+            type: "text",
+            required: false,
+            unique: false,
+            relationMany: false,
+          },
+          {
+            name: "clientCompany",
+            displayName: "Client Company",
+            type: "text",
+            required: false,
+            unique: false,
+            relationMany: false,
+          },
+          {
+            name: "testimonial",
+            displayName: "Testimonial",
+            type: "text",
+            required: true,
+            unique: false,
+            relationMany: false,
+          },
+          {
+            name: "clientAvatar",
+            displayName: "Client Avatar",
+            type: "media",
+            required: false,
+            unique: false,
+            relationMany: false,
+          },
+          {
+            name: "rating",
+            displayName: "Rating",
+            type: "number",
+            required: false,
+            unique: false,
+            relationMany: false,
+          },
+          {
+            name: "featured",
+            displayName: "Featured Testimonial",
+            type: "boolean",
+            required: false,
+            unique: false,
+            relationMany: false,
+          },
+        ],
+      },
     ],
   },
   {
@@ -211,30 +769,139 @@ const templates = [
         apiId: "team-members",
         description: "Team member profiles",
         fields: [
-          { name: "firstName", displayName: "First Name", type: "text", required: true, unique: false, relationMany: false },
-          { name: "lastName", displayName: "Last Name", type: "text", required: true, unique: false, relationMany: false },
-          { name: "email", displayName: "Email", type: "email", required: true, unique: true, relationMany: false },
-          { name: "title", displayName: "Job Title", type: "text", required: true, unique: false, relationMany: false },
-          { name: "department", displayName: "Department", type: "relation", required: true, unique: false, relationMany: false, relationTo: "departments" },
-          { name: "bio", displayName: "Biography", type: "text", required: false, unique: false, relationMany: false },
-          { name: "photo", displayName: "Photo", type: "media", required: false, unique: false, relationMany: false },
-          { name: "hireDate", displayName: "Hire Date", type: "date", required: false, unique: false, relationMany: false },
-          { name: "skills", displayName: "Skills", type: "text", required: false, unique: false, relationMany: true },
-          { name: "socialLinks", displayName: "Social Links", type: "json", required: false, unique: false, relationMany: false },
-          { name: "status", displayName: "Status", type: "select", required: true, unique: false, relationMany: false, options: ["active", "on-leave", "contractor", "former"] },
-        ]
+          {
+            name: "firstName",
+            displayName: "First Name",
+            type: "text",
+            required: true,
+            unique: false,
+            relationMany: false,
+          },
+          {
+            name: "lastName",
+            displayName: "Last Name",
+            type: "text",
+            required: true,
+            unique: false,
+            relationMany: false,
+          },
+          {
+            name: "email",
+            displayName: "Email",
+            type: "email",
+            required: true,
+            unique: true,
+            relationMany: false,
+          },
+          {
+            name: "title",
+            displayName: "Job Title",
+            type: "text",
+            required: true,
+            unique: false,
+            relationMany: false,
+          },
+          {
+            name: "department",
+            displayName: "Department",
+            type: "relation",
+            required: true,
+            unique: false,
+            relationMany: false,
+            relationTo: "departments",
+          },
+          {
+            name: "bio",
+            displayName: "Biography",
+            type: "text",
+            required: false,
+            unique: false,
+            relationMany: false,
+          },
+          {
+            name: "photo",
+            displayName: "Photo",
+            type: "media",
+            required: false,
+            unique: false,
+            relationMany: false,
+          },
+          {
+            name: "hireDate",
+            displayName: "Hire Date",
+            type: "date",
+            required: false,
+            unique: false,
+            relationMany: false,
+          },
+          {
+            name: "skills",
+            displayName: "Skills",
+            type: "text",
+            required: false,
+            unique: false,
+            relationMany: true,
+          },
+          {
+            name: "socialLinks",
+            displayName: "Social Links",
+            type: "json",
+            required: false,
+            unique: false,
+            relationMany: false,
+          },
+          {
+            name: "status",
+            displayName: "Status",
+            type: "select",
+            required: true,
+            unique: false,
+            relationMany: false,
+            options: ["active", "on-leave", "contractor", "former"],
+          },
+        ],
       },
       {
         displayName: "Departments",
         apiId: "departments",
         description: "Company departments",
         fields: [
-          { name: "name", displayName: "Name", type: "text", required: true, unique: true, relationMany: false },
-          { name: "description", displayName: "Description", type: "text", required: false, unique: false, relationMany: false },
-          { name: "manager", displayName: "Department Manager", type: "relation", required: false, unique: false, relationMany: false, relationTo: "team-members" },
-          { name: "parentDepartment", displayName: "Parent Department", type: "relation", required: false, unique: false, relationMany: false, relationTo: "departments" },
-        ]
-      }
+          {
+            name: "name",
+            displayName: "Name",
+            type: "text",
+            required: true,
+            unique: true,
+            relationMany: false,
+          },
+          {
+            name: "description",
+            displayName: "Description",
+            type: "text",
+            required: false,
+            unique: false,
+            relationMany: false,
+          },
+          {
+            name: "manager",
+            displayName: "Department Manager",
+            type: "relation",
+            required: false,
+            unique: false,
+            relationMany: false,
+            relationTo: "team-members",
+          },
+          {
+            name: "parentDepartment",
+            displayName: "Parent Department",
+            type: "relation",
+            required: false,
+            unique: false,
+            relationMany: false,
+            relationTo: "departments",
+          },
+        ],
+      },
     ],
   },
   {
@@ -249,42 +916,186 @@ const templates = [
         apiId: "events",
         description: "Events and activities",
         fields: [
-          { name: "title", displayName: "Event Title", type: "text", required: true, unique: true, relationMany: false },
-          { name: "description", displayName: "Description", type: "richText", required: true, unique: false, relationMany: false },
-          { name: "startDate", displayName: "Start Date", type: "date", required: true, unique: false, relationMany: false },
-          { name: "endDate", displayName: "End Date", type: "date", required: true, unique: false, relationMany: false },
-          { name: "location", displayName: "Location", type: "text", required: false, unique: false, relationMany: false },
-          { name: "image", displayName: "Event Image", type: "media", required: false, unique: false, relationMany: false },
-          { name: "capacity", displayName: "Maximum Capacity", type: "number", required: false, unique: false, relationMany: false },
-          { name: "category", displayName: "Category", type: "relation", required: false, unique: false, relationMany: false, relationTo: "event-categories" },
-          { name: "organizer", displayName: "Organizer", type: "text", required: false, unique: false, relationMany: false },
-          { name: "status", displayName: "Status", type: "select", required: true, unique: false, relationMany: false, options: ["scheduled", "in-progress", "completed", "cancelled"] },
-          { name: "isPublic", displayName: "Public Event", type: "boolean", required: false, unique: false, relationMany: false },
-        ]
+          {
+            name: "title",
+            displayName: "Event Title",
+            type: "text",
+            required: true,
+            unique: true,
+            relationMany: false,
+          },
+          {
+            name: "description",
+            displayName: "Description",
+            type: "richText",
+            required: true,
+            unique: false,
+            relationMany: false,
+          },
+          {
+            name: "startDate",
+            displayName: "Start Date",
+            type: "date",
+            required: true,
+            unique: false,
+            relationMany: false,
+          },
+          {
+            name: "endDate",
+            displayName: "End Date",
+            type: "date",
+            required: true,
+            unique: false,
+            relationMany: false,
+          },
+          {
+            name: "location",
+            displayName: "Location",
+            type: "text",
+            required: false,
+            unique: false,
+            relationMany: false,
+          },
+          {
+            name: "image",
+            displayName: "Event Image",
+            type: "media",
+            required: false,
+            unique: false,
+            relationMany: false,
+          },
+          {
+            name: "capacity",
+            displayName: "Maximum Capacity",
+            type: "number",
+            required: false,
+            unique: false,
+            relationMany: false,
+          },
+          {
+            name: "category",
+            displayName: "Category",
+            type: "relation",
+            required: false,
+            unique: false,
+            relationMany: false,
+            relationTo: "event-categories",
+          },
+          {
+            name: "organizer",
+            displayName: "Organizer",
+            type: "text",
+            required: false,
+            unique: false,
+            relationMany: false,
+          },
+          {
+            name: "status",
+            displayName: "Status",
+            type: "select",
+            required: true,
+            unique: false,
+            relationMany: false,
+            options: ["scheduled", "in-progress", "completed", "cancelled"],
+          },
+          {
+            name: "isPublic",
+            displayName: "Public Event",
+            type: "boolean",
+            required: false,
+            unique: false,
+            relationMany: false,
+          },
+        ],
       },
       {
         displayName: "Event Categories",
         apiId: "event-categories",
         description: "Categories for events",
         fields: [
-          { name: "name", displayName: "Name", type: "text", required: true, unique: true, relationMany: false },
-          { name: "description", displayName: "Description", type: "text", required: false, unique: false, relationMany: false },
-          { name: "color", displayName: "Color", type: "text", required: false, unique: false, relationMany: false },
-        ]
+          {
+            name: "name",
+            displayName: "Name",
+            type: "text",
+            required: true,
+            unique: true,
+            relationMany: false,
+          },
+          {
+            name: "description",
+            displayName: "Description",
+            type: "text",
+            required: false,
+            unique: false,
+            relationMany: false,
+          },
+          {
+            name: "color",
+            displayName: "Color",
+            type: "text",
+            required: false,
+            unique: false,
+            relationMany: false,
+          },
+        ],
       },
       {
         displayName: "Attendees",
         apiId: "attendees",
         description: "Event attendees",
         fields: [
-          { name: "name", displayName: "Name", type: "text", required: true, unique: false, relationMany: false },
-          { name: "email", displayName: "Email", type: "email", required: true, unique: true, relationMany: false },
-          { name: "event", displayName: "Event", type: "relation", required: true, unique: false, relationMany: false, relationTo: "events" },
-          { name: "registrationDate", displayName: "Registration Date", type: "date", required: true, unique: false, relationMany: false },
-          { name: "status", displayName: "Status", type: "select", required: true, unique: false, relationMany: false, options: ["registered", "confirmed", "attended", "cancelled"] },
-          { name: "notes", displayName: "Notes", type: "text", required: false, unique: false, relationMany: false },
-        ]
-      }
+          {
+            name: "name",
+            displayName: "Name",
+            type: "text",
+            required: true,
+            unique: false,
+            relationMany: false,
+          },
+          {
+            name: "email",
+            displayName: "Email",
+            type: "email",
+            required: true,
+            unique: true,
+            relationMany: false,
+          },
+          {
+            name: "event",
+            displayName: "Event",
+            type: "relation",
+            required: true,
+            unique: false,
+            relationMany: false,
+            relationTo: "events",
+          },
+          {
+            name: "registrationDate",
+            displayName: "Registration Date",
+            type: "date",
+            required: true,
+            unique: false,
+            relationMany: false,
+          },
+          {
+            name: "status",
+            displayName: "Status",
+            type: "select",
+            required: true,
+            unique: false,
+            relationMany: false,
+            options: ["registered", "confirmed", "attended", "cancelled"],
+          },
+          {
+            name: "notes",
+            displayName: "Notes",
+            type: "text",
+            required: false,
+            unique: false,
+            relationMany: false,
+          },
+        ],
+      },
     ],
   },
   {
@@ -299,40 +1110,170 @@ const templates = [
         apiId: "kb-articles",
         description: "Knowledge base articles",
         fields: [
-          { name: "title", displayName: "Title", type: "text", required: true, unique: true, relationMany: false },
-          { name: "content", displayName: "Content", type: "richText", required: true, unique: false, relationMany: false },
-          { name: "slug", displayName: "Slug", type: "text", required: true, unique: true, relationMany: false },
-          { name: "category", displayName: "Category", type: "relation", required: true, unique: false, relationMany: false, relationTo: "kb-categories" },
-          { name: "tags", displayName: "Tags", type: "text", required: false, unique: false, relationMany: true },
-          { name: "author", displayName: "Author", type: "text", required: false, unique: false, relationMany: false },
-          { name: "lastUpdated", displayName: "Last Updated", type: "date", required: true, unique: false, relationMany: false },
-          { name: "status", displayName: "Status", type: "select", required: true, unique: false, relationMany: false, options: ["draft", "published", "archived"] },
-        ]
+          {
+            name: "title",
+            displayName: "Title",
+            type: "text",
+            required: true,
+            unique: true,
+            relationMany: false,
+          },
+          {
+            name: "content",
+            displayName: "Content",
+            type: "richText",
+            required: true,
+            unique: false,
+            relationMany: false,
+          },
+          {
+            name: "slug",
+            displayName: "Slug",
+            type: "text",
+            required: true,
+            unique: true,
+            relationMany: false,
+          },
+          {
+            name: "category",
+            displayName: "Category",
+            type: "relation",
+            required: true,
+            unique: false,
+            relationMany: false,
+            relationTo: "kb-categories",
+          },
+          {
+            name: "tags",
+            displayName: "Tags",
+            type: "text",
+            required: false,
+            unique: false,
+            relationMany: true,
+          },
+          {
+            name: "author",
+            displayName: "Author",
+            type: "text",
+            required: false,
+            unique: false,
+            relationMany: false,
+          },
+          {
+            name: "lastUpdated",
+            displayName: "Last Updated",
+            type: "date",
+            required: true,
+            unique: false,
+            relationMany: false,
+          },
+          {
+            name: "status",
+            displayName: "Status",
+            type: "select",
+            required: true,
+            unique: false,
+            relationMany: false,
+            options: ["draft", "published", "archived"],
+          },
+        ],
       },
       {
         displayName: "Categories",
         apiId: "kb-categories",
         description: "Knowledge base categories",
         fields: [
-          { name: "name", displayName: "Name", type: "text", required: true, unique: true, relationMany: false },
-          { name: "slug", displayName: "Slug", type: "text", required: true, unique: true, relationMany: false },
-          { name: "description", displayName: "Description", type: "text", required: false, unique: false, relationMany: false },
-          { name: "icon", displayName: "Icon", type: "text", required: false, unique: false, relationMany: false },
-          { name: "parentCategory", displayName: "Parent Category", type: "relation", required: false, unique: false, relationMany: false, relationTo: "kb-categories" },
-        ]
+          {
+            name: "name",
+            displayName: "Name",
+            type: "text",
+            required: true,
+            unique: true,
+            relationMany: false,
+          },
+          {
+            name: "slug",
+            displayName: "Slug",
+            type: "text",
+            required: true,
+            unique: true,
+            relationMany: false,
+          },
+          {
+            name: "description",
+            displayName: "Description",
+            type: "text",
+            required: false,
+            unique: false,
+            relationMany: false,
+          },
+          {
+            name: "icon",
+            displayName: "Icon",
+            type: "text",
+            required: false,
+            unique: false,
+            relationMany: false,
+          },
+          {
+            name: "parentCategory",
+            displayName: "Parent Category",
+            type: "relation",
+            required: false,
+            unique: false,
+            relationMany: false,
+            relationTo: "kb-categories",
+          },
+        ],
       },
       {
         displayName: "FAQs",
         apiId: "faqs",
         description: "Frequently asked questions",
         fields: [
-          { name: "question", displayName: "Question", type: "text", required: true, unique: true, relationMany: false },
-          { name: "answer", displayName: "Answer", type: "richText", required: true, unique: false, relationMany: false },
-          { name: "category", displayName: "Category", type: "relation", required: false, unique: false, relationMany: false, relationTo: "kb-categories" },
-          { name: "order", displayName: "Display Order", type: "number", required: false, unique: false, relationMany: false },
-          { name: "featured", displayName: "Featured FAQ", type: "boolean", required: false, unique: false, relationMany: false },
-        ]
-      }
+          {
+            name: "question",
+            displayName: "Question",
+            type: "text",
+            required: true,
+            unique: true,
+            relationMany: false,
+          },
+          {
+            name: "answer",
+            displayName: "Answer",
+            type: "richText",
+            required: true,
+            unique: false,
+            relationMany: false,
+          },
+          {
+            name: "category",
+            displayName: "Category",
+            type: "relation",
+            required: false,
+            unique: false,
+            relationMany: false,
+            relationTo: "kb-categories",
+          },
+          {
+            name: "order",
+            displayName: "Display Order",
+            type: "number",
+            required: false,
+            unique: false,
+            relationMany: false,
+          },
+          {
+            name: "featured",
+            displayName: "Featured FAQ",
+            type: "boolean",
+            required: false,
+            unique: false,
+            relationMany: false,
+          },
+        ],
+      },
     ],
   },
   {
@@ -347,42 +1288,196 @@ const templates = [
         apiId: "support-tickets",
         description: "Support tickets",
         fields: [
-          { name: "ticketNumber", displayName: "Ticket Number", type: "text", required: true, unique: true, relationMany: false },
-          { name: "subject", displayName: "Subject", type: "text", required: true, unique: false, relationMany: false },
-          { name: "description", displayName: "Description", type: "richText", required: true, unique: false, relationMany: false },
-          { name: "customer", displayName: "Customer", type: "relation", required: true, unique: false, relationMany: false, relationTo: "customers" },
-          { name: "priority", displayName: "Priority", type: "select", required: true, unique: false, relationMany: false, options: ["low", "medium", "high", "urgent"] },
-          { name: "status", displayName: "Status", type: "select", required: true, unique: false, relationMany: false, options: ["open", "in-progress", "waiting-customer", "resolved", "closed"] },
-          { name: "category", displayName: "Category", type: "relation", required: false, unique: false, relationMany: false, relationTo: "ticket-categories" },
-          { name: "assignedTo", displayName: "Assigned To", type: "relation", required: false, unique: false, relationMany: false, relationTo: "team-members" },
-          { name: "attachments", displayName: "Attachments", type: "media", required: false, unique: false, relationMany: true },
-          { name: "createdAt", displayName: "Created At", type: "date", required: true, unique: false, relationMany: false },
-          { name: "updatedAt", displayName: "Updated At", type: "date", required: true, unique: false, relationMany: false },
-        ]
+          {
+            name: "ticketNumber",
+            displayName: "Ticket Number",
+            type: "text",
+            required: true,
+            unique: true,
+            relationMany: false,
+          },
+          {
+            name: "subject",
+            displayName: "Subject",
+            type: "text",
+            required: true,
+            unique: false,
+            relationMany: false,
+          },
+          {
+            name: "description",
+            displayName: "Description",
+            type: "richText",
+            required: true,
+            unique: false,
+            relationMany: false,
+          },
+          {
+            name: "customer",
+            displayName: "Customer",
+            type: "relation",
+            required: true,
+            unique: false,
+            relationMany: false,
+            relationTo: "customers",
+          },
+          {
+            name: "priority",
+            displayName: "Priority",
+            type: "select",
+            required: true,
+            unique: false,
+            relationMany: false,
+            options: ["low", "medium", "high", "urgent"],
+          },
+          {
+            name: "status",
+            displayName: "Status",
+            type: "select",
+            required: true,
+            unique: false,
+            relationMany: false,
+            options: [
+              "open",
+              "in-progress",
+              "waiting-customer",
+              "resolved",
+              "closed",
+            ],
+          },
+          {
+            name: "category",
+            displayName: "Category",
+            type: "relation",
+            required: false,
+            unique: false,
+            relationMany: false,
+            relationTo: "ticket-categories",
+          },
+          {
+            name: "assignedTo",
+            displayName: "Assigned To",
+            type: "relation",
+            required: false,
+            unique: false,
+            relationMany: false,
+            relationTo: "team-members",
+          },
+          {
+            name: "attachments",
+            displayName: "Attachments",
+            type: "media",
+            required: false,
+            unique: false,
+            relationMany: true,
+          },
+          {
+            name: "createdAt",
+            displayName: "Created At",
+            type: "date",
+            required: true,
+            unique: false,
+            relationMany: false,
+          },
+          {
+            name: "updatedAt",
+            displayName: "Updated At",
+            type: "date",
+            required: true,
+            unique: false,
+            relationMany: false,
+          },
+        ],
       },
       {
         displayName: "Ticket Responses",
         apiId: "ticket-responses",
         description: "Responses to support tickets",
         fields: [
-          { name: "ticket", displayName: "Ticket", type: "relation", required: true, unique: false, relationMany: false, relationTo: "support-tickets" },
-          { name: "content", displayName: "Response Content", type: "richText", required: true, unique: false, relationMany: false },
-          { name: "author", displayName: "Author", type: "relation", required: true, unique: false, relationMany: false, relationTo: "team-members" },
-          { name: "isCustomerResponse", displayName: "Customer Response", type: "boolean", required: true, unique: false, relationMany: false },
-          { name: "attachments", displayName: "Attachments", type: "media", required: false, unique: false, relationMany: true },
-          { name: "createdAt", displayName: "Created At", type: "date", required: true, unique: false, relationMany: false },
-        ]
+          {
+            name: "ticket",
+            displayName: "Ticket",
+            type: "relation",
+            required: true,
+            unique: false,
+            relationMany: false,
+            relationTo: "support-tickets",
+          },
+          {
+            name: "content",
+            displayName: "Response Content",
+            type: "richText",
+            required: true,
+            unique: false,
+            relationMany: false,
+          },
+          {
+            name: "author",
+            displayName: "Author",
+            type: "relation",
+            required: true,
+            unique: false,
+            relationMany: false,
+            relationTo: "team-members",
+          },
+          {
+            name: "isCustomerResponse",
+            displayName: "Customer Response",
+            type: "boolean",
+            required: true,
+            unique: false,
+            relationMany: false,
+          },
+          {
+            name: "attachments",
+            displayName: "Attachments",
+            type: "media",
+            required: false,
+            unique: false,
+            relationMany: true,
+          },
+          {
+            name: "createdAt",
+            displayName: "Created At",
+            type: "date",
+            required: true,
+            unique: false,
+            relationMany: false,
+          },
+        ],
       },
       {
         displayName: "Ticket Categories",
         apiId: "ticket-categories",
         description: "Categories for support tickets",
         fields: [
-          { name: "name", displayName: "Name", type: "text", required: true, unique: true, relationMany: false },
-          { name: "description", displayName: "Description", type: "text", required: false, unique: false, relationMany: false },
-          { name: "defaultAssignee", displayName: "Default Assignee", type: "relation", required: false, unique: false, relationMany: false, relationTo: "team-members" },
-        ]
-      }
+          {
+            name: "name",
+            displayName: "Name",
+            type: "text",
+            required: true,
+            unique: true,
+            relationMany: false,
+          },
+          {
+            name: "description",
+            displayName: "Description",
+            type: "text",
+            required: false,
+            unique: false,
+            relationMany: false,
+          },
+          {
+            name: "defaultAssignee",
+            displayName: "Default Assignee",
+            type: "relation",
+            required: false,
+            unique: false,
+            relationMany: false,
+            relationTo: "team-members",
+          },
+        ],
+      },
     ],
   },
   {
@@ -397,31 +1492,132 @@ const templates = [
         apiId: "api-endpoints",
         description: "API endpoints documentation",
         fields: [
-          { name: "name", displayName: "Endpoint Name", type: "text", required: true, unique: true, relationMany: false },
-          { name: "path", displayName: "API Path", type: "text", required: true, unique: true, relationMany: false },
-          { name: "method", displayName: "HTTP Method", type: "select", required: true, unique: false, relationMany: false, options: ["GET", "POST", "PUT", "PATCH", "DELETE"] },
-          { name: "description", displayName: "Description", type: "richText", required: true, unique: false, relationMany: false },
-          { name: "requestBody", displayName: "Request Body Schema", type: "json", required: false, unique: false, relationMany: false },
-          { name: "responseBody", displayName: "Response Body Schema", type: "json", required: false, unique: false, relationMany: false },
-          { name: "parameters", displayName: "URL Parameters", type: "json", required: false, unique: false, relationMany: false },
-          { name: "headers", displayName: "Required Headers", type: "json", required: false, unique: false, relationMany: false },
-          { name: "apiVersion", displayName: "API Version", type: "text", required: false, unique: false, relationMany: false },
-          { name: "status", displayName: "Status", type: "select", required: true, unique: false, relationMany: false, options: ["stable", "beta", "deprecated"] },
-        ]
+          {
+            name: "name",
+            displayName: "Endpoint Name",
+            type: "text",
+            required: true,
+            unique: true,
+            relationMany: false,
+          },
+          {
+            name: "path",
+            displayName: "API Path",
+            type: "text",
+            required: true,
+            unique: true,
+            relationMany: false,
+          },
+          {
+            name: "method",
+            displayName: "HTTP Method",
+            type: "select",
+            required: true,
+            unique: false,
+            relationMany: false,
+            options: ["GET", "POST", "PUT", "PATCH", "DELETE"],
+          },
+          {
+            name: "description",
+            displayName: "Description",
+            type: "richText",
+            required: true,
+            unique: false,
+            relationMany: false,
+          },
+          {
+            name: "requestBody",
+            displayName: "Request Body Schema",
+            type: "json",
+            required: false,
+            unique: false,
+            relationMany: false,
+          },
+          {
+            name: "responseBody",
+            displayName: "Response Body Schema",
+            type: "json",
+            required: false,
+            unique: false,
+            relationMany: false,
+          },
+          {
+            name: "parameters",
+            displayName: "URL Parameters",
+            type: "json",
+            required: false,
+            unique: false,
+            relationMany: false,
+          },
+          {
+            name: "headers",
+            displayName: "Required Headers",
+            type: "json",
+            required: false,
+            unique: false,
+            relationMany: false,
+          },
+          {
+            name: "apiVersion",
+            displayName: "API Version",
+            type: "text",
+            required: false,
+            unique: false,
+            relationMany: false,
+          },
+          {
+            name: "status",
+            displayName: "Status",
+            type: "select",
+            required: true,
+            unique: false,
+            relationMany: false,
+            options: ["stable", "beta", "deprecated"],
+          },
+        ],
       },
       {
         displayName: "API Groups",
         apiId: "api-groups",
         description: "Logical grouping of API endpoints",
         fields: [
-          { name: "name", displayName: "Group Name", type: "text", required: true, unique: true, relationMany: false },
-          { name: "slug", displayName: "Slug", type: "text", required: true, unique: true, relationMany: false },
-          { name: "description", displayName: "Description", type: "text", required: false, unique: false, relationMany: false },
-          { name: "endpoints", displayName: "Endpoints", type: "relation", required: false, unique: false, relationMany: true, relationTo: "api-endpoints" },
-        ]
-      }
+          {
+            name: "name",
+            displayName: "Group Name",
+            type: "text",
+            required: true,
+            unique: true,
+            relationMany: false,
+          },
+          {
+            name: "slug",
+            displayName: "Slug",
+            type: "text",
+            required: true,
+            unique: true,
+            relationMany: false,
+          },
+          {
+            name: "description",
+            displayName: "Description",
+            type: "text",
+            required: false,
+            unique: false,
+            relationMany: false,
+          },
+          {
+            name: "endpoints",
+            displayName: "Endpoints",
+            type: "relation",
+            required: false,
+            unique: false,
+            relationMany: true,
+            relationTo: "api-endpoints",
+          },
+        ],
+      },
     ],
-  }
+  },
 ];
 
 export default function DeploymentTemplates() {
@@ -442,18 +1638,20 @@ export default function DeploymentTemplates() {
 
   // Get existing content types to check for conflicts
   const { data: existingContentTypes = [] } = useQuery({
-    queryKey: ['/api/content-types'],
+    queryKey: ["/api/content-types"],
   });
 
   // Filter templates by category
   const filteredTemplates = templates.filter(
-    (template) => selectedCategory === "all" || template.category === selectedCategory
+    (template) =>
+      selectedCategory === "all" || template.category === selectedCategory,
   );
 
   // Check if template has conflicts with existing content types
   const checkTemplateConflicts = (template: any) => {
-    if (!existingContentTypes || !Array.isArray(existingContentTypes)) return [];
-    
+    if (!existingContentTypes || !Array.isArray(existingContentTypes))
+      return [];
+
     const conflicts: string[] = [];
     const existingApiIds = existingContentTypes.map((ct: any) => ct.apiId);
 
@@ -477,34 +1675,27 @@ export default function DeploymentTemplates() {
       });
 
       const deploymentResults = [];
-      
+
       // Deploy each content type in sequence
       for (const contentType of template.contentTypes) {
         try {
-          // Using proper HTTP method in the apiRequest function
-          const response = await apiRequest('/api/content-types', {
-            method: 'POST',
-            body: JSON.stringify(contentType),
-            headers: {
-              'Content-Type': 'application/json'
-            }
-          });
-          
+          // Using the correct apiRequest function parameters
+          const response = await apiRequest("POST", "/api/content-types", contentType);
+
           deploymentResults.push({
             success: true,
             contentType: contentType.displayName,
             apiId: contentType.apiId,
           });
-          
+
           // Update status
-          setDeploymentStatus(prev => ({
+          setDeploymentStatus((prev) => ({
             ...prev,
             details: [
               ...prev.details,
-              `✅ Successfully created ${contentType.displayName}`
+              `✅ Successfully created ${contentType.displayName}`,
             ],
           }));
-          
         } catch (error: any) {
           deploymentResults.push({
             success: false,
@@ -512,37 +1703,37 @@ export default function DeploymentTemplates() {
             apiId: contentType.apiId,
             error: error.message || "Unknown error",
           });
-          
+
           // Update status
-          setDeploymentStatus(prev => ({
+          setDeploymentStatus((prev) => ({
             ...prev,
             details: [
               ...prev.details,
-              `❌ Failed to create ${contentType.displayName}: ${error.message || "Unknown error"}`
+              `❌ Failed to create ${contentType.displayName}: ${error.message || "Unknown error"}`,
             ],
           }));
         }
       }
-      
+
       // Check overall success/failure
-      const allSuccess = deploymentResults.every(result => result.success);
-      
+      const allSuccess = deploymentResults.every((result) => result.success);
+
       setDeploymentStatus({
         status: allSuccess ? "success" : "error",
-        message: allSuccess 
-          ? "Template deployed successfully!" 
+        message: allSuccess
+          ? "Template deployed successfully!"
           : "Template deployment completed with some errors.",
-        details: deploymentResults.map(result => 
-          result.success 
+        details: deploymentResults.map((result) =>
+          result.success
             ? `✅ Successfully created ${result.contentType}`
-            : `❌ Failed to create ${result.contentType}: ${result.error}`
+            : `❌ Failed to create ${result.contentType}: ${result.error}`,
         ),
       });
-      
+
       return deploymentResults;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/content-types'] });
+      queryClient.invalidateQueries({ queryKey: ["/api/content-types"] });
       toast({
         title: "Template deployed",
         description: "The template has been deployed successfully",
@@ -556,18 +1747,19 @@ export default function DeploymentTemplates() {
       });
       toast({
         title: "Deployment failed",
-        description: error.message || "An error occurred while deploying the template",
+        description:
+          error.message || "An error occurred while deploying the template",
         variant: "destructive",
       });
     },
     onSettled: () => {
       setIsDeploying(false);
-    }
+    },
   });
 
   const handleDeployTemplate = () => {
     if (!selectedTemplate) return;
-    
+
     deployTemplateMutation.mutate(selectedTemplate);
   };
 
@@ -579,17 +1771,24 @@ export default function DeploymentTemplates() {
     <AdminLayout pageTitle="Deployment Templates">
       <div className="space-y-6">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">Deployment Templates</h1>
+          <h1 className="text-2xl font-bold tracking-tight">
+            Deployment Templates
+          </h1>
           <p className="text-muted-foreground">
             Jump-start your project with pre-built content models
           </p>
         </div>
 
-        <Tabs defaultValue={selectedCategory} onValueChange={setSelectedCategory}>
+        <Tabs
+          defaultValue={selectedCategory}
+          onValueChange={setSelectedCategory}
+        >
           <TabsList className="mb-4">
             <TabsTrigger value="all">All Templates</TabsTrigger>
             {categories.map((category) => (
-              <TabsTrigger key={category.id} value={category.id}>{category.name}</TabsTrigger>
+              <TabsTrigger key={category.id} value={category.id}>
+                {category.name}
+              </TabsTrigger>
             ))}
           </TabsList>
 
@@ -620,8 +1819,12 @@ export default function DeploymentTemplates() {
                 {filteredTemplates.length === 0 && (
                   <div className="col-span-full text-center py-10">
                     <AlertCircle className="h-10 w-10 text-muted-foreground mx-auto mb-4" />
-                    <h3 className="text-lg font-medium">No templates available</h3>
-                    <p className="text-muted-foreground mt-2">There are no templates in this category yet.</p>
+                    <h3 className="text-lg font-medium">
+                      No templates available
+                    </h3>
+                    <p className="text-muted-foreground mt-2">
+                      There are no templates in this category yet.
+                    </p>
                   </div>
                 )}
               </div>
@@ -631,14 +1834,19 @@ export default function DeploymentTemplates() {
 
         {/* Template Details Modal */}
         {selectedTemplate && (
-          <Dialog open={!!selectedTemplate} onOpenChange={(open) => !open && setSelectedTemplate(null)}>
-            <DialogContent className="max-w-4xl">
+          <Dialog
+            open={!!selectedTemplate}
+            onOpenChange={(open) => !open && setSelectedTemplate(null)}
+          >
+            <DialogContent className="max-w-4xl max-h-[85vh] overflow-scroll">
               <DialogHeader>
                 <DialogTitle className="flex items-center gap-2">
                   <span>{selectedTemplate.icon}</span>
                   <span>{selectedTemplate.name}</span>
                 </DialogTitle>
-                <DialogDescription>{selectedTemplate.description}</DialogDescription>
+                <DialogDescription>
+                  {selectedTemplate.description}
+                </DialogDescription>
               </DialogHeader>
 
               <div className="space-y-6">
@@ -648,11 +1856,16 @@ export default function DeploymentTemplates() {
                     <AlertTriangle className="h-4 w-4 mr-2" />
                     <AlertTitle>Conflicts Detected</AlertTitle>
                     <AlertDescription>
-                      <p>This template conflicts with your existing content types:</p>
+                      <p>
+                        This template conflicts with your existing content
+                        types:
+                      </p>
                       <ul className="list-disc list-inside mt-2">
-                        {checkTemplateConflicts(selectedTemplate).map((conflict) => (
-                          <li key={conflict}>{conflict}</li>
-                        ))}
+                        {checkTemplateConflicts(selectedTemplate).map(
+                          (conflict) => (
+                            <li key={conflict}>{conflict}</li>
+                          ),
+                        )}
                       </ul>
                     </AlertDescription>
                   </Alert>
@@ -661,16 +1874,24 @@ export default function DeploymentTemplates() {
                 {/* Deployment Status */}
                 {deploymentStatus.status !== "idle" && (
                   <div className="space-y-4">
-                    <div className={`p-4 rounded-md ${
-                      deploymentStatus.status === "deploying" ? "bg-blue-50 dark:bg-blue-900/20" :
-                      deploymentStatus.status === "success" ? "bg-green-50 dark:bg-green-900/20" :
-                      "bg-red-50 dark:bg-red-900/20"
-                    }`}>
-                      <h3 className={`text-sm font-medium flex items-center ${
-                        deploymentStatus.status === "deploying" ? "text-blue-800 dark:text-blue-300" :
-                        deploymentStatus.status === "success" ? "text-green-800 dark:text-green-300" :
-                        "text-red-800 dark:text-red-300"
-                      }`}>
+                    <div
+                      className={`p-4 rounded-md ${
+                        deploymentStatus.status === "deploying"
+                          ? "bg-blue-50 dark:bg-blue-900/20"
+                          : deploymentStatus.status === "success"
+                            ? "bg-green-50 dark:bg-green-900/20"
+                            : "bg-red-50 dark:bg-red-900/20"
+                      }`}
+                    >
+                      <h3
+                        className={`text-sm font-medium flex items-center ${
+                          deploymentStatus.status === "deploying"
+                            ? "text-blue-800 dark:text-blue-300"
+                            : deploymentStatus.status === "success"
+                              ? "text-green-800 dark:text-green-300"
+                              : "text-red-800 dark:text-red-300"
+                        }`}
+                      >
                         {deploymentStatus.status === "deploying" ? (
                           <>
                             <div className="animate-spin mr-2 h-4 w-4 border-2 border-current border-t-transparent rounded-full"></div>
@@ -690,16 +1911,20 @@ export default function DeploymentTemplates() {
                       </h3>
                       <p className="mt-1 text-sm">{deploymentStatus.message}</p>
                     </div>
-                    
+
                     {deploymentStatus.details.length > 0 && (
                       <div className="bg-gray-50 dark:bg-gray-800/50 rounded-md border">
                         <div className="p-4 border-b">
-                          <h4 className="text-sm font-medium">Deployment Details</h4>
+                          <h4 className="text-sm font-medium">
+                            Deployment Details
+                          </h4>
                         </div>
                         <div className="p-4 max-h-40 overflow-y-auto">
                           <pre className="whitespace-pre-wrap text-xs">
                             {deploymentStatus.details.map((detail, index) => (
-                              <div key={index} className="py-1">{detail}</div>
+                              <div key={index} className="py-1">
+                                {detail}
+                              </div>
                             ))}
                           </pre>
                         </div>
@@ -713,13 +1938,17 @@ export default function DeploymentTemplates() {
                   <h3 className="text-sm font-medium">Content Types</h3>
                   <div className="grid gap-2">
                     {selectedTemplate.contentTypes.map((contentType: any) => (
-                      <div 
-                        key={contentType.apiId} 
+                      <div
+                        key={contentType.apiId}
                         className="p-3 bg-gray-50 dark:bg-gray-800 rounded-md flex justify-between items-center"
                       >
                         <div>
-                          <p className="font-medium text-sm">{contentType.displayName}</p>
-                          <p className="text-xs text-muted-foreground">{contentType.apiId}</p>
+                          <p className="font-medium text-sm">
+                            {contentType.displayName}
+                          </p>
+                          <p className="text-xs text-muted-foreground">
+                            {contentType.apiId}
+                          </p>
                         </div>
                         <Badge variant="secondary">
                           {contentType.fields.length} Fields
@@ -737,8 +1966,8 @@ export default function DeploymentTemplates() {
                   </Button>
                 ) : (
                   <>
-                    <Button 
-                      variant="ghost" 
+                    <Button
+                      variant="ghost"
                       onClick={() => {
                         setSelectedTemplate(null);
                         setDeploymentStatus({
@@ -750,10 +1979,13 @@ export default function DeploymentTemplates() {
                     >
                       Cancel
                     </Button>
-                    <Button 
-                      variant="default" 
+                    <Button
+                      variant="default"
                       onClick={handleDeployTemplate}
-                      disabled={isDeploying || checkTemplateConflicts(selectedTemplate).length > 0}
+                      disabled={
+                        isDeploying ||
+                        checkTemplateConflicts(selectedTemplate).length > 0
+                      }
                     >
                       {isDeploying ? (
                         <>
@@ -783,12 +2015,14 @@ interface TemplateCardProps {
 
 function TemplateCard({ template, onSelect, conflicts }: TemplateCardProps) {
   const hasConflicts = conflicts.length > 0;
-  
+
   return (
     <Card className="overflow-hidden transition-shadow hover:shadow-md">
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
-          <div className="p-2 rounded-md bg-primary/10 text-primary">{template.icon}</div>
+          <div className="p-2 rounded-md bg-primary/10 text-primary">
+            {template.icon}
+          </div>
           <span>{template.name}</span>
         </CardTitle>
         <CardDescription>{template.description}</CardDescription>
@@ -799,11 +2033,19 @@ function TemplateCard({ template, onSelect, conflicts }: TemplateCardProps) {
             <h4 className="text-sm font-medium mb-2">Content Types</h4>
             <ul className="space-y-1">
               {template.contentTypes.map((contentType: any) => (
-                <li key={contentType.apiId} className="text-sm flex items-center gap-1">
+                <li
+                  key={contentType.apiId}
+                  className="text-sm flex items-center gap-1"
+                >
                   <span className="inline-block w-1.5 h-1.5 rounded-full bg-primary/60 mr-1"></span>
                   {contentType.displayName}
                   {conflicts.includes(contentType.apiId) && (
-                    <Badge variant="destructive" className="ml-auto text-[10px] px-1 py-0 h-4">Conflict</Badge>
+                    <Badge
+                      variant="destructive"
+                      className="ml-auto text-[10px] px-1 py-0 h-4"
+                    >
+                      Conflict
+                    </Badge>
                   )}
                 </li>
               ))}
