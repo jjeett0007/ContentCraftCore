@@ -3,6 +3,7 @@ import { useQuery, useMutation } from "@tanstack/react-query";
 import { useLocation, useParams } from "wouter";
 import { AdminLayout } from "@/components/AdminLayout";
 import { DynamicForm } from "@/components/DynamicForm";
+import { MediaPreview } from "@/components/MediaPreview";
 import { useAuth } from "@/hooks/use-auth";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
@@ -419,7 +420,14 @@ function formatFieldValue(value: any, type: string): React.ReactNode {
     case 'json':
       return <span className="text-muted-foreground">[Object]</span>;
     case 'media':
-      return <span className="text-primary">View file</span>;
+      // Check if media is multiple (array) or single value
+      if (Array.isArray(value)) {
+        // For multiple media files
+        return <MediaPreview mediaIds={value} small={true} />;
+      } else {
+        // For single media file
+        return <MediaPreview mediaIds={value} small={true} />;
+      }
     case 'relation':
       return <span className="text-accent">Related item</span>;
     case 'richtext':
