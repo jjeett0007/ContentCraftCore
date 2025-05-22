@@ -26,12 +26,16 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 interface SidebarProps {
   open: boolean;
   onClose: () => void;
+  collapsed?: boolean;
 }
 
-export function Sidebar({ open, onClose }: SidebarProps) {
+export function Sidebar({ open, onClose, collapsed: externalCollapsed }: SidebarProps) {
   const [location, navigate] = useLocation();
   const { user } = useAuth();
-  const [collapsed, setCollapsed] = useState(false);
+  const [internalCollapsed, setInternalCollapsed] = useState(false);
+  
+  // Use externally provided collapsed state if provided, otherwise use internal state
+  const collapsed = externalCollapsed !== undefined ? externalCollapsed : internalCollapsed;
 
   // Get content types for sidebar
   const { data: contentTypes = [] } = useQuery({
@@ -152,7 +156,10 @@ export function Sidebar({ open, onClose }: SidebarProps) {
 
   // Toggle sidebar collapse state
   const toggleCollapsed = () => {
-    setCollapsed(!collapsed);
+    // Only use the internal collapsed state setter when external state isn't provided
+    if (externalCollapsed === undefined) {
+      setInternalCollapsed(!internalCollapsed);
+    }
   };
 
   return (
@@ -181,7 +188,7 @@ export function Sidebar({ open, onClose }: SidebarProps) {
         className={cn(
           "fixed inset-y-0 left-0 z-30 h-full overflow-hidden bg-card border-r border-border transition-all duration-300 ease-in-out flex flex-col md:translate-x-0",
           open ? "translate-x-0" : "-translate-x-full",
-          collapsed ? "md:w-[70px]" : "md:w-64",
+          collapsed ? "md:w-0 md:overflow-hidden" : "md:w-64",
         )}
       >
         {/* Logo and sidebar header */}
