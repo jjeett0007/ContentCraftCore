@@ -125,7 +125,7 @@ export function ContentTypeForm({ initialData, onSubmit, onCancel, isSubmitting 
   // Add a new field
   const addField = () => {
     const fields = form.getValues("fields") || [];
-    form.setValue("fields", [
+    const newFields = [
       ...fields,
       {
         name: "",
@@ -134,7 +134,10 @@ export function ContentTypeForm({ initialData, onSubmit, onCancel, isSubmitting 
         required: false,
         unique: false,
       }
-    ]);
+    ];
+    form.setValue("fields", newFields, { shouldValidate: false, shouldDirty: true });
+    // Force a re-render to show the new field
+    form.trigger("fields");
   };
 
   // Remove a field
