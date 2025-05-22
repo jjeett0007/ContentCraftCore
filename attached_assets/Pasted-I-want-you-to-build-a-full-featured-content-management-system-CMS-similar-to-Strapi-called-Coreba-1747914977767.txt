@@ -1,0 +1,106 @@
+I want you to build a full-featured content management system (CMS) similar to Strapi, called Corebase, with both frontend and backend integrated using Next.js (App Router) and MongoDB as the database.
+Corebase should allow developers to easily define content types (models) via an admin interface, and automatically generate API endpoints and database models dynamically, just like Strapi does in developer mode.
+🛠 Tech Stack:
+
+    Frontend & Backend: Next.js (App Router)
+
+    Database: MongoDB using Mongoose
+
+    Styling: TailwindCSS using these brand colors:
+
+        Primary: #FFB200
+
+        Secondary: #EB5B00
+
+        Accent: #D91656
+
+        Dark: #640D5F
+
+✅ Core Functional Requirements:
+
+    Admin Panel
+
+        Built with React + TailwindCSS in the same Next.js app.
+
+        Includes sidebar, dashboard, auth, and content manager.
+
+        Visual content-type builder: users can define models (name + fields).
+
+        Form builder: auto-generate forms to manage data entries.
+
+    Authentication
+
+        JWT-based auth with login/register.
+
+        Role-based access control: Admin, Editor, Viewer.
+
+        Session persistence using cookies.
+
+    Dynamic Content Types
+
+        Admin can create custom models with field types like:
+
+            Text, Rich Text, Number, Boolean, Date, Media, JSON, Relation
+
+        Store model definitions in a content_types collection.
+
+        Auto-generate Mongoose schemas in-memory.
+
+        CRUD API endpoints are generated on-the-fly for each content type.
+
+    Dynamic REST API
+
+        When a model is created, expose full REST routes:
+
+            GET /api/content/[model]
+
+            POST /api/content/[model]
+
+            PUT /api/content/[model]/:id
+
+            DELETE /api/content/[model]/:id
+
+        Optional: add filtering, pagination, and search support.
+
+    Media Upload
+
+        Upload images/files locally or to Cloudinary.
+
+        Media library for browsing uploads.
+
+    Permissions
+
+        Each route should be protected by middleware.
+
+        Control who can create/edit/delete based on role.
+
+    Extensibility
+
+        Allow developers to create custom plugins or add services.
+
+        Provide config options for lifecycle hooks (before/after save).
+
+    Future Extensions (Optional)
+
+        GraphQL plugin support.
+
+        i18n (internationalization).
+
+        Dockerfile and deployment-ready setup.
+
+📁 Project Structure:
+
+corebase/
+├── app/              # Next.js App Router: pages + API
+│   ├── api/          # REST endpoints, including dynamic ones
+│   └── admin/        # Admin UI: dashboard, content-type builder
+├── lib/
+│   ├── mongoose.ts
+│   ├── model-registry.ts     # Dynamic model memory cache
+│   ├── schema-builder.ts     # Converts field definitions to Mongoose schema
+├── components/       # Shared UI components
+├── styles/           # Tailwind + color theme
+├── public/
+└── .env              # Mongo URI, JWT secret, etc.
+
+✅ Build this system to be modular, extendable, and developer-first, just like Strapi. Use clean code structure and performance optimization best practices.
