@@ -56,6 +56,7 @@ const contentTypeSchema = z.object({
     options: z.array(z.string()).optional(), // For enum fields
     relationTo: z.string().optional(), // For relation fields
     relationMany: z.boolean().optional().default(false), // For relation fields
+    multiple: z.boolean().optional().default(false), // For media fields to allow multiple uploads
   })).min(1, "At least one field is required"),
 });
 
@@ -78,6 +79,8 @@ export function ContentTypeForm({ initialData, onSubmit, onCancel, isSubmitting 
           type: "text",
           required: true,
           unique: false,
+          relationMany: false,
+          multiple: false,
         }
       ],
     },
@@ -133,6 +136,8 @@ export function ContentTypeForm({ initialData, onSubmit, onCancel, isSubmitting 
         type: "text",
         required: false,
         unique: false,
+        relationMany: false,
+        multiple: false,
       }
     ];
     form.setValue("fields", newFields, { shouldValidate: false, shouldDirty: true });

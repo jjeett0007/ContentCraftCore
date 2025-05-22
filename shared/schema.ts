@@ -128,6 +128,7 @@ export const fieldSchema = z.object({
   options: z.any().optional(), // For enum fields
   relationTo: z.string().optional(), // For relation fields
   relationMany: z.boolean().optional(), // For relation fields
+  multiple: z.boolean().optional(), // For media fields to allow multiple uploads
 });
 
 export type Field = z.infer<typeof fieldSchema>;
