@@ -16,6 +16,7 @@ import { format } from "date-fns";
 import { CalendarIcon, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { MediaSelectionDialog } from "@/components/MediaSelectionDialog";
+import { MediaPreview } from "@/components/MediaPreview";
 
 interface DynamicFormProps {
   fields: any[];
@@ -507,27 +508,37 @@ export function DynamicForm({ fields, initialData, onSubmit, onCancel, isSubmitt
                 if (field.multiple) {
                   // Display multiple media items
                   return (
-                    <div className="grid grid-cols-2 gap-2 mt-2">
+                    <div className="space-y-4 mt-2">
                       {Array.isArray(formField.value) && formField.value.length > 0 ? (
-                        formField.value.map((mediaId, index) => (
-                          <div key={index} className="relative rounded border p-2 flex items-center justify-between">
-                            <span className="text-sm truncate">{mediaId}</span>
-                            <Button
-                              type="button"
-                              variant="ghost"
-                              size="icon"
-                              className="h-6 w-6"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                const newValue = [...formField.value];
-                                newValue.splice(index, 1);
-                                formField.onChange(newValue);
-                              }}
-                            >
-                              <X className="h-4 w-4" />
-                            </Button>
+                        <>
+                          <div className="grid grid-cols-2 gap-2">
+                            {formField.value.map((mediaId, index) => (
+                              <div key={index} className="relative rounded border p-2 flex items-center justify-between">
+                                <span className="text-sm truncate">{mediaId}</span>
+                                <Button
+                                  type="button"
+                                  variant="ghost"
+                                  size="icon"
+                                  className="h-6 w-6"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    const newValue = [...formField.value];
+                                    newValue.splice(index, 1);
+                                    formField.onChange(newValue);
+                                  }}
+                                >
+                                  <X className="h-4 w-4" />
+                                </Button>
+                              </div>
+                            ))}
                           </div>
-                        ))
+                          
+                          {/* Preview of selected media files */}
+                          <div className="border rounded-md p-3 bg-muted/20">
+                            <h4 className="text-sm font-medium mb-2">Media Preview</h4>
+                            <MediaPreview mediaIds={formField.value} />
+                          </div>
+                        </>
                       ) : (
                         <div className="text-sm text-muted-foreground">No media files selected</div>
                       )}
@@ -536,31 +547,40 @@ export function DynamicForm({ fields, initialData, onSubmit, onCancel, isSubmitt
                 } else {
                   // Display single media item
                   return (
-                    <div className="flex items-center space-x-2">
-                      <Input
-                        placeholder="Select media file..."
-                        readOnly
-                        value={formField.value || ""}
-                        onClick={() => setMediaDialogOpen(true)}
-                        className="cursor-pointer"
-                      />
-                      <Button 
-                        type="button" 
-                        variant="outline"
-                        onClick={() => setMediaDialogOpen(true)}
-                      >
-                        Select
-                      </Button>
-                      {formField.value && (
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="icon"
-                          className="h-8 w-8"
-                          onClick={() => formField.onChange("")}
+                    <div className="space-y-2">
+                      <div className="flex items-center space-x-2">
+                        <Input
+                          placeholder="Select media file..."
+                          readOnly
+                          value={formField.value || ""}
+                          onClick={() => setMediaDialogOpen(true)}
+                          className="cursor-pointer"
+                        />
+                        <Button 
+                          type="button" 
+                          variant="outline"
+                          onClick={() => setMediaDialogOpen(true)}
                         >
-                          <X className="h-4 w-4" />
+                          Select
                         </Button>
+                        {formField.value && (
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8"
+                            onClick={() => formField.onChange("")}
+                          >
+                            <X className="h-4 w-4" />
+                          </Button>
+                        )}
+                      </div>
+                      
+                      {/* Preview of selected media */}
+                      {formField.value && (
+                        <div className="border rounded-md p-2 bg-muted/20">
+                          <MediaPreview mediaIds={formField.value} />
+                        </div>
                       )}
                     </div>
                   );
