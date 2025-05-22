@@ -2,7 +2,7 @@ import { ReactNode, useState } from "react";
 import { Sidebar } from "@/components/Sidebar";
 import { useAuth } from "@/hooks/use-auth";
 import { Button } from "@/components/ui/button";
-import { Bell, HelpCircle } from "lucide-react";
+import { Bell, HelpCircle, MenuIcon } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useLocation } from "wouter";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { cn } from "@/lib/utils";
 
 interface AdminLayoutProps {
   children: ReactNode;
@@ -24,8 +25,13 @@ export function AdminLayout({
   pageTitle = "Dashboard",
 }: AdminLayoutProps) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [collapsed, setCollapsed] = useState(false);
   const { user, logout } = useAuth();
   const [, navigate] = useLocation();
+
+  const toggleCollapsed = () => {
+    setCollapsed(!collapsed);
+  };
 
   const handleLogout = async () => {
     await logout();
@@ -35,15 +41,29 @@ export function AdminLayout({
   return (
     <div className="flex h-screen overflow-hidden bg-background">
       {/* Sidebar */}
-      <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+      <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} collapsed={collapsed} />
 
       {/* Main Content */}
-      <div className="flex flex-col flex-1 w-full overflow-hidden md:pl-[70px] md:w-[calc(100%-70px)]">
+      <div className={cn(
+        "flex flex-col flex-1 w-full overflow-hidden",
+        !collapsed ? "md:pl-64 md:w-[calc(100%-16rem)]" : "md:pl-0 md:w-full"
+      )}>
         {/* Top Navigation */}
         <header className="bg-card shadow-sm z-10">
           <div className="flex items-center justify-between h-16 px-4 border-b border-border">
-            {/* Page title - pushed to left on desktop for alignment with collapsed sidebar */}
-            <div className="flex-1 md:pl-14">
+            {/* Page title with sidebar toggle */}
+            <div className="flex items-center flex-1">
+              {/* Sidebar toggle button - desktop only */}
+              <Button
+                variant="ghost"
+                size="icon"
+                className="hidden md:flex mr-2"
+                onClick={toggleCollapsed}
+              >
+                <MenuIcon className="h-5 w-5" />
+                <span className="sr-only">Toggle sidebar</span>
+              </Button>
+              
               <h2 className="text-xl font-semibold">
                 {pageTitle}
               </h2>
