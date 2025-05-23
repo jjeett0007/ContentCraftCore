@@ -127,6 +127,20 @@ export const createContentModel = (contentType: any) => {
     schemaFields[field.name] = schemaField;
   });
 
+  // Add state for draft/published workflow
+  schemaFields.state = { 
+    type: String, 
+    enum: ['draft', 'pending_approval', 'published'], 
+    default: 'draft' 
+  };
+  
+  // Add createdBy for tracking content ownership
+  schemaFields.createdBy = { 
+    type: mongoose.Schema.Types.ObjectId, 
+    ref: 'User',
+    required: true 
+  };
+  
   // Add timestamps
   schemaFields.createdAt = { type: Date, default: Date.now };
   schemaFields.updatedAt = { type: Date, default: Date.now };
