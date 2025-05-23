@@ -189,8 +189,8 @@ export default function ContentEntries() {
   };
 
   const isLoading = contentTypeLoading || entriesLoading;
-  const entries = entriesData?.entries || [];
-  const totalEntries = entriesData?.totalCount || 0;
+  const entries = entriesData?.data || [];
+  const totalEntries = entriesData?.pagination?.total || 0;
   const totalPages = Math.ceil(totalEntries / limit);
 
   if (!isAuthenticated) {
@@ -269,9 +269,9 @@ export default function ContentEntries() {
                 </TableHeader>
                 <TableBody>
                   {entries.map((entry: any) => (
-                    <TableRow key={entry.id}>
+                    <TableRow key={entry._id}>
                       {contentTypeData.fields.slice(0, 5).map((field: any) => (
-                        <TableCell key={`${entry.id}-${field.name}`}>
+                        <TableCell key={`${entry._id}-${field.name}`}>
                           {formatFieldValue(entry[field.name], field.type)}
                         </TableCell>
                       ))}
@@ -281,7 +281,7 @@ export default function ContentEntries() {
                             <Button
                               variant="ghost"
                               size="icon"
-                              onClick={() => handleEdit(entry)}
+                              onClick={() => handleEdit({...entry, id: entry._id})}
                             >
                               <Edit className="h-4 w-4 text-secondary" />
                             </Button>
@@ -290,7 +290,7 @@ export default function ContentEntries() {
                             <Button
                               variant="ghost"
                               size="icon"
-                              onClick={() => handleDelete(entry.id)}
+                              onClick={() => handleDelete(entry._id)}
                             >
                               <Trash2 className="h-4 w-4 text-destructive" />
                             </Button>
