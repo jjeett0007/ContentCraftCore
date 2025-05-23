@@ -237,7 +237,7 @@ export const updateContentState = async (req: Request, res: Response) => {
     const { state } = req.body;
     
     // Only administrators can approve content
-    if (user.role !== 'administrator' && state === 'published') {
+    if (user.role !== 'admin' && state === 'published') {
       return res.status(403).json({ message: "You don't have permission to approve content" });
     }
     
