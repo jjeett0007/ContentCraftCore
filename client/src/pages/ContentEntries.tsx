@@ -27,6 +27,13 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Pagination } from "@/components/ui/pagination";
+import { Badge } from "@/components/ui/badge";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger
+} from "@/components/ui/dropdown-menu";
 import { 
   ChevronLeft, 
   ChevronRight, 
@@ -35,7 +42,11 @@ import {
   Plus, 
   Search,
   X,
-  AlertCircle
+  AlertCircle,
+  Clock,
+  CheckCircle2,
+  FileCheck,
+  PenLine
 } from "lucide-react";
 import { 
   Dialog, 
@@ -164,7 +175,29 @@ export default function ContentEntries() {
       setDeletingEntry(null);
     }
   });
+  
+  // Update content state mutation
+  const updateStateMutation = useMutation({
+    mutationFn: async ({ id, state }: { id: string, state: string }) => {
+      return apiRequest("PUT", `/api/content/${contentType}/${id}/state`, { state });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [`/api/content/${contentType}`] });
+      toast({
+        title: "Success",
+        description: "Content state updated successfully",
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: "Error",
+        description: error instanceof Error ? error.message : "Failed to update content state",
+        variant: "destructive",
+      });
+    }
+  });
 
+  // Handle form submission for create/update
   const handleSubmit = (formData: any) => {
     if (editingEntry) {
       updateMutation.mutate({ id: editingEntry.id, formData });
@@ -173,19 +206,27 @@ export default function ContentEntries() {
     }
   };
 
+  // Handle editing an entry
   const handleEdit = (entry: any) => {
     setEditingEntry(entry);
     setShowForm(true);
   };
 
+  // Handle requesting deletion of an entry
   const handleDelete = (id: string) => {
     setDeletingEntry(id);
   };
 
+  // Handle confirming deletion
   const confirmDelete = () => {
     if (deletingEntry) {
       deleteMutation.mutate(deletingEntry);
     }
+  };
+  
+  // Handle updating content state
+  const handleUpdateState = (id: string, newState: string) => {
+    updateStateMutation.mutate({ id, state: newState });
   };
 
   const isLoading = contentTypeLoading || entriesLoading;
@@ -261,7 +302,8 @@ export default function ContentEntries() {
               <Table>
                 <TableHeader>
                   <TableRow>
-                    {contentTypeData.fields.slice(0, 5).map((field: any) => (
+                    <TableHead>State</TableHead>
+                    {contentTypeData.fields.slice(0, 4).map((field: any) => (
                       <TableHead key={field.name}>{field.displayName}</TableHead>
                     ))}
                     <TableHead className="text-right">Actions</TableHead>
@@ -270,13 +312,54 @@ export default function ContentEntries() {
                 <TableBody>
                   {entries.map((entry: any) => (
                     <TableRow key={entry._id}>
-                      {contentTypeData.fields.slice(0, 5).map((field: any) => (
+                      <TableCell>
+                        <ContentStateBadge state={entry.state} />
+                      </TableCell>
+                      {contentTypeData.fields.slice(0, 4).map((field: any) => (
                         <TableCell key={`${entry._id}-${field.name}`}>
                           {formatFieldValue(entry[field.name], field.type)}
                         </TableCell>
                       ))}
                       <TableCell className="text-right">
                         <div className="flex justify-end gap-2">
+                          {/* State control dropdown */}
+                          {canEdit && (
+                            <DropdownMenu>
+                              <DropdownMenuTrigger asChild>
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  className="mr-1"
+                                >
+                                  <FileCheck className="h-4 w-4 text-primary" />
+                                </Button>
+                              </DropdownMenuTrigger>
+                              <DropdownMenuContent align="end">
+                                {entry.state !== 'draft' && (
+                                  <DropdownMenuItem onClick={() => handleUpdateState(entry._id, 'draft')}>
+                                    <PenLine className="h-4 w-4 mr-2" />
+                                    Save as Draft
+                                  </DropdownMenuItem>
+                                )}
+                                
+                                {entry.state !== 'pending_approval' && user.role !== 'admin' && (
+                                  <DropdownMenuItem onClick={() => handleUpdateState(entry._id, 'pending_approval')}>
+                                    <Clock className="h-4 w-4 mr-2" />
+                                    Submit for Approval
+                                  </DropdownMenuItem>
+                                )}
+                                
+                                {(user.role === 'admin' || entry.state === 'published') && entry.state !== 'published' && (
+                                  <DropdownMenuItem onClick={() => handleUpdateState(entry._id, 'published')}>
+                                    <CheckCircle2 className="h-4 w-4 mr-2" />
+                                    Publish
+                                  </DropdownMenuItem>
+                                )}
+                              </DropdownMenuContent>
+                            </DropdownMenu>
+                          )}
+                          
+                          {/* Edit button */}
                           {canEdit && (
                             <Button
                               variant="ghost"
@@ -286,6 +369,8 @@ export default function ContentEntries() {
                               <Edit className="h-4 w-4 text-secondary" />
                             </Button>
                           )}
+                          
+                          {/* Delete button */}
                           {canDelete && (
                             <Button
                               variant="ghost"
@@ -412,6 +497,38 @@ export default function ContentEntries() {
       </AlertDialog>
     </AdminLayout>
   );
+}
+
+// Function to render content state badge
+function ContentStateBadge({ state }: { state: string }) {
+  if (!state) {
+    return <Badge variant="outline">Draft</Badge>;
+  }
+  
+  switch (state) {
+    case 'published':
+      return (
+        <Badge className="bg-green-100 text-green-800 hover:bg-green-200 dark:bg-green-900 dark:text-green-100">
+          <CheckCircle2 className="h-3 w-3 mr-1" />
+          Published
+        </Badge>
+      );
+    case 'pending_approval':
+      return (
+        <Badge className="bg-amber-100 text-amber-800 hover:bg-amber-200 dark:bg-amber-900 dark:text-amber-100">
+          <Clock className="h-3 w-3 mr-1" />
+          Pending Approval
+        </Badge>
+      );
+    case 'draft':
+    default:
+      return (
+        <Badge variant="outline" className="text-slate-500 border-slate-300 dark:text-slate-400 dark:border-slate-700">
+          <PenLine className="h-3 w-3 mr-1" />
+          Draft
+        </Badge>
+      );
+  }
 }
 
 // Utility function to format field values based on their type
