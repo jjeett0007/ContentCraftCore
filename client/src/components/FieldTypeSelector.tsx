@@ -142,16 +142,20 @@ export function FieldTypeSelector({ fieldIndex, control, contentTypes, fieldType
         />
       )}
       
-      {fieldType === "media" && (
+      {(fieldType === "media" || fieldType === "text" || fieldType === "number") && (
         <FormField
           control={control}
           name={`fields.${fieldIndex}.multiple`}
           render={({ field }) => (
             <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
               <div className="space-y-0.5">
-                <FormLabel>Allow multiple media files</FormLabel>
+                <FormLabel>Allow multiple {fieldType === "media" ? "media files" : fieldType === "text" ? "text values" : "numbers"}</FormLabel>
                 <FormDescription>
-                  Enable this to allow uploading multiple media files
+                  {fieldType === "media" 
+                    ? "Enable this to allow uploading multiple media files" 
+                    : fieldType === "text" 
+                      ? "Enable this to allow multiple text values for this field" 
+                      : "Enable this to allow multiple number values for this field"}
                 </FormDescription>
               </div>
               <FormControl>
