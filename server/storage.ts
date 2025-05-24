@@ -21,14 +21,14 @@ import bcrypt from "bcryptjs";
 // MongoDB connection
 export const connectToDatabase = async () => {
   try {
-    const mongoUri = process.env.MONGODB_URI || "mongodb://localhost:27017/corebase";
-    await mongoose.connect(mongoUri, { 
-      serverSelectionTimeoutMS: 5000 // 5 seconds timeout
-    });
+    const mongoUri = process.env.MONGODB_URI || "mongodb+srv://support:8L8VbabHqthCsJrk@cluster0.idavw.mongodb.net/Corebase";
+    await mongoose.connect(mongoUri);
     console.log("Connected to MongoDB");
+    setMongoDBConnected(true);
     return true;
   } catch (error) {
     console.error("MongoDB connection error:", error);
+    setMongoDBConnected(false);
     return false;
   }
 };
@@ -464,4 +464,29 @@ export class MemStorage implements IStorage {
   }
 }
 
-export const storage = new MemStorage();
+import { MongoDBStorage } from './storage-mongodb';
+
+// Create singleton instances
+const memStorage = new MemStorage();
+const mongoDBStorage = new MongoDBStorage();
+
+// Export the appropriate storage implementation
+// MongoDB will be used by default, fallback to MemStorage if MongoDB connection fails
+let isMongoDBConnected = false;
+
+// This will be set when connectToDatabase is called
+export const setMongoDBConnected = (connected: boolean) => {
+  isMongoDBConnected = connected;
+};
+
+// Export storage with fallback mechanism
+export const storage: IStorage = new Proxy({} as IStorage, {
+  get: (target, prop) => {
+    // Use MongoDB storage if connected, otherwise fall back to memory storage
+    if (isMongoDBConnected) {
+      return (mongoDBStorage as any)[prop];
+    } else {
+      return (memStorage as any)[prop];
+    }
+  }
+});

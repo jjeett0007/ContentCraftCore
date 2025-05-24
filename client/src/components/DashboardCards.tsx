@@ -1,4 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
+import { Database, Code, Image, Users } from "lucide-react";
 
 interface DashboardCardsProps {
   contentTypes: any[];
@@ -24,7 +25,7 @@ export function DashboardCards({ contentTypes }: DashboardCardsProps) {
       <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-4">
         <div className="flex items-center">
           <div className="flex-shrink-0 p-3 rounded-md bg-primary/10">
-            <span className="material-icons text-primary">data_object</span>
+            <Database className="h-5 w-5 text-primary" />
           </div>
           <div className="ml-4">
             <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400">Content Types</h3>
@@ -39,7 +40,7 @@ export function DashboardCards({ contentTypes }: DashboardCardsProps) {
       <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-4">
         <div className="flex items-center">
           <div className="flex-shrink-0 p-3 rounded-md bg-secondary/10">
-            <span className="material-icons text-secondary">api</span>
+            <Code className="h-5 w-5 text-secondary" />
           </div>
           <div className="ml-4">
             <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400">API Endpoints</h3>
@@ -54,7 +55,7 @@ export function DashboardCards({ contentTypes }: DashboardCardsProps) {
       <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-4">
         <div className="flex items-center">
           <div className="flex-shrink-0 p-3 rounded-md bg-accent/10">
-            <span className="material-icons text-accent">perm_media</span>
+            <Image className="h-5 w-5 text-accent" />
           </div>
           <div className="ml-4">
             <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400">Media Files</h3>
@@ -69,7 +70,7 @@ export function DashboardCards({ contentTypes }: DashboardCardsProps) {
       <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-4">
         <div className="flex items-center">
           <div className="flex-shrink-0 p-3 rounded-md bg-dark/10">
-            <span className="material-icons text-dark">people</span>
+            <Users className="h-5 w-5 text-dark" />
           </div>
           <div className="ml-4">
             <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400">Users</h3>

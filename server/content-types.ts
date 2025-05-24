@@ -276,8 +276,11 @@ const fieldTypeToMongooseType = (field: any) => {
 // Create Mongoose schema and model from content type
 export const createMongooseModel = (contentType: any) => {
   try {
+    const modelName = `Content_${contentType.apiId}`;
+    
     // Create schema definition
     const schemaDefinition: any = {
+      _contentType: { type: String, required: true, default: contentType.apiId },
       createdAt: { type: Date, default: Date.now },
       updatedAt: { type: Date, default: Date.now }
     };
@@ -320,17 +323,26 @@ export const createMongooseModel = (contentType: any) => {
     // Create model
     try {
       if (mongoose.connection.readyState === 1) { // Check if connected to MongoDB
-        const model = mongoose.model(contentType.apiId, schema);
+        // Check if model already exists to avoid OverwriteModelError
+        if (mongoose.models[modelName]) {
+          delete mongoose.models[modelName];
+        }
+        
+        const model = mongoose.model(modelName, schema);
         modelRegistry.set(contentType.apiId, model);
-        console.log(`Model created for content type: ${contentType.apiId}`);
+        console.log(`MongoDB model created for content type: ${contentType.apiId}`);
+        return model;
       } else {
         console.log(`MongoDB not connected, skipping model creation for: ${contentType.apiId}`);
+        return null;
       }
     } catch (error) {
       console.error(`Error creating model for content type ${contentType.apiId}:`, error);
+      return null;
     }
   } catch (error) {
     console.error("Error creating Mongoose model:", error);
+    return null;
   }
 };
 

@@ -2,20 +2,21 @@ import { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
 import { storage } from "./storage";
+import mongoose from "mongoose";
 
 // JWT Secret
 const JWT_SECRET = process.env.JWT_SECRET || "corebase-secret-key";
 const JWT_EXPIRES_IN = "7d";
 
 // Generate JWT token
-export const generateToken = (userId: number): string => {
+export const generateToken = (userId: string | number): string => {
   return jwt.sign({ userId }, JWT_SECRET, { expiresIn: JWT_EXPIRES_IN });
 };
 
 // Verify JWT token
-export const verifyToken = (token: string): { userId: number } | null => {
+export const verifyToken = (token: string): { userId: string | number } | null => {
   try {
-    const decoded = jwt.verify(token, JWT_SECRET) as { userId: number };
+    const decoded = jwt.verify(token, JWT_SECRET) as { userId: string | number };
     return decoded;
   } catch (error) {
     return null;
@@ -41,8 +42,16 @@ export const authenticate = async (req: Request, res: Response, next: NextFuncti
       return res.status(401).json({ message: "Invalid or expired token" });
     }
 
-    // Find user
-    const user = await storage.getUser(decoded.userId);
+    // Find user by ID (support both numeric IDs and MongoDB ObjectIDs)
+    let user;
+    if (typeof decoded.userId === 'string' && mongoose.Types.ObjectId.isValid(decoded.userId)) {
+      // For MongoDB ObjectID string
+      user = await storage.getUser(decoded.userId as any);
+    } else {
+      // For numeric ID
+      user = await storage.getUser(Number(decoded.userId));
+    }
+
     if (!user) {
       return res.status(401).json({ message: "User not found" });
     }

@@ -53,12 +53,12 @@ export function RelationSelectionDialog({
   });
 
   // Fetch content entries
-  const { data: entriesData = { entries: [] }, isLoading } = useQuery({
+  const { data: entriesData = { data: [] }, isLoading } = useQuery({
     queryKey: [`/api/content/${relationTo}`],
     enabled: open && !!relationTo,
   });
 
-  const entries = entriesData?.entries || [];
+  const entries = entriesData?.data || [];
   
   // Filter entries by search query
   const filteredEntries = searchQuery 
@@ -122,10 +122,10 @@ export function RelationSelectionDialog({
   // Generate a preview of the item based on its fields
   const getItemPreview = (item: any) => {
     // Show the display field prominently
-    const mainValue = item[displayField] || item.id || 'Unnamed item';
+    const mainValue = item[displayField] || item._id || 'Unnamed item';
     
     // Get other notable fields (exclude internal or complex fields)
-    const excludedFields = ['id', displayField, 'createdAt', 'updatedAt'];
+    const excludedFields = ['_id', 'id', displayField, 'createdAt', 'updatedAt', '__v', '_contentType'];
     const detailFields = Object.keys(item)
       .filter(key => 
         !excludedFields.includes(key) && 
@@ -203,17 +203,17 @@ export function RelationSelectionDialog({
                 <TableBody>
                   {filteredEntries.map((entry: any) => (
                     <TableRow 
-                      key={entry.id}
-                      className={selectedItems.includes(entry.id) ? "bg-muted/50" : ""}
-                      onClick={() => toggleSelection(entry.id)}
+                      key={entry._id}
+                      className={selectedItems.includes(entry._id) ? "bg-muted/50" : ""}
+                      onClick={() => toggleSelection(entry._id)}
                     >
                       <TableCell className="p-2">
                         <div className={`w-5 h-5 rounded-sm border flex items-center justify-center ${
-                          selectedItems.includes(entry.id) 
+                          selectedItems.includes(entry._id) 
                             ? "bg-primary border-primary" 
                             : "border-input"
                         }`}>
-                          {selectedItems.includes(entry.id) && (
+                          {selectedItems.includes(entry._id) && (
                             <Check className="h-3 w-3 text-primary-foreground" />
                           )}
                         </div>
@@ -222,7 +222,7 @@ export function RelationSelectionDialog({
                         {getItemPreview(entry)}
                       </TableCell>
                       <TableCell className="text-muted-foreground text-sm">
-                        {entry.id}
+                        {entry._id}
                       </TableCell>
                     </TableRow>
                   ))}

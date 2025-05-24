@@ -31,7 +31,9 @@ import {
   getContentEntries, 
   getContentEntryById, 
   updateContentEntry, 
-  deleteContentEntry 
+  deleteContentEntry,
+  getPendingContent,
+  updateContentState
 } from "./content";
 
 import { 
@@ -221,6 +223,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/content/:contentType/:id", authenticate, getContentEntryById);
   app.put("/api/content/:contentType/:id", authenticate, authorize(["admin", "editor"]), updateContentEntry);
   app.delete("/api/content/:contentType/:id", authenticate, authorize(["admin"]), deleteContentEntry);
+  
+  // Content approval workflow routes
+  app.get("/api/content/pending", authenticate, authorize(["admin"]), getPendingContent);
+  app.put("/api/content/:contentType/:id/state", authenticate, authorize(["admin", "editor"]), updateContentState);
   
   // Media routes
   app.post("/api/media", authenticate, authorize(["admin", "editor"]), uploadMedia);
