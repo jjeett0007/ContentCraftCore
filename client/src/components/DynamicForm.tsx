@@ -649,13 +649,15 @@ export function DynamicForm({ fields, initialData, onSubmit, onCancel, isSubmitt
               const renderRelatedItemPreview = () => {
                 // For single relation (default)
                 if (!field.relationMany) {
+                  const hasValidValue = formField.value && formField.value !== "" && formField.value !== "null" && formField.value !== "undefined";
+                  
                   return (
                     <div className="space-y-2">
                       <div className="flex items-center space-x-2">
                         <Input
                           placeholder={`Select ${field.relationTo} item...`}
                           readOnly
-                          value={formField.value || ""}
+                          value={hasValidValue ? formField.value : ""}
                           onClick={() => setRelationDialogOpen(true)}
                           className="cursor-pointer"
                         />
@@ -666,7 +668,7 @@ export function DynamicForm({ fields, initialData, onSubmit, onCancel, isSubmitt
                         >
                           Select
                         </Button>
-                        {formField.value && formField.value !== "" && (
+                        {hasValidValue && (
                           <Button
                             type="button"
                             variant="ghost"
@@ -680,7 +682,7 @@ export function DynamicForm({ fields, initialData, onSubmit, onCancel, isSubmitt
                       </div>
 
                       {/* Preview of selected related item */}
-                      {formField.value && (
+                      {hasValidValue && (
                         <RelatedItemDisplay
                           itemId={formField.value}
                           contentType={field.relationTo}
@@ -692,6 +694,10 @@ export function DynamicForm({ fields, initialData, onSubmit, onCancel, isSubmitt
                 }
 
                 // For multiple relations
+                const validItems = Array.isArray(formField.value) 
+                  ? formField.value.filter(item => item && item !== "" && item !== "null" && item !== "undefined")
+                  : [];
+
                 return (
                   <div className="space-y-4">
                     <Button 
@@ -704,16 +710,15 @@ export function DynamicForm({ fields, initialData, onSubmit, onCancel, isSubmitt
 
                     {/* Display selected related items */}
                     <div className="space-y-2">
-                      {Array.isArray(formField.value) && formField.value.length > 0 ? (
+                      {validItems.length > 0 ? (
                         <div className="space-y-2">
-                          {formField.value.map((itemId, index) => (
+                          {validItems.map((itemId, index) => (
                             <RelatedItemDisplay
                               key={index}
                               itemId={itemId}
                               contentType={field.relationTo}
                               onRemove={() => {
-                                const newValue = [...formField.value];
-                                newValue.splice(index, 1);
+                                const newValue = validItems.filter((_, i) => i !== index);
                                 formField.onChange(newValue);
                               }}
                             />
@@ -749,7 +754,10 @@ export function DynamicForm({ fields, initialData, onSubmit, onCancel, isSubmitt
                     onOpenChange={setRelationDialogOpen}
                     multiple={!!field.relationMany}
                     relationTo={field.relationTo || ""}
-                    currentSelection={formField.value}
+                    currentSelection={field.relationMany 
+                      ? (Array.isArray(formField.value) ? formField.value.filter(item => item && item !== "") : [])
+                      : (formField.value && formField.value !== "" ? formField.value : "")
+                    }
                     onSelect={(selectedItems) => {
                       formField.onChange(selectedItems);
                     }}

@@ -37,9 +37,9 @@ export function RelationSelectionDialog({
   useEffect(() => {
     if (open) {
       if (multiple && Array.isArray(currentSelection)) {
-        setSelectedItems(currentSelection);
-      } else if (!multiple && typeof currentSelection === "string") {
-        setSelectedItems(currentSelection ? [currentSelection] : []);
+        setSelectedItems(currentSelection.filter(item => item && item !== ""));
+      } else if (!multiple && typeof currentSelection === "string" && currentSelection && currentSelection !== "") {
+        setSelectedItems([currentSelection]);
       } else {
         setSelectedItems([]);
       }
@@ -96,7 +96,9 @@ export function RelationSelectionDialog({
 
   const handleConfirm = () => {
     if (multiple) {
-      onSelect(selectedItems);
+      // Filter out any empty values
+      const validItems = selectedItems.filter(item => item && item !== "");
+      onSelect(validItems);
     } else {
       onSelect(selectedItems[0] || "");
     }

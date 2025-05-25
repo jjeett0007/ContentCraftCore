@@ -465,23 +465,36 @@ export class MongoStorage {
 
       // Handle arrays with empty strings or invalid values
       if (Array.isArray(value)) {
-        const filteredArray = value.filter(item => 
-          item !== "" && 
-          item !== null && 
-          item !== undefined && 
-          item !== "null" && 
-          item !== "undefined"
-        );
+        const filteredArray = value.filter(item => {
+          // More thorough filtering for array items
+          if (item === "" || item === null || item === undefined || item === "null" || item === "undefined") {
+            return false;
+          }
+          // Check for ObjectId validity if it looks like one
+          if (typeof item === 'string' && item.length === 24) {
+            return mongoose.Types.ObjectId.isValid(item);
+          }
+          return !!item;
+        });
+        
         if (filteredArray.length === 0) {
           delete cleaned[key];
         } else {
           cleaned[key] = filteredArray;
         }
+        return;
       }
 
       // Handle string values that are actually "null" or "undefined"
-      if (typeof value === 'string' && (value === 'null' || value === 'undefined')) {
+      if (typeof value === 'string' && (value === 'null' || value === 'undefined' || value.trim() === '')) {
         delete cleaned[key];
+        return;
+      }
+
+      // Validate ObjectId strings for relation/media fields
+      if (typeof value === 'string' && value.length === 24 && !mongoose.Types.ObjectId.isValid(value)) {
+        delete cleaned[key];
+        return;
       }
     });
 

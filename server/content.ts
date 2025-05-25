@@ -18,7 +18,17 @@ export const createContent = async (req: Request, res: Response) => {
     // Validate required fields
     const requiredFields = contentTypeData.fields.filter(field => field.required);
     for (const field of requiredFields) {
-      if (req.body[field.name] === undefined) {
+      const value = req.body[field.name];
+      
+      // Check if required field is missing or empty
+      if (value === undefined || value === null || value === "" || value === "null" || value === "undefined") {
+        return res.status(400).json({ 
+          message: `Field '${field.name}' is required` 
+        });
+      }
+      
+      // For array fields (multiple relations/media), check if array is empty
+      if (Array.isArray(value) && value.length === 0) {
         return res.status(400).json({ 
           message: `Field '${field.name}' is required` 
         });
