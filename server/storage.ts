@@ -323,6 +323,12 @@ export class MongoStorage {
     if (!model) {
       throw new Error(`Model for content type ${contentType} not found`);
     }
+    
+    // Validate ObjectId format
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return null;
+    }
+    
     return await model.findById(id);
   }
 
@@ -334,6 +340,11 @@ export class MongoStorage {
     const Model = modelRegistry.get(contentType);
     if (!Model) {
       throw new Error(`Model for content type '${contentType}' not found`);
+    }
+
+    // Validate ObjectId format
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return null;
     }
 
     // Clean up empty relation and media fields
@@ -352,6 +363,12 @@ export class MongoStorage {
     if (!model) {
       throw new Error(`Model for content type ${contentType} not found`);
     }
+    
+    // Validate ObjectId format
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return false;
+    }
+    
     const result = await model.findByIdAndDelete(id);
     return !!result;
   }
@@ -434,24 +451,37 @@ export class MongoStorage {
     Object.keys(cleaned).forEach(key => {
       const value = cleaned[key];
 
-      // Handle empty strings for ObjectId fields
-      if (value === "" || value === null || value === undefined) {
+      // Handle empty strings, null, undefined values
+      if (value === "" || value === null || value === undefined || value === "null" || value === "undefined") {
         delete cleaned[key]; // Let MongoDB handle defaults
+        return;
       }
 
       // Handle empty arrays
       if (Array.isArray(value) && value.length === 0) {
         delete cleaned[key];
+        return;
       }
 
-      // Handle arrays with empty strings
+      // Handle arrays with empty strings or invalid values
       if (Array.isArray(value)) {
-        const filteredArray = value.filter(item => item !== "" && item !== null && item !== undefined);
+        const filteredArray = value.filter(item => 
+          item !== "" && 
+          item !== null && 
+          item !== undefined && 
+          item !== "null" && 
+          item !== "undefined"
+        );
         if (filteredArray.length === 0) {
           delete cleaned[key];
         } else {
           cleaned[key] = filteredArray;
         }
+      }
+
+      // Handle string values that are actually "null" or "undefined"
+      if (typeof value === 'string' && (value === 'null' || value === 'undefined')) {
+        delete cleaned[key];
       }
     });
 

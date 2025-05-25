@@ -75,6 +75,11 @@ export const getContentEntryById = async (req: Request, res: Response) => {
   try {
     const { contentType, id } = req.params;
     
+    // Validate ID format
+    if (!id || id === "undefined" || id === "null") {
+      return res.status(400).json({ message: "Invalid content entry ID" });
+    }
+    
     // Check if content type exists
     const contentTypeData = await storage.getContentTypeByApiId(contentType);
     if (!contentTypeData) {
@@ -99,6 +104,11 @@ export const updateContentEntry = async (req: Request, res: Response) => {
   try {
     const user = (req as any).user;
     const { contentType, id } = req.params;
+    
+    // Validate ID format
+    if (!id || id === "undefined" || id === "null") {
+      return res.status(400).json({ message: "Invalid content entry ID" });
+    }
     
     // Check if content type exists
     const contentTypeData = await storage.getContentTypeByApiId(contentType);
@@ -136,6 +146,11 @@ export const deleteContentEntry = async (req: Request, res: Response) => {
   try {
     const user = (req as any).user;
     const { contentType, id } = req.params;
+    
+    // Validate ID format
+    if (!id || id === "undefined" || id === "null") {
+      return res.status(400).json({ message: "Invalid content entry ID" });
+    }
     
     // Check if content type exists
     const contentTypeData = await storage.getContentTypeByApiId(contentType);
