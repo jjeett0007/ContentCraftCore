@@ -54,7 +54,14 @@ export function RelationSelectionDialog({
 
   // Fetch content entries
   const { data: entriesData = { entries: [] }, isLoading } = useQuery({
-    queryKey: [`/api/content/${relationTo}`],
+    queryKey: [`/api/content/${relationTo}`, 1, "", "createdAt", "desc"],
+    queryFn: async () => {
+      const response = await fetch(`/api/content/${relationTo}?page=1&limit=100`);
+      if (!response.ok) {
+        throw new Error('Failed to fetch entries');
+      }
+      return response.json();
+    },
     enabled: open && !!relationTo,
   });
 
