@@ -143,6 +143,15 @@ export class MongoStorage {
     return !!result;
   }
 
+  async getUser(id: number): Promise<User | null> {
+    const user = await UserModel.findById(id.toString());
+    return user ? this.convertMongoUser(user) : null;
+  }
+
+  async getUsersCount(): Promise<number> {
+    return await UserModel.countDocuments();
+  }
+
   // Content Type operations
   async createContentType(contentTypeData: InsertContentType): Promise<ContentType> {
     const contentType = new ContentTypeModel(contentTypeData);
@@ -401,6 +410,14 @@ export class MemStorage {
 
   async deleteUser(id: string): Promise<boolean> {
     return this.users.delete(id);
+  }
+
+  async getUser(id: number): Promise<User | null> {
+    return this.users.get(id.toString()) || null;
+  }
+
+  async getUsersCount(): Promise<number> {
+    return this.users.size;
   }
 
   // Content Type operations
