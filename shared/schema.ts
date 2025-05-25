@@ -1,110 +1,111 @@
-import { pgTable, text, serial, integer, boolean, timestamp, jsonb } from "drizzle-orm/pg-core";
-import { createInsertSchema } from "drizzle-zod";
+
 import { z } from "zod";
 
-// User model
-export const users = pgTable("users", {
-  id: serial("id").primaryKey(),
-  username: text("username").notNull().unique(),
-  password: text("password").notNull(),
-  role: text("role").notNull().default("viewer"),
-  createdAt: timestamp("created_at").defaultNow(),
-});
-
-export const insertUserSchema = createInsertSchema(users).pick({
-  username: true,
-  password: true,
-  role: true,
+// User model schema
+export const insertUserSchema = z.object({
+  username: z.string().min(1, "Username is required"),
+  password: z.string().min(6, "Password must be at least 6 characters"),
+  role: z.string().default("viewer"),
 });
 
 export type InsertUser = z.infer<typeof insertUserSchema>;
-export type User = typeof users.$inferSelect;
 
-// Content type model
-export const contentTypes = pgTable("content_types", {
-  id: serial("id").primaryKey(),
-  displayName: text("display_name").notNull(),
-  apiId: text("api_id").notNull().unique(),
-  description: text("description"),
-  fields: jsonb("fields").notNull(),
-  createdAt: timestamp("created_at").defaultNow(),
-  updatedAt: timestamp("updated_at").defaultNow(),
-});
+export interface User {
+  _id?: string;
+  id?: string;
+  username: string;
+  password: string;
+  role: string;
+  createdAt?: Date;
+  updatedAt?: Date;
+}
 
-export const insertContentTypeSchema = createInsertSchema(contentTypes).pick({
-  displayName: true,
-  apiId: true,
-  description: true,
-  fields: true,
+// Content type model schema
+export const insertContentTypeSchema = z.object({
+  displayName: z.string().min(1, "Display name is required"),
+  apiId: z.string().min(1, "API ID is required"),
+  description: z.string().optional(),
+  fields: z.array(z.any()),
 });
 
 export type InsertContentType = z.infer<typeof insertContentTypeSchema>;
-export type ContentType = typeof contentTypes.$inferSelect;
 
-// Media model
-export const media = pgTable("media", {
-  id: serial("id").primaryKey(),
-  name: text("name").notNull(),
-  url: text("url").notNull(),
-  type: text("type").notNull(),
-  size: integer("size").notNull(),
-  uploadedBy: integer("uploaded_by").notNull(),
-  createdAt: timestamp("created_at").defaultNow(),
-});
+export interface ContentType {
+  _id?: string;
+  id?: string;
+  displayName: string;
+  apiId: string;
+  description?: string;
+  fields: Field[];
+  createdAt?: Date;
+  updatedAt?: Date;
+}
 
-export const insertMediaSchema = createInsertSchema(media).pick({
-  name: true,
-  url: true,
-  type: true,
-  size: true,
-  uploadedBy: true,
+// Media model schema
+export const insertMediaSchema = z.object({
+  name: z.string().min(1, "Name is required"),
+  url: z.string().min(1, "URL is required"),
+  type: z.string().min(1, "Type is required"),
+  size: z.number().min(1, "Size is required"),
+  uploadedBy: z.string().min(1, "Uploaded by is required"),
 });
 
 export type InsertMedia = z.infer<typeof insertMediaSchema>;
-export type Media = typeof media.$inferSelect;
 
-// Activity model
-export const activities = pgTable("activities", {
-  id: serial("id").primaryKey(),
-  userId: integer("user_id").notNull(),
-  action: text("action").notNull(),
-  entityType: text("entity_type").notNull(),
-  entityId: text("entity_id"),
-  details: jsonb("details"),
-  createdAt: timestamp("created_at").defaultNow(),
-});
+export interface Media {
+  _id?: string;
+  id?: string;
+  name: string;
+  url: string;
+  type: string;
+  size: number;
+  uploadedBy: string;
+  createdAt?: Date;
+  updatedAt?: Date;
+}
 
-export const insertActivitySchema = createInsertSchema(activities).pick({
-  userId: true,
-  action: true,
-  entityType: true,
-  entityId: true,
-  details: true,
+// Activity model schema
+export const insertActivitySchema = z.object({
+  userId: z.string().min(1, "User ID is required"),
+  action: z.string().min(1, "Action is required"),
+  entityType: z.string().min(1, "Entity type is required"),
+  entityId: z.string().optional(),
+  details: z.any().optional(),
 });
 
 export type InsertActivity = z.infer<typeof insertActivitySchema>;
-export type Activity = typeof activities.$inferSelect;
 
-// Settings model
-export const settings = pgTable("settings", {
-  id: serial("id").primaryKey(),
-  key: text("key").notNull().unique(),
-  value: jsonb("value").notNull(),
-  updatedAt: timestamp("updated_at").defaultNow(),
-});
+export interface Activity {
+  _id?: string;
+  id?: string;
+  userId: string;
+  action: string;
+  entityType: string;
+  entityId?: string;
+  details?: any;
+  createdAt?: Date;
+}
 
-export const insertSettingSchema = createInsertSchema(settings).pick({
-  key: true,
-  value: true,
+// Settings model schema
+export const insertSettingSchema = z.object({
+  key: z.string().min(1, "Key is required"),
+  value: z.any(),
 });
 
 export type InsertSetting = z.infer<typeof insertSettingSchema>;
-export type Setting = typeof settings.$inferSelect;
+
+export interface Setting {
+  _id?: string;
+  id?: string;
+  key: string;
+  value: any;
+  updatedAt?: Date;
+}
 
 // Field type enum for content type fields
 export const FieldTypes = {
   TEXT: "text",
-  RICHTEXT: "richtext",
+  RICHTEXT: "richtext", 
   NUMBER: "number",
   BOOLEAN: "boolean",
   DATE: "date",

@@ -1,6 +1,6 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
-import { storage, connectToDatabase } from "./storage";
+import { initializeStorage } from "./storage";
 import express from "express";
 import cookieParser from "cookie-parser";
 import cors from "cors";
@@ -43,6 +43,9 @@ import {
 } from "./media";
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Initialize storage (MongoDB or fallback to memory)
+  await initializeStorage();
+
   // Create uploads directory if it doesn't exist
   const uploadsDir = path.join(process.cwd(), "uploads");
   if (!fs.existsSync(uploadsDir)) {
@@ -55,34 +58,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
     origin: process.env.NODE_ENV === "production" ? false : true,
     credentials: true
   }));
-  
+
   // Serve uploads directory
   app.use("/uploads", express.static(uploadsDir));
 
-  try {
-    // Connect to MongoDB if available, fallback to memory storage
-    const connected = await connectToDatabase();
-    if (!connected) {
-      console.log("Using memory storage as database connection failed");
-    }
-    
-    // Initialize content type models only if MongoDB connected
-    if (connected) {
-      await initializeContentTypeModels();
-    }
-  } catch (error) {
-    console.error("Database initialization error:", error);
-  }
+  // Initialize content type models
+  await initializeContentTypeModels();
 
   // Auth routes
   app.post("/api/auth/login", login);
   app.post("/api/auth/register", register);
-  app.post("/api/auth/logout", authenticate, logout);
+  app.post("/api/auth/logout", logout);
   app.get("/api/auth/me", authenticate, getCurrentUser);
-  
+
   // User routes
   app.get("/api/users", authenticate, authorize(["admin"]), async (req, res) => {
     try {
+      const { storage } = await import("./storage");
       const users = await storage.getUsers();
       // Remove passwords from response
       const sanitizedUsers = users.map(user => {
@@ -95,9 +87,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ message: "Internal server error" });
     }
   });
-  
+
   app.get("/api/users/count", authenticate, async (req, res) => {
     try {
+      const { storage } = await import("./storage");
       const count = await storage.getUsersCount();
       res.status(200).json({ count });
     } catch (error) {
@@ -105,10 +98,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ message: "Internal server error" });
     }
   });
-  
+
   app.post("/api/users", authenticate, authorize(["admin"]), async (req, res) => {
     try {
       const { username, password, role } = req.body;
+      const { storage } = await import("./storage");
       
       if (!username || !password) {
         return res.status(400).json({ message: "Username and password are required" });
@@ -139,11 +133,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ message: "Internal server error" });
     }
   });
-  
+
   app.put("/api/users/:id", authenticate, authorize(["admin"]), async (req, res) => {
     try {
       const { id } = req.params;
       const { username, password, role } = req.body;
+      const { storage } = await import("./storage");
       
       // Find user
       const user = await storage.getUser(Number(id));
@@ -184,11 +179,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ message: "Internal server error" });
     }
   });
-  
+
   app.delete("/api/users/:id", authenticate, authorize(["admin"]), async (req, res) => {
     try {
       const { id } = req.params;
       const user = (req as any).user;
+      const { storage } = await import("./storage");
       
       // Prevent deleting yourself
       if (Number(id) === user.id) {
@@ -207,32 +203,33 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ message: "Internal server error" });
     }
   });
-  
+
   // Content type routes
-  app.post("/api/content-types", authenticate, authorize(["admin"]), createContentType);
   app.get("/api/content-types", authenticate, getContentTypes);
+  app.post("/api/content-types", authenticate, authorize(["admin"]), createContentType);
   app.get("/api/content-types/:id", authenticate, getContentTypeById);
   app.put("/api/content-types/:id", authenticate, authorize(["admin"]), updateContentType);
   app.delete("/api/content-types/:id", authenticate, authorize(["admin"]), deleteContentType);
-  
+
   // Dynamic content routes
-  app.post("/api/content/:contentType", authenticate, authorize(["admin", "editor"]), createContent);
   app.get("/api/content/:contentType", authenticate, getContentEntries);
+  app.post("/api/content/:contentType", authenticate, authorize(["admin", "editor"]), createContent);
   app.get("/api/content/:contentType/:id", authenticate, getContentEntryById);
   app.put("/api/content/:contentType/:id", authenticate, authorize(["admin", "editor"]), updateContentEntry);
   app.delete("/api/content/:contentType/:id", authenticate, authorize(["admin"]), deleteContentEntry);
-  
+
   // Media routes
-  app.post("/api/media", authenticate, authorize(["admin", "editor"]), uploadMedia);
   app.get("/api/media", authenticate, getMedia);
+  app.post("/api/media", authenticate, authorize(["admin", "editor"]), uploadMedia);
   app.get("/api/media/count", authenticate, getMediaCount);
   app.get("/api/media/:id", authenticate, getMediaById);
   app.delete("/api/media/:id", authenticate, authorize(["admin"]), deleteMedia);
-  
+
   // Activity routes
   app.get("/api/activity", authenticate, async (req, res) => {
     try {
       const limit = parseInt(req.query.limit as string) || 10;
+      const { storage } = await import("./storage");
       const activities = await storage.getActivities(limit);
       
       // Get user info for each activity
@@ -254,11 +251,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ message: "Internal server error" });
     }
   });
-  
+
   // Settings routes
   app.get("/api/settings", authenticate, authorize(["admin"]), async (req, res) => {
     try {
       // Combine all settings into one response
+      const { storage } = await import("./storage");
       const generalSettings = await storage.getSetting("general");
       const permissionsSettings = await storage.getSetting("permissions");
       const cloudinarySettings = await storage.getSetting("cloudinary");
@@ -275,7 +273,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ message: "Internal server error" });
     }
   });
-  
+
   app.put("/api/settings", authenticate, authorize(["admin"]), async (req, res) => {
     try {
       const { 
@@ -285,6 +283,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         cloudinary, 
         permissions 
       } = req.body;
+      const { storage } = await import("./storage");
       
       // Update general settings
       if (siteName || apiPrefix || mediaProvider) {
@@ -314,6 +313,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  const httpServer = createServer(app);
-  return httpServer;
+  const server = createServer(app);
+  return server;
 }
