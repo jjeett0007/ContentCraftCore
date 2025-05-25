@@ -45,18 +45,30 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const checkAuth = async () => {
     try {
       setIsLoading(true);
+      const token = localStorage.getItem('auth-token');
+      
+      if (!token) {
+        setUser(null);
+        return;
+      }
+
       const response = await fetch("/api/auth/me", {
         credentials: "include",
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
       });
       
       if (response.ok) {
-        const userData = await response.json();
-        setUser(userData);
+        const data = await response.json();
+        setUser(data.user);
       } else {
+        localStorage.removeItem('auth-token');
         setUser(null);
       }
     } catch (error) {
       console.error("Authentication check failed:", error);
+      localStorage.removeItem('auth-token');
       setUser(null);
     } finally {
       setIsLoading(false);
@@ -73,6 +85,12 @@ export function AuthProvider({ children }: AuthProviderProps) {
       });
       
       const data = await response.json();
+      
+      // Store JWT token in localStorage
+      if (data.token) {
+        localStorage.setItem('auth-token', data.token);
+      }
+      
       setUser(data.user);
     } catch (error) {
       console.error("Login failed:", error);
@@ -87,9 +105,16 @@ export function AuthProvider({ children }: AuthProviderProps) {
     try {
       setIsLoading(true);
       await apiRequest("POST", "/api/auth/logout");
+      
+      // Clear JWT token from localStorage
+      localStorage.removeItem('auth-token');
       setUser(null);
     } catch (error) {
       console.error("Logout failed:", error);
+      // Even if logout fails, clear local storage and user state
+      localStorage.removeItem('auth-token');
+      setUser(null);
+      
       toast({
         title: "Logout failed",
         description: "An error occurred while logging out",
