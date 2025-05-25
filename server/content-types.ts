@@ -110,11 +110,8 @@ export const getContentTypeById = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
     
-    // Try to get by numeric ID first
-    let contentType = null;
-    if (!isNaN(Number(id))) {
-      contentType = await storage.getContentType(Number(id));
-    }
+    // Try to get by ID first (handles both MongoDB ObjectId and numeric ID)
+    let contentType = await storage.getContentType(id);
     
     // If not found, try to get by apiId
     if (!contentType) {
@@ -167,7 +164,7 @@ export const updateContentType = async (req: Request, res: Response) => {
     }
     
     // Find content type
-    const contentType = await storage.getContentType(Number(id));
+    const contentType = await storage.getContentType(id);
     if (!contentType) {
       return res.status(404).json({ message: "Content type not found" });
     }
@@ -183,7 +180,7 @@ export const updateContentType = async (req: Request, res: Response) => {
     }
     
     // Update content type
-    const updatedContentType = await storage.updateContentType(Number(id), contentTypeData);
+    const updatedContentType = await storage.updateContentType(id, contentTypeData);
     if (!updatedContentType) {
       return res.status(404).json({ message: "Content type not found" });
     }
@@ -214,13 +211,13 @@ export const deleteContentType = async (req: Request, res: Response) => {
     const { id } = req.params;
     
     // Find content type
-    const contentType = await storage.getContentType(Number(id));
+    const contentType = await storage.getContentType(id);
     if (!contentType) {
       return res.status(404).json({ message: "Content type not found" });
     }
     
     // Delete content type
-    const result = await storage.deleteContentType(Number(id));
+    const result = await storage.deleteContentType(id);
     if (!result) {
       return res.status(404).json({ message: "Content type not found" });
     }

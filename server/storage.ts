@@ -164,9 +164,13 @@ export class MongoStorage {
     return contentTypes.map(ct => this.convertMongoContentType(ct));
   }
 
-  async getContentType(id: number): Promise<ContentType | null> {
-    const contentType = await ContentTypeModel.findById(id);
-    return contentType ? this.convertMongoContentType(contentType) : null;
+  async getContentType(id: number | string): Promise<ContentType | null> {
+    try {
+      const contentType = await ContentTypeModel.findById(id);
+      return contentType ? this.convertMongoContentType(contentType) : null;
+    } catch (error) {
+      return null;
+    }
   }
 
   async getContentTypeByApiId(apiId: string): Promise<ContentType | null> {
@@ -174,14 +178,22 @@ export class MongoStorage {
     return contentType ? this.convertMongoContentType(contentType) : null;
   }
 
-  async updateContentType(id: number, contentTypeData: Partial<ContentType>): Promise<ContentType | null> {
-    const contentType = await ContentTypeModel.findByIdAndUpdate(id, contentTypeData, { new: true });
-    return contentType ? this.convertMongoContentType(contentType) : null;
+  async updateContentType(id: number | string, contentTypeData: Partial<ContentType>): Promise<ContentType | null> {
+    try {
+      const contentType = await ContentTypeModel.findByIdAndUpdate(id, contentTypeData, { new: true });
+      return contentType ? this.convertMongoContentType(contentType) : null;
+    } catch (error) {
+      return null;
+    }
   }
 
-  async deleteContentType(id: number): Promise<boolean> {
-    const result = await ContentTypeModel.findByIdAndDelete(id);
-    return !!result;
+  async deleteContentType(id: number | string): Promise<boolean> {
+    try {
+      const result = await ContentTypeModel.findByIdAndDelete(id);
+      return !!result;
+    } catch (error) {
+      return false;
+    }
   }
 
   // Media operations
@@ -437,7 +449,7 @@ export class MemStorage {
     return Array.from(this.contentTypes.values());
   }
 
-  async getContentType(id: number): Promise<ContentType | null> {
+  async getContentType(id: number | string): Promise<ContentType | null> {
     return this.contentTypes.get(id.toString()) || null;
   }
 
@@ -450,7 +462,7 @@ export class MemStorage {
     return null;
   }
 
-  async updateContentType(id: number, contentTypeData: Partial<ContentType>): Promise<ContentType | null> {
+  async updateContentType(id: number | string, contentTypeData: Partial<ContentType>): Promise<ContentType | null> {
     const contentType = this.contentTypes.get(id.toString());
     if (!contentType) return null;
     
@@ -459,7 +471,7 @@ export class MemStorage {
     return updatedContentType;
   }
 
-  async deleteContentType(id: number): Promise<boolean> {
+  async deleteContentType(id: number | string): Promise<boolean> {
     return this.contentTypes.delete(id.toString());
   }
 
