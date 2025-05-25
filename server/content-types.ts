@@ -311,14 +311,16 @@ export const createMongooseModel = (contentType: any) => {
     // Create schema
     const schema = new mongoose.Schema(schemaDefinition, { timestamps: true });
     
-    // Delete existing model if it exists to avoid overwrite warning
-    if (modelRegistry.has(contentType.apiId)) {
-      modelRegistry.delete(contentType.apiId);
-    }
-    
     // Create model
     try {
       if (mongoose.connection.readyState === 1) { // Check if connected to MongoDB
+        // Check if model already exists
+        if (mongoose.models[contentType.apiId]) {
+          // Delete existing model to avoid overwrite error
+          delete mongoose.models[contentType.apiId];
+          delete mongoose.modelSchemas[contentType.apiId];
+        }
+        
         const model = mongoose.model(contentType.apiId, schema);
         modelRegistry.set(contentType.apiId, model);
         console.log(`Model created for content type: ${contentType.apiId}`);

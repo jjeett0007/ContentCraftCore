@@ -361,16 +361,24 @@ export class MongoStorage {
   async deleteContent(contentType: string, id: string): Promise<boolean> {
     const model = modelRegistry.get(contentType);
     if (!model) {
-      throw new Error(`Model for content type ${contentType} not found`);
+      console.error(`Model for content type ${contentType} not found`);
+      return false;
     }
     
     // Validate ObjectId format
     if (!mongoose.Types.ObjectId.isValid(id)) {
+      console.error(`Invalid ObjectId format: ${id}`);
       return false;
     }
     
-    const result = await model.findByIdAndDelete(id);
-    return !!result;
+    try {
+      const result = await model.findByIdAndDelete(id);
+      console.log(`Delete result for ${id}:`, !!result);
+      return !!result;
+    } catch (error) {
+      console.error(`Error deleting content ${id}:`, error);
+      return false;
+    }
   }
 
   async deleteContentEntry(contentType: string, id: string): Promise<boolean> {

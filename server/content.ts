@@ -157,28 +157,38 @@ export const deleteContentEntry = async (req: Request, res: Response) => {
     const user = (req as any).user;
     const { contentType, id } = req.params;
     
+    console.log(`Delete request for contentType: ${contentType}, id: ${id}`);
+    
     // Validate ID format
     if (!id || id === "undefined" || id === "null") {
+      console.log("Invalid ID provided:", id);
       return res.status(400).json({ message: "Invalid content entry ID" });
     }
     
     // Check if content type exists
     const contentTypeData = await storage.getContentTypeByApiId(contentType);
     if (!contentTypeData) {
+      console.log("Content type not found:", contentType);
       return res.status(404).json({ message: `Content type '${contentType}' not found` });
     }
     
     // Check if content entry exists
     const existingEntry = await storage.getContentById(contentType, id);
     if (!existingEntry) {
+      console.log("Content entry not found:", id);
       return res.status(404).json({ message: "Content entry not found" });
     }
+    
+    console.log("Deleting content entry:", id);
     
     // Delete content entry
     const result = await storage.deleteContent(contentType, id);
     if (!result) {
-      return res.status(404).json({ message: "Content entry not found" });
+      console.log("Failed to delete content entry:", id);
+      return res.status(500).json({ message: "Failed to delete content entry" });
     }
+    
+    console.log("Content entry deleted successfully:", id);
     
     // Create activity entry
     await storage.createActivity({

@@ -174,12 +174,26 @@ export default function ContentEntries() {
   };
 
   const handleEdit = (entry: any) => {
-    setEditingEntry(entry);
+    // Ensure we use the correct ID field (_id for MongoDB, id for other)
+    const entryWithId = {
+      ...entry,
+      id: entry.id || entry._id
+    };
+    setEditingEntry(entryWithId);
     setShowForm(true);
   };
 
   const handleDelete = (id: string) => {
-    setDeletingEntry(id);
+    // Ensure we have a valid ID
+    if (id && id !== 'undefined' && id !== 'null') {
+      setDeletingEntry(id);
+    } else {
+      toast({
+        title: "Error",
+        description: "Invalid entry ID",
+        variant: "destructive",
+      });
+    }
   };
 
   const confirmDelete = () => {
@@ -282,6 +296,7 @@ export default function ContentEntries() {
                               variant="ghost"
                               size="icon"
                               onClick={() => handleEdit(entry)}
+                              title="Edit entry"
                             >
                               <Edit className="h-4 w-4 text-secondary" />
                             </Button>
@@ -290,7 +305,8 @@ export default function ContentEntries() {
                             <Button
                               variant="ghost"
                               size="icon"
-                              onClick={() => handleDelete(entry.id)}
+                              onClick={() => handleDelete(entry.id || entry._id)}
+                              title="Delete entry"
                             >
                               <Trash2 className="h-4 w-4 text-destructive" />
                             </Button>
