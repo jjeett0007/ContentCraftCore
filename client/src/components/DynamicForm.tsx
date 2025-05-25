@@ -19,6 +19,7 @@ import { cn } from "@/lib/utils";
 import { MediaSelectionDialog } from "@/components/MediaSelectionDialog";
 import { MediaPreview } from "@/components/MediaPreview";
 import { RelationSelectionDialog } from "@/components/RelationSelectionDialog";
+import { RelatedItemDisplay } from "@/components/RelatedItemDisplay";
 
 interface DynamicFormProps {
   fields: any[];
@@ -680,12 +681,11 @@ export function DynamicForm({ fields, initialData, onSubmit, onCancel, isSubmitt
                       
                       {/* Preview of selected related item */}
                       {formField.value && (
-                        <div className="border rounded-md p-3 bg-muted/20">
-                          <div className="flex justify-between items-center">
-                            <span className="text-sm font-medium">{relatedContentType?.displayName || field.relationTo}</span>
-                            <span className="text-xs text-muted-foreground">ID: {formField.value}</span>
-                          </div>
-                        </div>
+                        <RelatedItemDisplay
+                          itemId={formField.value}
+                          contentType={field.relationTo}
+                          onRemove={() => formField.onChange("")}
+                        />
                       )}
                     </div>
                   );
@@ -705,27 +705,18 @@ export function DynamicForm({ fields, initialData, onSubmit, onCancel, isSubmitt
                     {/* Display selected related items */}
                     <div className="space-y-2">
                       {Array.isArray(formField.value) && formField.value.length > 0 ? (
-                        <div className="border rounded-md divide-y">
+                        <div className="space-y-2">
                           {formField.value.map((itemId, index) => (
-                            <div key={index} className="flex justify-between items-center p-3">
-                              <div>
-                                <div className="font-medium">{relatedContentType?.displayName || field.relationTo}</div>
-                                <div className="text-xs text-muted-foreground">ID: {itemId}</div>
-                              </div>
-                              <Button
-                                type="button"
-                                variant="ghost"
-                                size="icon"
-                                className="h-8 w-8"
-                                onClick={() => {
-                                  const newValue = [...formField.value];
-                                  newValue.splice(index, 1);
-                                  formField.onChange(newValue);
-                                }}
-                              >
-                                <X className="h-4 w-4" />
-                              </Button>
-                            </div>
+                            <RelatedItemDisplay
+                              key={index}
+                              itemId={itemId}
+                              contentType={field.relationTo}
+                              onRemove={() => {
+                                const newValue = [...formField.value];
+                                newValue.splice(index, 1);
+                                formField.onChange(newValue);
+                              }}
+                            />
                           ))}
                         </div>
                       ) : (
