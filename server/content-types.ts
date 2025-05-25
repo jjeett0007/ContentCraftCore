@@ -260,11 +260,13 @@ const fieldTypeToMongooseType = (field: any) => {
     case 'json':
       return { type: mongoose.Schema.Types.Mixed };
     case 'media':
-      return { type: mongoose.Schema.Types.ObjectId, ref: 'Media' };
+      return field.multiple
+        ? [{ type: mongoose.Schema.Types.ObjectId, ref: 'Media' }]
+        : { type: mongoose.Schema.Types.ObjectId, ref: 'Media', default: null };
     case 'relation':
       return field.relationMany 
         ? [{ type: mongoose.Schema.Types.ObjectId, ref: field.relationTo }]
-        : { type: mongoose.Schema.Types.ObjectId, ref: field.relationTo };
+        : { type: mongoose.Schema.Types.ObjectId, ref: field.relationTo, default: null };
     default:
       return { type: String };
   }

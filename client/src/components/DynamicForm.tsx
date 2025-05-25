@@ -33,10 +33,10 @@ export function DynamicForm({ fields, initialData, onSubmit, onCancel, isSubmitt
   // Build the validation schema dynamically based on the fields
   const buildValidationSchema = () => {
     const schemaObj: any = {};
-    
+
     fields.forEach(field => {
       let fieldSchema;
-      
+
       switch (field.type) {
         case "text":
         case "richtext":
@@ -92,7 +92,7 @@ export function DynamicForm({ fields, initialData, onSubmit, onCancel, isSubmitt
         default:
           fieldSchema = z.string();
       }
-      
+
       // Add required validation if field is required
       if (field.required) {
         if (field.type === "date" || field.type === "datetime") {
@@ -112,27 +112,27 @@ export function DynamicForm({ fields, initialData, onSubmit, onCancel, isSubmitt
           });
         }
       }
-      
+
       schemaObj[field.name] = fieldSchema;
     });
-    
+
     return z.object(schemaObj);
   };
-  
+
   const schema = buildValidationSchema();
-  
+
   // Format initial data
   const formatInitialData = () => {
     if (!initialData) return {};
-    
+
     const formattedData: any = { ...initialData };
-    
+
     // Convert dates to Date objects
     fields.forEach(field => {
       if ((field.type === "date" || field.type === "datetime") && formattedData[field.name]) {
         formattedData[field.name] = new Date(formattedData[field.name]);
       }
-      
+
       // Format JSON fields
       if (field.type === "json" && formattedData[field.name]) {
         if (typeof formattedData[field.name] === "object") {
@@ -140,33 +140,33 @@ export function DynamicForm({ fields, initialData, onSubmit, onCancel, isSubmitt
         }
       }
     });
-    
+
     return formattedData;
   };
-  
+
   // Initialize form
   const form = useForm({
     resolver: zodResolver(schema),
     defaultValues: formatInitialData(),
   });
-  
+
   // Update form values when initialData changes
   useEffect(() => {
     if (initialData) {
       form.reset(formatInitialData());
     }
   }, [initialData, form]);
-  
+
   // Format data before submission
   const handleSubmit = (data: any) => {
     const formattedData: any = { ...data };
-    
+
     // Format dates to ISO strings
     fields.forEach(field => {
       if ((field.type === "date" || field.type === "datetime") && formattedData[field.name]) {
         formattedData[field.name] = formattedData[field.name].toISOString();
       }
-      
+
       // Parse JSON fields
       if (field.type === "json" && formattedData[field.name]) {
         try {
@@ -177,10 +177,10 @@ export function DynamicForm({ fields, initialData, onSubmit, onCancel, isSubmitt
         }
       }
     });
-    
+
     onSubmit(formattedData);
   };
-  
+
   // Render field based on its type
   const renderField = (field: any) => {
     switch (field.type) {
@@ -205,7 +205,7 @@ export function DynamicForm({ fields, initialData, onSubmit, onCancel, isSubmitt
             )}
           />
         );
-      
+
       case "richtext":
         return (
           <FormField
@@ -228,7 +228,7 @@ export function DynamicForm({ fields, initialData, onSubmit, onCancel, isSubmitt
             )}
           />
         );
-      
+
       case "email":
         return (
           <FormField
@@ -251,7 +251,7 @@ export function DynamicForm({ fields, initialData, onSubmit, onCancel, isSubmitt
             )}
           />
         );
-      
+
       case "number":
         return (
           <FormField
@@ -275,7 +275,7 @@ export function DynamicForm({ fields, initialData, onSubmit, onCancel, isSubmitt
             )}
           />
         );
-      
+
       case "boolean":
         return (
           <FormField
@@ -300,7 +300,7 @@ export function DynamicForm({ fields, initialData, onSubmit, onCancel, isSubmitt
             )}
           />
         );
-      
+
       case "date":
         return (
           <FormField
@@ -343,7 +343,7 @@ export function DynamicForm({ fields, initialData, onSubmit, onCancel, isSubmitt
             )}
           />
         );
-      
+
       case "datetime":
         return (
           <FormField
@@ -422,7 +422,7 @@ export function DynamicForm({ fields, initialData, onSubmit, onCancel, isSubmitt
             )}
           />
         );
-      
+
       case "json":
         return (
           <FormField
@@ -448,7 +448,7 @@ export function DynamicForm({ fields, initialData, onSubmit, onCancel, isSubmitt
             )}
           />
         );
-      
+
       case "enum":
         if (field.options && field.options.length > 0) {
           return (
@@ -492,7 +492,7 @@ export function DynamicForm({ fields, initialData, onSubmit, onCancel, isSubmitt
             </FormItem>
           );
         }
-      
+
       // For media and relation fields, we'll use simplified versions
       // since we don't have the full implementation here
       case "media":
@@ -505,7 +505,7 @@ export function DynamicForm({ fields, initialData, onSubmit, onCancel, isSubmitt
             render={({ field: formField }) => {
               // State for media selection dialog
               const [mediaDialogOpen, setMediaDialogOpen] = useState(false);
-              
+
               // Show selected media
               const renderSelectedMedia = () => {
                 if (field.multiple) {
@@ -535,7 +535,7 @@ export function DynamicForm({ fields, initialData, onSubmit, onCancel, isSubmitt
                               </div>
                             ))}
                           </div>
-                          
+
                           {/* Preview of selected media files */}
                           <div className="border rounded-md p-3 bg-muted/20">
                             <h4 className="text-sm font-medium mb-2">Media Preview</h4>
@@ -578,7 +578,7 @@ export function DynamicForm({ fields, initialData, onSubmit, onCancel, isSubmitt
                           </Button>
                         )}
                       </div>
-                      
+
                       {/* Preview of selected media */}
                       {formField.value && (
                         <div className="border rounded-md p-2 bg-muted/20">
@@ -589,7 +589,7 @@ export function DynamicForm({ fields, initialData, onSubmit, onCancel, isSubmitt
                   );
                 }
               };
-              
+
               return (
                 <FormItem>
                   <FormLabel>{field.displayName}</FormLabel>
@@ -604,9 +604,9 @@ export function DynamicForm({ fields, initialData, onSubmit, onCancel, isSubmitt
                           Select Media Files
                         </Button>
                       )}
-                      
+
                       {renderSelectedMedia()}
-                      
+
                       {/* Media Selection Dialog */}
                       <MediaSelectionDialog
                         open={mediaDialogOpen}
@@ -631,7 +631,7 @@ export function DynamicForm({ fields, initialData, onSubmit, onCancel, isSubmitt
             }}
           />
         );
-      
+
       case "relation":
         return (
           <FormField
@@ -644,7 +644,7 @@ export function DynamicForm({ fields, initialData, onSubmit, onCancel, isSubmitt
                 queryKey: [`/api/content-types/${field.relationTo}`],
                 enabled: !!field.relationTo,
               });
-              
+
               // Function to render related item preview
               const renderRelatedItemPreview = () => {
                 // For single relation (default)
@@ -666,7 +666,7 @@ export function DynamicForm({ fields, initialData, onSubmit, onCancel, isSubmitt
                         >
                           Select
                         </Button>
-                        {formField.value && (
+                        {formField.value && formField.value !== "" && (
                           <Button
                             type="button"
                             variant="ghost"
@@ -678,7 +678,7 @@ export function DynamicForm({ fields, initialData, onSubmit, onCancel, isSubmitt
                           </Button>
                         )}
                       </div>
-                      
+
                       {/* Preview of selected related item */}
                       {formField.value && (
                         <RelatedItemDisplay
@@ -690,7 +690,7 @@ export function DynamicForm({ fields, initialData, onSubmit, onCancel, isSubmitt
                     </div>
                   );
                 }
-                
+
                 // For multiple relations
                 return (
                   <div className="space-y-4">
@@ -701,7 +701,7 @@ export function DynamicForm({ fields, initialData, onSubmit, onCancel, isSubmitt
                     >
                       Select {relatedContentType?.displayName || field.relationTo} Items
                     </Button>
-                    
+
                     {/* Display selected related items */}
                     <div className="space-y-2">
                       {Array.isArray(formField.value) && formField.value.length > 0 ? (
@@ -728,7 +728,7 @@ export function DynamicForm({ fields, initialData, onSubmit, onCancel, isSubmitt
                   </div>
                 );
               };
-              
+
               return (
                 <FormItem>
                   <FormLabel>{field.displayName}</FormLabel>
@@ -742,7 +742,7 @@ export function DynamicForm({ fields, initialData, onSubmit, onCancel, isSubmitt
                     }
                   </FormDescription>
                   <FormMessage />
-                  
+
                   {/* Relation Selection Dialog */}
                   <RelationSelectionDialog
                     open={relationDialogOpen}
@@ -759,19 +759,19 @@ export function DynamicForm({ fields, initialData, onSubmit, onCancel, isSubmitt
             }}
           />
         );
-      
+
       default:
         return null;
     }
   };
-  
+
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
         <div className="space-y-4">
           {fields.map(renderField)}
         </div>
-        
+
         <div className="flex justify-end space-x-2">
           <Button 
             type="button" 

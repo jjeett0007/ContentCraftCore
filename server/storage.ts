@@ -1,4 +1,3 @@
-
 import mongoose from "mongoose";
 import bcrypt from "bcryptjs";
 import type { 
@@ -266,12 +265,17 @@ export class MongoStorage {
 
   // Content operations for dynamic models
   async createContent(contentType: string, data: any): Promise<any> {
-    const model = modelRegistry.get(contentType);
-    if (!model) {
-      throw new Error(`Model for content type ${contentType} not found`);
+    const Model = modelRegistry.get(contentType);
+    if (!Model) {
+      throw new Error(`Model for content type '${contentType}' not found`);
     }
-    const content = new model(data);
-    return await content.save();
+
+    // Clean up empty relation and media fields
+    const cleanedData = this.cleanContentData(data);
+
+    const content = new Model(cleanedData);
+    const savedContent = await content.save();
+    return this.convertMongoContent(savedContent);
   }
 
   async getContent(contentType: string, options: { page?: number; limit?: number; search?: string } = {}): Promise<{ entries: any[]; totalCount: number }> {
@@ -279,10 +283,10 @@ export class MongoStorage {
     if (!model) {
       throw new Error(`Model for content type ${contentType} not found`);
     }
-    
+
     const { page = 1, limit = 10, search = "" } = options;
     let query: any = {};
-    
+
     // Add search functionality
     if (search) {
       query = {
@@ -296,13 +300,13 @@ export class MongoStorage {
         ]
       };
     }
-    
+
     const totalCount = await model.countDocuments(query);
     const entries = await model.find(query)
       .skip((page - 1) * limit)
       .limit(limit)
       .sort({ createdAt: -1 });
-    
+
     return { entries, totalCount };
   }
 
@@ -327,11 +331,16 @@ export class MongoStorage {
   }
 
   async updateContent(contentType: string, id: string, data: any): Promise<any> {
-    const model = modelRegistry.get(contentType);
-    if (!model) {
-      throw new Error(`Model for content type ${contentType} not found`);
+    const Model = modelRegistry.get(contentType);
+    if (!Model) {
+      throw new Error(`Model for content type '${contentType}' not found`);
     }
-    return await model.findByIdAndUpdate(id, { ...data, updatedAt: new Date() }, { new: true });
+
+    // Clean up empty relation and media fields
+    const cleanedData = this.cleanContentData(data);
+
+    const updatedContent = await Model.findByIdAndUpdate(id, cleanedData, { new: true });
+    return updatedContent ? this.convertMongoContent(updatedContent) : null;
   }
 
   async updateContentEntry(contentType: string, id: string, data: any): Promise<any> {
@@ -352,61 +361,44 @@ export class MongoStorage {
   }
 
   // Helper methods to convert MongoDB documents to our interfaces
-  private convertMongoUser(mongoUser: any): User {
+  private convertMongoContent(content: any): any {
     return {
-      id: mongoUser._id.toString(),
-      username: mongoUser.username,
-      password: mongoUser.password,
-      role: mongoUser.role,
-      createdAt: mongoUser.createdAt,
-      updatedAt: mongoUser.updatedAt
+      id: content._id.toString(),
+      ...content.toObject(),
+      _id: undefined,
+      __v: undefined
     };
   }
 
-  private convertMongoContentType(mongoContentType: any): ContentType {
-    return {
-      id: mongoContentType._id.toString(),
-      displayName: mongoContentType.displayName,
-      apiId: mongoContentType.apiId,
-      description: mongoContentType.description,
-      fields: mongoContentType.fields,
-      createdAt: mongoContentType.createdAt,
-      updatedAt: mongoContentType.updatedAt
-    };
-  }
+  private cleanContentData(data: any): any {
+    const cleaned = { ...data };
 
-  private convertMongoMedia(mongoMedia: any): Media {
-    return {
-      id: mongoMedia._id.toString(),
-      name: mongoMedia.name,
-      url: mongoMedia.url,
-      type: mongoMedia.type,
-      size: mongoMedia.size,
-      uploadedBy: mongoMedia.uploadedBy,
-      createdAt: mongoMedia.createdAt,
-      updatedAt: mongoMedia.updatedAt
-    };
-  }
+    // Convert empty strings to null for ObjectId fields (relations and media)
+    Object.keys(cleaned).forEach(key => {
+      const value = cleaned[key];
 
-  private convertMongoActivity(mongoActivity: any): Activity {
-    return {
-      id: mongoActivity._id.toString(),
-      userId: mongoActivity.userId,
-      action: mongoActivity.action,
-      entityType: mongoActivity.entityType,
-      entityId: mongoActivity.entityId,
-      details: mongoActivity.details,
-      createdAt: mongoActivity.createdAt
-    };
-  }
+      // Handle empty strings for ObjectId fields
+      if (value === "" || value === null || value === undefined) {
+        delete cleaned[key]; // Let MongoDB handle defaults
+      }
 
-  private convertMongoSetting(mongoSetting: any): Setting {
-    return {
-      id: mongoSetting._id.toString(),
-      key: mongoSetting.key,
-      value: mongoSetting.value,
-      updatedAt: mongoSetting.updatedAt
-    };
+      // Handle empty arrays
+      if (Array.isArray(value) && value.length === 0) {
+        delete cleaned[key];
+      }
+
+      // Handle arrays with empty strings
+      if (Array.isArray(value)) {
+        const filteredArray = value.filter(item => item !== "" && item !== null && item !== undefined);
+        if (filteredArray.length === 0) {
+          delete cleaned[key];
+        } else {
+          cleaned[key] = filteredArray;
+        }
+      }
+    });
+
+    return cleaned;
   }
 }
 
@@ -454,11 +446,11 @@ export class MemStorage {
   async updateUser(id: string, userData: Partial<User>): Promise<User | null> {
     const user = this.users.get(id);
     if (!user) return null;
-    
+
     if (userData.password) {
       userData.password = await bcrypt.hash(userData.password, 10);
     }
-    
+
     const updatedUser = { ...user, ...userData, updatedAt: new Date() };
     this.users.set(id, updatedUser);
     return updatedUser;
@@ -509,7 +501,7 @@ export class MemStorage {
   async updateContentType(id: number | string, contentTypeData: Partial<ContentType>): Promise<ContentType | null> {
     const contentType = this.contentTypes.get(id.toString());
     if (!contentType) return null;
-    
+
     const updatedContentType = { ...contentType, ...contentTypeData, updatedAt: new Date() };
     this.contentTypes.set(id.toString(), updatedContentType);
     return updatedContentType;
@@ -616,10 +608,10 @@ export class MemStorage {
     if (!contentMap) {
       return { entries: [], totalCount: 0 };
     }
-    
+
     let entries = Array.from(contentMap.values());
     const { page = 1, limit = 10, search = "" } = options;
-    
+
     // Apply search filter
     if (search) {
       entries = entries.filter(entry => 
@@ -629,16 +621,16 @@ export class MemStorage {
         )
       );
     }
-    
+
     // Sort by creation date (newest first)
     entries.sort((a, b) => 
       (b.createdAt?.getTime() || 0) - (a.createdAt?.getTime() || 0)
     );
-    
+
     const totalCount = entries.length;
     const startIndex = (page - 1) * limit;
     const paginatedEntries = entries.slice(startIndex, startIndex + limit);
-    
+
     return { entries: paginatedEntries, totalCount };
   }
 
@@ -659,10 +651,10 @@ export class MemStorage {
   async updateContent(contentType: string, id: string, data: any): Promise<any> {
     const contentMap = this.content.get(contentType);
     if (!contentMap) return null;
-    
+
     const existing = contentMap.get(id);
     if (!existing) return null;
-    
+
     const updated = { ...existing, ...data, updatedAt: new Date() };
     contentMap.set(id, updated);
     return updated;
