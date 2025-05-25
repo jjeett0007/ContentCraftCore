@@ -274,6 +274,38 @@ export class MongoStorage {
     return await content.save();
   }
 
+  async getContent(contentType: string, options: { page?: number; limit?: number; search?: string } = {}): Promise<{ entries: any[]; totalCount: number }> {
+    const model = modelRegistry.get(contentType);
+    if (!model) {
+      throw new Error(`Model for content type ${contentType} not found`);
+    }
+    
+    const { page = 1, limit = 10, search = "" } = options;
+    let query: any = {};
+    
+    // Add search functionality
+    if (search) {
+      query = {
+        $or: [
+          { $text: { $search: search } },
+          ...Object.keys(model.schema.paths).filter(key => 
+            model.schema.paths[key].instance === 'String' && 
+            !key.startsWith('_') && 
+            key !== '__v'
+          ).map(key => ({ [key]: { $regex: search, $options: 'i' } }))
+        ]
+      };
+    }
+    
+    const totalCount = await model.countDocuments(query);
+    const entries = await model.find(query)
+      .skip((page - 1) * limit)
+      .limit(limit)
+      .sort({ createdAt: -1 });
+    
+    return { entries, totalCount };
+  }
+
   async getContentEntries(contentType: string): Promise<any[]> {
     const model = modelRegistry.get(contentType);
     if (!model) {
@@ -282,7 +314,7 @@ export class MongoStorage {
     return await model.find({});
   }
 
-  async getContentEntry(contentType: string, id: string): Promise<any> {
+  async getContentById(contentType: string, id: string): Promise<any> {
     const model = modelRegistry.get(contentType);
     if (!model) {
       throw new Error(`Model for content type ${contentType} not found`);
@@ -290,21 +322,33 @@ export class MongoStorage {
     return await model.findById(id);
   }
 
-  async updateContentEntry(contentType: string, id: string, data: any): Promise<any> {
+  async getContentEntry(contentType: string, id: string): Promise<any> {
+    return this.getContentById(contentType, id);
+  }
+
+  async updateContent(contentType: string, id: string, data: any): Promise<any> {
     const model = modelRegistry.get(contentType);
     if (!model) {
       throw new Error(`Model for content type ${contentType} not found`);
     }
-    return await model.findByIdAndUpdate(id, data, { new: true });
+    return await model.findByIdAndUpdate(id, { ...data, updatedAt: new Date() }, { new: true });
   }
 
-  async deleteContentEntry(contentType: string, id: string): Promise<boolean> {
+  async updateContentEntry(contentType: string, id: string, data: any): Promise<any> {
+    return this.updateContent(contentType, id, data);
+  }
+
+  async deleteContent(contentType: string, id: string): Promise<boolean> {
     const model = modelRegistry.get(contentType);
     if (!model) {
       throw new Error(`Model for content type ${contentType} not found`);
     }
     const result = await model.findByIdAndDelete(id);
     return !!result;
+  }
+
+  async deleteContentEntry(contentType: string, id: string): Promise<boolean> {
+    return this.deleteContent(contentType, id);
   }
 
   // Helper methods to convert MongoDB documents to our interfaces
@@ -567,17 +611,52 @@ export class MemStorage {
     return content;
   }
 
+  async getContent(contentType: string, options: { page?: number; limit?: number; search?: string } = {}): Promise<{ entries: any[]; totalCount: number }> {
+    const contentMap = this.content.get(contentType);
+    if (!contentMap) {
+      return { entries: [], totalCount: 0 };
+    }
+    
+    let entries = Array.from(contentMap.values());
+    const { page = 1, limit = 10, search = "" } = options;
+    
+    // Apply search filter
+    if (search) {
+      entries = entries.filter(entry => 
+        Object.values(entry).some(value => 
+          typeof value === 'string' && 
+          value.toLowerCase().includes(search.toLowerCase())
+        )
+      );
+    }
+    
+    // Sort by creation date (newest first)
+    entries.sort((a, b) => 
+      (b.createdAt?.getTime() || 0) - (a.createdAt?.getTime() || 0)
+    );
+    
+    const totalCount = entries.length;
+    const startIndex = (page - 1) * limit;
+    const paginatedEntries = entries.slice(startIndex, startIndex + limit);
+    
+    return { entries: paginatedEntries, totalCount };
+  }
+
   async getContentEntries(contentType: string): Promise<any[]> {
     const contentMap = this.content.get(contentType);
     return contentMap ? Array.from(contentMap.values()) : [];
   }
 
-  async getContentEntry(contentType: string, id: string): Promise<any> {
+  async getContentById(contentType: string, id: string): Promise<any> {
     const contentMap = this.content.get(contentType);
     return contentMap?.get(id) || null;
   }
 
-  async updateContentEntry(contentType: string, id: string, data: any): Promise<any> {
+  async getContentEntry(contentType: string, id: string): Promise<any> {
+    return this.getContentById(contentType, id);
+  }
+
+  async updateContent(contentType: string, id: string, data: any): Promise<any> {
     const contentMap = this.content.get(contentType);
     if (!contentMap) return null;
     
@@ -589,9 +668,17 @@ export class MemStorage {
     return updated;
   }
 
-  async deleteContentEntry(contentType: string, id: string): Promise<boolean> {
+  async updateContentEntry(contentType: string, id: string, data: any): Promise<any> {
+    return this.updateContent(contentType, id, data);
+  }
+
+  async deleteContent(contentType: string, id: string): Promise<boolean> {
     const contentMap = this.content.get(contentType);
     return contentMap ? contentMap.delete(id) : false;
+  }
+
+  async deleteContentEntry(contentType: string, id: string): Promise<boolean> {
+    return this.deleteContent(contentType, id);
   }
 }
 
