@@ -361,6 +361,63 @@ export class MongoStorage {
   }
 
   // Helper methods to convert MongoDB documents to our interfaces
+  private convertMongoUser(user: any): User {
+    return {
+      id: user._id.toString(),
+      username: user.username,
+      password: user.password,
+      role: user.role,
+      createdAt: user.createdAt,
+      updatedAt: user.updatedAt
+    };
+  }
+
+  private convertMongoContentType(contentType: any): ContentType {
+    return {
+      id: contentType._id.toString(),
+      displayName: contentType.displayName,
+      apiId: contentType.apiId,
+      description: contentType.description,
+      fields: contentType.fields,
+      createdAt: contentType.createdAt,
+      updatedAt: contentType.updatedAt
+    };
+  }
+
+  private convertMongoMedia(media: any): Media {
+    return {
+      id: media._id.toString(),
+      name: media.name,
+      url: media.url,
+      type: media.type,
+      size: media.size,
+      uploadedBy: media.uploadedBy,
+      createdAt: media.createdAt,
+      updatedAt: media.updatedAt
+    };
+  }
+
+  private convertMongoActivity(activity: any): Activity {
+    return {
+      id: activity._id.toString(),
+      userId: activity.userId,
+      action: activity.action,
+      entityType: activity.entityType,
+      entityId: activity.entityId,
+      details: activity.details,
+      createdAt: activity.createdAt
+    };
+  }
+
+  private convertMongoSetting(setting: any): Setting {
+    return {
+      id: setting._id.toString(),
+      key: setting.key,
+      value: setting.value,
+      updatedAt: setting.updatedAt
+    };
+  }
+
   private convertMongoContent(content: any): any {
     return {
       id: content._id.toString(),
