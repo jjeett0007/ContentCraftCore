@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 import bcrypt from "bcryptjs";
-import type { 
-  User, 
+import type {
+  User,
   InsertUser,
   ContentType,
   InsertContentType,
@@ -11,15 +11,16 @@ import type {
   InsertActivity,
   Setting,
   InsertSetting,
-  Field
+  Field,
 } from "@shared/schema";
 
 // MongoDB connection
 export const connectToDatabase = async () => {
   try {
-    const mongoUri = process.env.MONGODB_URI || "mongodb://localhost:27017/corebase";
-    await mongoose.connect(mongoUri, { 
-      serverSelectionTimeoutMS: 5000 // 5 seconds timeout
+    const mongoUri =
+      process.env.MONGODB_URI || "mongodb://localhost:27017/corebase";
+    await mongoose.connect(mongoUri, {
+      serverSelectionTimeoutMS: 5000, // 5 seconds timeout
     });
     console.log("Connected to MongoDB");
     return true;
@@ -38,39 +39,54 @@ export const clearModelRegistry = () => {
 };
 
 // MongoDB Schemas
-const UserSchema = new mongoose.Schema({
-  username: { type: String, required: true, unique: true },
-  password: { type: String, required: true },
-  role: { type: String, required: true, default: "viewer" }
-}, { timestamps: true });
+const UserSchema = new mongoose.Schema(
+  {
+    username: { type: String, required: true, unique: true },
+    password: { type: String, required: true },
+    role: { type: String, required: true, default: "viewer" },
+  },
+  { timestamps: true },
+);
 
-const ContentTypeSchema = new mongoose.Schema({
-  displayName: { type: String, required: true },
-  apiId: { type: String, required: true, unique: true },
-  description: { type: String },
-  fields: { type: Array, required: true }
-}, { timestamps: true });
+const ContentTypeSchema = new mongoose.Schema(
+  {
+    displayName: { type: String, required: true },
+    apiId: { type: String, required: true, unique: true },
+    description: { type: String },
+    fields: { type: Array, required: true },
+  },
+  { timestamps: true },
+);
 
-const MediaSchema = new mongoose.Schema({
-  name: { type: String, required: true },
-  url: { type: String, required: true },
-  type: { type: String, required: true },
-  size: { type: Number, required: true },
-  uploadedBy: { type: String, required: true }
-}, { timestamps: true });
+const MediaSchema = new mongoose.Schema(
+  {
+    name: { type: String, required: true },
+    url: { type: String, required: true },
+    type: { type: String, required: true },
+    size: { type: Number, required: true },
+    uploadedBy: { type: String, required: true },
+  },
+  { timestamps: true },
+);
 
-const ActivitySchema = new mongoose.Schema({
-  userId: { type: String, required: true },
-  action: { type: String, required: true },
-  entityType: { type: String, required: true },
-  entityId: { type: String },
-  details: { type: mongoose.Schema.Types.Mixed }
-}, { timestamps: true });
+const ActivitySchema = new mongoose.Schema(
+  {
+    userId: { type: String, required: true },
+    action: { type: String, required: true },
+    entityType: { type: String, required: true },
+    entityId: { type: String },
+    details: { type: mongoose.Schema.Types.Mixed },
+  },
+  { timestamps: true },
+);
 
-const SettingSchema = new mongoose.Schema({
-  key: { type: String, required: true, unique: true },
-  value: { type: mongoose.Schema.Types.Mixed, required: true }
-}, { timestamps: true });
+const SettingSchema = new mongoose.Schema(
+  {
+    key: { type: String, required: true, unique: true },
+    value: { type: mongoose.Schema.Types.Mixed, required: true },
+  },
+  { timestamps: true },
+);
 
 // MongoDB Models
 let UserModel: mongoose.Model<any>;
@@ -82,18 +98,18 @@ let SettingModel: mongoose.Model<any>;
 // Initialize models
 const initializeModels = () => {
   try {
-    UserModel = mongoose.model('User', UserSchema);
-    ContentTypeModel = mongoose.model('ContentType', ContentTypeSchema);
-    MediaModel = mongoose.model('Media', MediaSchema);
-    ActivityModel = mongoose.model('Activity', ActivitySchema);
-    SettingModel = mongoose.model('Setting', SettingSchema);
+    UserModel = mongoose.model("User", UserSchema);
+    ContentTypeModel = mongoose.model("ContentType", ContentTypeSchema);
+    MediaModel = mongoose.model("Media", MediaSchema);
+    ActivityModel = mongoose.model("Activity", ActivitySchema);
+    SettingModel = mongoose.model("Setting", SettingSchema);
   } catch (error) {
     // Models already exist
-    UserModel = mongoose.model('User');
-    ContentTypeModel = mongoose.model('ContentType');
-    MediaModel = mongoose.model('Media');
-    ActivityModel = mongoose.model('Activity');
-    SettingModel = mongoose.model('Setting');
+    UserModel = mongoose.model("User");
+    ContentTypeModel = mongoose.model("ContentType");
+    MediaModel = mongoose.model("Media");
+    ActivityModel = mongoose.model("Activity");
+    SettingModel = mongoose.model("Setting");
   }
 };
 
@@ -108,7 +124,7 @@ export class MongoStorage {
     const hashedPassword = await bcrypt.hash(userData.password, 10);
     const user = new UserModel({
       ...userData,
-      password: hashedPassword
+      password: hashedPassword,
     });
     const savedUser = await user.save();
     return this.convertMongoUser(savedUser);
@@ -126,7 +142,7 @@ export class MongoStorage {
 
   async getUsers(): Promise<User[]> {
     const users = await UserModel.find({});
-    return users.map(user => this.convertMongoUser(user));
+    return users.map((user) => this.convertMongoUser(user));
   }
 
   async updateUser(id: string, userData: Partial<User>): Promise<User | null> {
@@ -152,7 +168,9 @@ export class MongoStorage {
   }
 
   // Content Type operations
-  async createContentType(contentTypeData: InsertContentType): Promise<ContentType> {
+  async createContentType(
+    contentTypeData: InsertContentType,
+  ): Promise<ContentType> {
     const contentType = new ContentTypeModel(contentTypeData);
     const savedContentType = await contentType.save();
     return this.convertMongoContentType(savedContentType);
@@ -160,7 +178,7 @@ export class MongoStorage {
 
   async getContentTypes(): Promise<ContentType[]> {
     const contentTypes = await ContentTypeModel.find({});
-    return contentTypes.map(ct => this.convertMongoContentType(ct));
+    return contentTypes.map((ct) => this.convertMongoContentType(ct));
   }
 
   async getContentType(id: number | string): Promise<ContentType | null> {
@@ -177,9 +195,16 @@ export class MongoStorage {
     return contentType ? this.convertMongoContentType(contentType) : null;
   }
 
-  async updateContentType(id: number | string, contentTypeData: Partial<ContentType>): Promise<ContentType | null> {
+  async updateContentType(
+    id: number | string,
+    contentTypeData: Partial<ContentType>,
+  ): Promise<ContentType | null> {
     try {
-      const contentType = await ContentTypeModel.findByIdAndUpdate(id, contentTypeData, { new: true });
+      const contentType = await ContentTypeModel.findByIdAndUpdate(
+        id,
+        contentTypeData,
+        { new: true },
+      );
       return contentType ? this.convertMongoContentType(contentType) : null;
     } catch (error) {
       return null;
@@ -204,7 +229,7 @@ export class MongoStorage {
 
   async getMedia(): Promise<Media[]> {
     const media = await MediaModel.find({});
-    return media.map(m => this.convertMongoMedia(m));
+    return media.map((m) => this.convertMongoMedia(m));
   }
 
   async getMediaById(id: string): Promise<Media | null> {
@@ -234,7 +259,7 @@ export class MongoStorage {
       query.limit(limit);
     }
     const activities = await query.exec();
-    return activities.map(a => this.convertMongoActivity(a));
+    return activities.map((a) => this.convertMongoActivity(a));
   }
 
   // Settings operations
@@ -251,14 +276,14 @@ export class MongoStorage {
 
   async getSettings(): Promise<Setting[]> {
     const settings = await SettingModel.find({});
-    return settings.map(s => this.convertMongoSetting(s));
+    return settings.map((s) => this.convertMongoSetting(s));
   }
 
   async updateSetting(key: string, value: any): Promise<Setting | null> {
     const setting = await SettingModel.findOneAndUpdate(
       { key },
       { key, value, updatedAt: new Date() },
-      { new: true, upsert: true }
+      { new: true, upsert: true },
     );
     return setting ? this.convertMongoSetting(setting) : null;
   }
@@ -278,7 +303,10 @@ export class MongoStorage {
     return this.convertMongoContent(savedContent);
   }
 
-  async getContent(contentType: string, options: { page?: number; limit?: number; search?: string } = {}): Promise<{ entries: any[]; totalCount: number }> {
+  async getContent(
+    contentType: string,
+    options: { page?: number; limit?: number; search?: string } = {},
+  ): Promise<{ entries: any[]; totalCount: number }> {
     const model = modelRegistry.get(contentType);
     if (!model) {
       throw new Error(`Model for content type ${contentType} not found`);
@@ -292,18 +320,22 @@ export class MongoStorage {
       query = {
         $or: [
           { $text: { $search: search } },
-          ...Object.keys(model.schema.paths).filter(key => 
-            model.schema.paths[key].instance === 'String' && 
-            !key.startsWith('_') && 
-            !key.startsWith('_') &&
-            key !== '__v'
-          ).map(key => ({ [key]: { $regex: search, $options: 'i' } }))
-        ]
+          ...Object.keys(model.schema.paths)
+            .filter(
+              (key) =>
+                model.schema.paths[key].instance === "String" &&
+                !key.startsWith("_") &&
+                !key.startsWith("_") &&
+                key !== "__v",
+            )
+            .map((key) => ({ [key]: { $regex: search, $options: "i" } })),
+        ],
       };
     }
 
     const totalCount = await model.countDocuments(query);
-    const entries = await model.find(query)
+    const entries = await model
+      .find(query)
       .skip((page - 1) * limit)
       .limit(limit)
       .sort({ createdAt: -1 });
@@ -337,7 +369,11 @@ export class MongoStorage {
     return this.getContentById(contentType, id);
   }
 
-  async updateContent(contentType: string, id: string, data: any): Promise<any> {
+  async updateContent(
+    contentType: string,
+    id: string,
+    data: any,
+  ): Promise<any> {
     const Model = modelRegistry.get(contentType);
     if (!Model) {
       throw new Error(`Model for content type '${contentType}' not found`);
@@ -351,11 +387,17 @@ export class MongoStorage {
     // Clean up empty relation and media fields
     const cleanedData = this.cleanContentData(data);
 
-    const updatedContent = await Model.findByIdAndUpdate(id, cleanedData, { new: true });
+    const updatedContent = await Model.findByIdAndUpdate(id, cleanedData, {
+      new: true,
+    });
     return updatedContent ? this.convertMongoContent(updatedContent) : null;
   }
 
-  async updateContentEntry(contentType: string, id: string, data: any): Promise<any> {
+  async updateContentEntry(
+    contentType: string,
+    id: string,
+    data: any,
+  ): Promise<any> {
     return this.updateContent(contentType, id, data);
   }
 
@@ -394,7 +436,7 @@ export class MongoStorage {
       password: user.password,
       role: user.role,
       createdAt: user.createdAt,
-      updatedAt: user.updatedAt
+      updatedAt: user.updatedAt,
     };
   }
 
@@ -406,7 +448,7 @@ export class MongoStorage {
       description: contentType.description,
       fields: contentType.fields,
       createdAt: contentType.createdAt,
-      updatedAt: contentType.updatedAt
+      updatedAt: contentType.updatedAt,
     };
   }
 
@@ -419,7 +461,7 @@ export class MongoStorage {
       size: media.size,
       uploadedBy: media.uploadedBy,
       createdAt: media.createdAt,
-      updatedAt: media.updatedAt
+      updatedAt: media.updatedAt,
     };
   }
 
@@ -431,7 +473,7 @@ export class MongoStorage {
       entityType: activity.entityType,
       entityId: activity.entityId,
       details: activity.details,
-      createdAt: activity.createdAt
+      createdAt: activity.createdAt,
     };
   }
 
@@ -440,7 +482,7 @@ export class MongoStorage {
       id: setting._id.toString(),
       key: setting.key,
       value: setting.value,
-      updatedAt: setting.updatedAt
+      updatedAt: setting.updatedAt,
     };
   }
 
@@ -449,7 +491,7 @@ export class MongoStorage {
       id: content._id.toString(),
       ...content.toObject(),
       _id: undefined,
-      __v: undefined
+      __v: undefined,
     };
   }
 
@@ -457,11 +499,17 @@ export class MongoStorage {
     const cleaned = { ...data };
 
     // Convert empty strings to null for ObjectId fields (relations and media)
-    Object.keys(cleaned).forEach(key => {
+    Object.keys(cleaned).forEach((key) => {
       const value = cleaned[key];
 
       // Handle empty strings, null, undefined values
-      if (value === "" || value === null || value === undefined || value === "null" || value === "undefined") {
+      if (
+        value === "" ||
+        value === null ||
+        value === undefined ||
+        value === "null" ||
+        value === "undefined"
+      ) {
         delete cleaned[key]; // Let MongoDB handle defaults
         return;
       }
@@ -474,13 +522,19 @@ export class MongoStorage {
 
       // Handle arrays with empty strings or invalid values
       if (Array.isArray(value)) {
-        const filteredArray = value.filter(item => {
+        const filteredArray = value.filter((item) => {
           // More thorough filtering for array items
-          if (item === "" || item === null || item === undefined || item === "null" || item === "undefined") {
+          if (
+            item === "" ||
+            item === null ||
+            item === undefined ||
+            item === "null" ||
+            item === "undefined"
+          ) {
             return false;
           }
           // Check for ObjectId validity if it looks like one
-          if (typeof item === 'string' && item.length === 24) {
+          if (typeof item === "string" && item.length === 24) {
             return mongoose.Types.ObjectId.isValid(item);
           }
           return !!item;
@@ -495,13 +549,20 @@ export class MongoStorage {
       }
 
       // Handle string values that are actually "null" or "undefined"
-      if (typeof value === 'string' && (value === 'null' || value === 'undefined' || value.trim() === '')) {
+      if (
+        typeof value === "string" &&
+        (value === "null" || value === "undefined" || value.trim() === "")
+      ) {
         delete cleaned[key];
         return;
       }
 
       // Validate ObjectId strings for relation/media fields
-      if (typeof value === 'string' && value.length === 24 && !mongoose.Types.ObjectId.isValid(value)) {
+      if (
+        typeof value === "string" &&
+        value.length === 24 &&
+        !mongoose.Types.ObjectId.isValid(value)
+      ) {
         delete cleaned[key];
         return;
       }
@@ -527,8 +588,12 @@ export const initializeStorage = async () => {
 export const storage = new Proxy({} as MongoStorage, {
   get(target, prop) {
     if (!storageInstance) {
-      throw new Error("Storage not initialized. Call initializeStorage() first.");
+      throw new Error(
+        "Storage not initialized. Call initializeStorage() first.",
+      );
     }
     return (storageInstance as any)[prop];
-  }
+  },
 });
+
+//jjeett
