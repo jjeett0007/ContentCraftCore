@@ -759,7 +759,9 @@ export function DynamicForm({ fields, initialData, onSubmit, onCancel, isSubmitt
                       : (formField.value && formField.value !== "" ? formField.value : "")
                     }
                     onSelect={(selectedItems) => {
+                      console.log("Selected items:", selectedItems);
                       formField.onChange(selectedItems);
+                      setRelationDialogOpen(false);
                     }}
                   />
                 </FormItem>

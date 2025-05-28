@@ -81,6 +81,8 @@ export function RelationSelectionDialog({
 
   // Toggle selection of an item
   const toggleSelection = (itemId: string) => {
+    if (!itemId) return;
+    
     if (multiple) {
       // For multiple selection
       setSelectedItems(prev => 
@@ -210,31 +212,36 @@ export function RelationSelectionDialog({
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {filteredEntries.map((entry: any) => (
-                    <TableRow 
-                      key={entry.id}
-                      className={selectedItems.includes(entry.id) ? "bg-muted/50" : ""}
-                      onClick={() => toggleSelection(entry.id)}
-                    >
-                      <TableCell className="p-2">
-                        <div className={`w-5 h-5 rounded-sm border flex items-center justify-center ${
-                          selectedItems.includes(entry.id) 
-                            ? "bg-primary border-primary" 
-                            : "border-input"
-                        }`}>
-                          {selectedItems.includes(entry.id) && (
-                            <Check className="h-3 w-3 text-primary-foreground" />
-                          )}
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        {getItemPreview(entry)}
-                      </TableCell>
-                      <TableCell className="text-muted-foreground text-sm">
-                        {entry.id}
-                      </TableCell>
-                    </TableRow>
-                  ))}
+                  {filteredEntries.map((entry: any) => {
+                    const entryId = entry.id || entry._id;
+                    const isSelected = selectedItems.includes(entryId);
+                    
+                    return (
+                      <TableRow 
+                        key={entryId}
+                        className={`cursor-pointer hover:bg-muted/30 ${isSelected ? "bg-muted/50" : ""}`}
+                        onClick={() => toggleSelection(entryId)}
+                      >
+                        <TableCell className="p-2">
+                          <div className={`w-5 h-5 rounded-sm border flex items-center justify-center ${
+                            isSelected 
+                              ? "bg-primary border-primary" 
+                              : "border-input"
+                          }`}>
+                            {isSelected && (
+                              <Check className="h-3 w-3 text-primary-foreground" />
+                            )}
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          {getItemPreview(entry)}
+                        </TableCell>
+                        <TableCell className="text-muted-foreground text-sm">
+                          {entryId}
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
                 </TableBody>
               </Table>
             </div>
