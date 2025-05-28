@@ -25,7 +25,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       return res.status(401).json({ message: 'Invalid credentials' });
     }
 
-    const isValidPassword = await bcrypt.compare(password, user.passwordHash);
+    const isValidPassword = await bcrypt.compare(password, user.password);
     if (!isValidPassword) {
       return res.status(401).json({ message: 'Invalid credentials' });
     }
@@ -40,7 +40,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     // Set HTTP-only cookie
     res.setHeader('Set-Cookie', `auth-token=${token}; HttpOnly; Path=/; Max-Age=86400; SameSite=Strict${process.env.NODE_ENV === 'production' ? '; Secure' : ''}`);
 
-    const { passwordHash, ...userWithoutPassword } = user;
+    const { password: _, ...userWithoutPassword } = user;
     res.status(200).json({ user: userWithoutPassword, token });
   } catch (error) {
     console.error('Login error:', error);

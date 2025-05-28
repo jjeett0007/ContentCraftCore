@@ -4,7 +4,7 @@ import { useToast } from "./use-toast";
 
 // User type
 interface User {
-  id: number;
+  id: string;
   username: string;
   role: string;
   createdAt?: string;
