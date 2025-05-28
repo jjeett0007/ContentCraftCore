@@ -8,7 +8,7 @@ export { connectToDatabase };
 export const initializeDatabase = async () => {
   const connected = await connectToDatabase();
   if (!connected) {
-    console.warn("Failed to connect to MongoDB, falling back to memory storage");
+    throw new Error("Failed to connect to MongoDB");
   }
   return connected;
 };

@@ -295,6 +295,7 @@ export class MongoStorage {
           ...Object.keys(model.schema.paths).filter(key => 
             model.schema.paths[key].instance === 'String' && 
             !key.startsWith('_') && 
+            !key.startsWith('_') &&
             key !== '__v'
           ).map(key => ({ [key]: { $regex: search, $options: 'i' } }))
         ]
@@ -323,12 +324,12 @@ export class MongoStorage {
     if (!model) {
       throw new Error(`Model for content type ${contentType} not found`);
     }
-    
+
     // Validate ObjectId format
     if (!mongoose.Types.ObjectId.isValid(id)) {
       return null;
     }
-    
+
     return await model.findById(id);
   }
 
@@ -364,13 +365,13 @@ export class MongoStorage {
       console.error(`Model for content type ${contentType} not found`);
       return false;
     }
-    
+
     // Validate ObjectId format
     if (!mongoose.Types.ObjectId.isValid(id)) {
       console.error(`Invalid ObjectId format: ${id}`);
       return false;
     }
-    
+
     try {
       const result = await model.findByIdAndDelete(id);
       console.log(`Delete result for ${id}:`, !!result);
@@ -484,7 +485,7 @@ export class MongoStorage {
           }
           return !!item;
         });
-        
+
         if (filteredArray.length === 0) {
           delete cleaned[key];
         } else {
@@ -510,294 +511,20 @@ export class MongoStorage {
   }
 }
 
-// Memory storage fallback
-export class MemStorage {
-  private users = new Map<string, User>();
-  private contentTypes = new Map<string, ContentType>();
-  private media = new Map<string, Media>();
-  private activities: Activity[] = [];
-  private settings = new Map<string, Setting>();
-  private content = new Map<string, Map<string, any>>();
-
-  // User operations
-  async createUser(userData: InsertUser): Promise<User> {
-    const hashedPassword = await bcrypt.hash(userData.password, 10);
-    const id = Math.random().toString(36).substr(2, 9);
-    const user: User = {
-      id,
-      ...userData,
-      password: hashedPassword,
-      createdAt: new Date(),
-      updatedAt: new Date()
-    };
-    this.users.set(id, user);
-    return user;
-  }
-
-  async getUserByUsername(username: string): Promise<User | null> {
-    for (const user of this.users.values()) {
-      if (user.username === username) {
-        return user;
-      }
-    }
-    return null;
-  }
-
-  async getUserById(id: string): Promise<User | null> {
-    return this.users.get(id) || null;
-  }
-
-  async getUsers(): Promise<User[]> {
-    return Array.from(this.users.values());
-  }
-
-  async updateUser(id: string, userData: Partial<User>): Promise<User | null> {
-    const user = this.users.get(id);
-    if (!user) return null;
-
-    if (userData.password) {
-      userData.password = await bcrypt.hash(userData.password, 10);
-    }
-
-    const updatedUser = { ...user, ...userData, updatedAt: new Date() };
-    this.users.set(id, updatedUser);
-    return updatedUser;
-  }
-
-  async deleteUser(id: string): Promise<boolean> {
-    return this.users.delete(id);
-  }
-
-  async getUser(id: number): Promise<User | null> {
-    return this.users.get(id.toString()) || null;
-  }
-
-  async getUsersCount(): Promise<number> {
-    return this.users.size;
-  }
-
-  // Content Type operations
-  async createContentType(contentTypeData: InsertContentType): Promise<ContentType> {
-    const id = Math.random().toString(36).substr(2, 9);
-    const contentType: ContentType = {
-      id,
-      ...contentTypeData,
-      createdAt: new Date(),
-      updatedAt: new Date()
-    };
-    this.contentTypes.set(id, contentType);
-    return contentType;
-  }
-
-  async getContentTypes(): Promise<ContentType[]> {
-    return Array.from(this.contentTypes.values());
-  }
-
-  async getContentType(id: number | string): Promise<ContentType | null> {
-    return this.contentTypes.get(id.toString()) || null;
-  }
-
-  async getContentTypeByApiId(apiId: string): Promise<ContentType | null> {
-    for (const contentType of this.contentTypes.values()) {
-      if (contentType.apiId === apiId) {
-        return contentType;
-      }
-    }
-    return null;
-  }
-
-  async updateContentType(id: number | string, contentTypeData: Partial<ContentType>): Promise<ContentType | null> {
-    const contentType = this.contentTypes.get(id.toString());
-    if (!contentType) return null;
-
-    const updatedContentType = { ...contentType, ...contentTypeData, updatedAt: new Date() };
-    this.contentTypes.set(id.toString(), updatedContentType);
-    return updatedContentType;
-  }
-
-  async deleteContentType(id: number | string): Promise<boolean> {
-    return this.contentTypes.delete(id.toString());
-  }
-
-  // Media operations
-  async createMedia(mediaData: InsertMedia): Promise<Media> {
-    const id = Math.random().toString(36).substr(2, 9);
-    const media: Media = {
-      id,
-      ...mediaData,
-      createdAt: new Date(),
-      updatedAt: new Date()
-    };
-    this.media.set(id, media);
-    return media;
-  }
-
-  async getMedia(): Promise<Media[]> {
-    return Array.from(this.media.values());
-  }
-
-  async getMediaById(id: string): Promise<Media | null> {
-    return this.media.get(id) || null;
-  }
-
-  async deleteMedia(id: string): Promise<boolean> {
-    return this.media.delete(id);
-  }
-
-  async getMediaCount(): Promise<number> {
-    return this.media.size;
-  }
-
-  // Activity operations
-  async createActivity(activityData: InsertActivity): Promise<Activity> {
-    const id = Math.random().toString(36).substr(2, 9);
-    const activity: Activity = {
-      id,
-      ...activityData,
-      createdAt: new Date()
-    };
-    this.activities.push(activity);
-    return activity;
-  }
-
-  async getActivities(limit?: number): Promise<Activity[]> {
-    const sorted = this.activities.sort((a, b) => 
-      (b.createdAt?.getTime() || 0) - (a.createdAt?.getTime() || 0)
-    );
-    return limit ? sorted.slice(0, limit) : sorted;
-  }
-
-  // Settings operations
-  async createSetting(settingData: InsertSetting): Promise<Setting> {
-    const id = Math.random().toString(36).substr(2, 9);
-    const setting: Setting = {
-      id,
-      ...settingData,
-      updatedAt: new Date()
-    };
-    this.settings.set(settingData.key, setting);
-    return setting;
-  }
-
-  async getSetting(key: string): Promise<Setting | null> {
-    return this.settings.get(key) || null;
-  }
-
-  async getSettings(): Promise<Setting[]> {
-    return Array.from(this.settings.values());
-  }
-
-  async updateSetting(key: string, value: any): Promise<Setting | null> {
-    const existing = this.settings.get(key);
-    const setting: Setting = {
-      id: existing?.id || Math.random().toString(36).substr(2, 9),
-      key,
-      value,
-      updatedAt: new Date()
-    };
-    this.settings.set(key, setting);
-    return setting;
-  }
-
-  // Content operations
-  async createContent(contentType: string, data: any): Promise<any> {
-    if (!this.content.has(contentType)) {
-      this.content.set(contentType, new Map());
-    }
-    const contentMap = this.content.get(contentType)!;
-    const id = Math.random().toString(36).substr(2, 9);
-    const content = { ...data, id, createdAt: new Date(), updatedAt: new Date() };
-    contentMap.set(id, content);
-    return content;
-  }
-
-  async getContent(contentType: string, options: { page?: number; limit?: number; search?: string } = {}): Promise<{ entries: any[]; totalCount: number }> {
-    const contentMap = this.content.get(contentType);
-    if (!contentMap) {
-      return { entries: [], totalCount: 0 };
-    }
-
-    let entries = Array.from(contentMap.values());
-    const { page = 1, limit = 10, search = "" } = options;
-
-    // Apply search filter
-    if (search) {
-      entries = entries.filter(entry => 
-        Object.values(entry).some(value => 
-          typeof value === 'string' && 
-          value.toLowerCase().includes(search.toLowerCase())
-        )
-      );
-    }
-
-    // Sort by creation date (newest first)
-    entries.sort((a, b) => 
-      (b.createdAt?.getTime() || 0) - (a.createdAt?.getTime() || 0)
-    );
-
-    const totalCount = entries.length;
-    const startIndex = (page - 1) * limit;
-    const paginatedEntries = entries.slice(startIndex, startIndex + limit);
-
-    return { entries: paginatedEntries, totalCount };
-  }
-
-  async getContentEntries(contentType: string): Promise<any[]> {
-    const contentMap = this.content.get(contentType);
-    return contentMap ? Array.from(contentMap.values()) : [];
-  }
-
-  async getContentById(contentType: string, id: string): Promise<any> {
-    const contentMap = this.content.get(contentType);
-    return contentMap?.get(id) || null;
-  }
-
-  async getContentEntry(contentType: string, id: string): Promise<any> {
-    return this.getContentById(contentType, id);
-  }
-
-  async updateContent(contentType: string, id: string, data: any): Promise<any> {
-    const contentMap = this.content.get(contentType);
-    if (!contentMap) return null;
-
-    const existing = contentMap.get(id);
-    if (!existing) return null;
-
-    const updated = { ...existing, ...data, updatedAt: new Date() };
-    contentMap.set(id, updated);
-    return updated;
-  }
-
-  async updateContentEntry(contentType: string, id: string, data: any): Promise<any> {
-    return this.updateContent(contentType, id, data);
-  }
-
-  async deleteContent(contentType: string, id: string): Promise<boolean> {
-    const contentMap = this.content.get(contentType);
-    return contentMap ? contentMap.delete(id) : false;
-  }
-
-  async deleteContentEntry(contentType: string, id: string): Promise<boolean> {
-    return this.deleteContent(contentType, id);
-  }
-}
-
 // Initialize storage
-let storageInstance: MongoStorage | MemStorage;
+let storageInstance: MongoStorage;
 
 export const initializeStorage = async () => {
   const connected = await connectToDatabase();
-  if (connected) {
-    storageInstance = new MongoStorage();
-    console.log("Using MongoDB storage");
-  } else {
-    storageInstance = new MemStorage();
-    console.log("Using memory storage");
+  if (!connected) {
+    throw new Error("Failed to connect to MongoDB");
   }
+  storageInstance = new MongoStorage();
+  console.log("Using MongoDB storage");
   return storageInstance;
 };
 
-export const storage = new Proxy({} as MongoStorage | MemStorage, {
+export const storage = new Proxy({} as MongoStorage, {
   get(target, prop) {
     if (!storageInstance) {
       throw new Error("Storage not initialized. Call initializeStorage() first.");
