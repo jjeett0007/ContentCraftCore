@@ -8,14 +8,14 @@ const JWT_SECRET = process.env.JWT_SECRET || "corebase-secret-key";
 const JWT_EXPIRES_IN = "7d";
 
 // Generate JWT token
-export const generateToken = (userId: number): string => {
+export const generateToken = (userId: string): string => {
   return jwt.sign({ userId }, JWT_SECRET, { expiresIn: JWT_EXPIRES_IN });
 };
 
 // Verify JWT token
-export const verifyToken = (token: string): { userId: number } | null => {
+export const verifyToken = (token: string): { userId: string } | null => {
   try {
-    const decoded = jwt.verify(token, JWT_SECRET) as { userId: number };
+    const decoded = jwt.verify(token, JWT_SECRET) as { userId: string };
     return decoded;
   } catch (error) {
     return null;
@@ -27,8 +27,8 @@ export const authenticate = async (req: Request, res: Response, next: NextFuncti
   try {
     // Get token from Authorization header or cookies
     const authHeader = req.headers.authorization;
-    const token = authHeader && authHeader.startsWith("Bearer ") 
-      ? authHeader.substring(7) 
+    const token = authHeader && authHeader.startsWith("Bearer ")
+      ? authHeader.substring(7)
       : req.cookies?.token;
 
     if (!token) {
@@ -42,7 +42,7 @@ export const authenticate = async (req: Request, res: Response, next: NextFuncti
     }
 
     // Find user
-    const user = await storage.getUser(decoded.userId);
+    const user = await storage.getUser(decoded.userId.toString());
     if (!user) {
       return res.status(401).json({ message: "User not found" });
     }
@@ -60,23 +60,23 @@ export const authenticate = async (req: Request, res: Response, next: NextFuncti
 export const authorize = (roles: string[] = []) => {
   return (req: Request, res: Response, next: NextFunction) => {
     const user = (req as any).user;
-    
+
     if (!user) {
       return res.status(401).json({ message: "Authentication required" });
     }
-    
+
     if (roles.length) {
       // Check if user has admin/administrator privileges
       const hasAdminAccess = user.role === "administrator" || user.role === "administrator";
       const hasRequiredRole = roles.includes(user.role) || (roles.includes("administrator") && hasAdminAccess);
-      
+
       if (!hasRequiredRole) {
-        return res.status(403).json({ 
-          message: "Access denied - insufficient permissions" 
+        return res.status(403).json({
+          message: "Access denied - insufficient permissions"
         });
       }
     }
-    
+
     next();
   };
 };
@@ -85,26 +85,27 @@ export const authorize = (roles: string[] = []) => {
 export const login = async (req: Request, res: Response) => {
   try {
     const { username, password } = req.body;
-    
+
     if (!username || !password) {
       return res.status(400).json({ message: "Username and password are required" });
     }
-    
+
     // Find user
     const user = await storage.getUserByUsername(username);
+
     if (!user) {
       return res.status(401).json({ message: "Invalid credentials" });
     }
-    
+
     // Check password
     const isPasswordValid = await bcrypt.compare(password, user.password);
     if (!isPasswordValid) {
       return res.status(401).json({ message: "Invalid credentials" });
     }
-    
+
     // Generate token
-    const token = generateToken(user.id);
-    
+    const token = generateToken(user.id ?? '');
+
     // Set cookie
     res.cookie("token", token, {
       httpOnly: true,
@@ -112,12 +113,12 @@ export const login = async (req: Request, res: Response) => {
       secure: process.env.NODE_ENV === "production",
       sameSite: "strict"
     });
-    
+
     // Return user info (without password)
     const { password: _, ...userWithoutPassword } = user;
-    res.status(200).json({ 
-      user: userWithoutPassword, 
-      token 
+    res.status(200).json({
+      user: userWithoutPassword,
+      token
     });
   } catch (error) {
     console.error("Login error:", error);
@@ -129,27 +130,27 @@ export const login = async (req: Request, res: Response) => {
 export const register = async (req: Request, res: Response) => {
   try {
     const { username, password, role } = req.body;
-    
+
     if (!username || !password) {
       return res.status(400).json({ message: "Username and password are required" });
     }
-    
+
     // Check if username already exists
     const existingUser = await storage.getUserByUsername(username);
     if (existingUser) {
       return res.status(409).json({ message: "Username already exists" });
     }
-    
+
     // Create user (password will be hashed in storage layer)
     const newUser = await storage.createUser({
       username,
       password,
       role: role || "viewer"
     });
-    
+
     // Generate token
-    const token = generateToken(newUser.id);
-    
+    const token = generateToken(newUser.id ?? '');
+
     // Set cookie
     res.cookie("token", token, {
       httpOnly: true,
@@ -157,17 +158,17 @@ export const register = async (req: Request, res: Response) => {
       secure: process.env.NODE_ENV === "production",
       sameSite: "strict"
     });
-    
+
     // Return user info (without password)
     const { password: _, ...userWithoutPassword } = newUser;
-    res.status(201).json({ 
-      user: userWithoutPassword, 
-      token 
+    res.status(201).json({
+      user: userWithoutPassword,
+      token
     });
-    
+
     // Create activity
     await storage.createActivity({
-      userId: newUser.id,
+      userId: newUser.id ?? '',
       action: "create",
       entityType: "user",
       entityId: String(newUser.id),
@@ -195,11 +196,11 @@ export const logout = (req: Request, res: Response) => {
 export const getCurrentUser = async (req: Request, res: Response) => {
   try {
     const user = (req as any).user;
-    
+
     if (!user) {
       return res.status(401).json({ message: "Not authenticated" });
     }
-    
+
     // Return user info (without password)
     const { password, ...userWithoutPassword } = user;
     res.status(200).json(userWithoutPassword);
