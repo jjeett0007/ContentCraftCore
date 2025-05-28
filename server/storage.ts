@@ -18,7 +18,7 @@ import type {
 export const connectToDatabase = async () => {
   try {
     const mongoUri =
-      process.env.MONGODB_URI || "mongodb://localhost:27017/corebase";
+      process.env.MONGODB_URI || "mongodb+srv://support:8L8VbabHqthCsJrk@cluster0.idavw.mongodb.net/Corebase";
     await mongoose.connect(mongoUri, {
       serverSelectionTimeoutMS: 5000, // 5 seconds timeout
     });
@@ -158,7 +158,7 @@ export class MongoStorage {
     return !!result;
   }
 
-  async getUser(id: number): Promise<User | null> {
+  async getUser(id: string): Promise<User | null> {
     const user = await UserModel.findById(id.toString());
     return user ? this.convertMongoUser(user) : null;
   }

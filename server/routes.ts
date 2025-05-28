@@ -141,7 +141,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const { storage } = await import("./storage");
       
       // Find user
-      const user = await storage.getUser(Number(id));
+      const user = await storage.getUser(id);
       if (!user) {
         return res.status(404).json({ message: "User not found" });
       }
@@ -166,7 +166,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       // Update user
-      const updatedUser = await storage.updateUser(Number(id), updateData);
+      const updatedUser = await storage.updateUser(id, updateData);
       if (!updatedUser) {
         return res.status(404).json({ message: "User not found" });
       }
@@ -192,7 +192,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       // Delete user
-      const result = await storage.deleteUser(Number(id));
+      const result = await storage.deleteUser(id);
       if (!result) {
         return res.status(404).json({ message: "User not found" });
       }

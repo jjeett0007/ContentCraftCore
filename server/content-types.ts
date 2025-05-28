@@ -243,33 +243,56 @@ export const deleteContentType = async (req: Request, res: Response) => {
 
 // Convert field type to Mongoose schema type
 const fieldTypeToMongooseType = (field: any) => {
+  let baseType: any;
+
   switch (field.type) {
     case 'text':
     case 'richtext':
     case 'email':
     case 'password':
+      baseType = { type: String };
+      break;
     case 'enum':
-      return { type: String };
+      baseType = { type: String };
+      if (field.options) {
+        baseType.enum = field.options;
+      }
+      break;
     case 'number':
-      return { type: Number };
+      baseType = { type: Number };
+      break;
     case 'boolean':
-      return { type: Boolean };
+      baseType = { type: Boolean };
+      break;
     case 'date':
     case 'datetime':
-      return { type: Date };
+      baseType = { type: Date };
+      break;
     case 'json':
-      return { type: mongoose.Schema.Types.Mixed };
+      baseType = { type: mongoose.Schema.Types.Mixed };
+      break;
     case 'media':
-      return field.multiple
+      baseType = field.multiple
         ? [{ type: mongoose.Schema.Types.ObjectId, ref: 'Media' }]
         : { type: mongoose.Schema.Types.ObjectId, ref: 'Media', default: null };
+      break;
     case 'relation':
-      return field.relationMany 
+      baseType = field.relationMany
         ? [{ type: mongoose.Schema.Types.ObjectId, ref: field.relationTo }]
         : { type: mongoose.Schema.Types.ObjectId, ref: field.relationTo, default: null };
+      break;
     default:
-      return { type: String };
+      baseType = { type: String };
   }
+
+  // Only add these properties if baseType is not an array (i.e., not a multi-relation/media)
+  if (!Array.isArray(baseType)) {
+    if (field.required) baseType.required = true;
+    if (field.unique) baseType.unique = true;
+    if (field.defaultValue !== undefined) baseType.default = field.defaultValue;
+  }
+
+  return baseType;
 };
 
 // Create Mongoose schema and model from content type
@@ -318,7 +341,6 @@ export const createMongooseModel = (contentType: any) => {
         if (mongoose.models[contentType.apiId]) {
           // Delete existing model to avoid overwrite error
           delete mongoose.models[contentType.apiId];
-          delete mongoose.modelSchemas[contentType.apiId];
         }
         
         const model = mongoose.model(contentType.apiId, schema);
