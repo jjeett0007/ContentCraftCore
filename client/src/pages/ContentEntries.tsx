@@ -234,9 +234,9 @@ export default function ContentEntries() {
     return null;
   }
 
-  const canCreate = user?.role === "adminstrator" || user?.role === "editor";
-  const canEdit = user?.role === "adminstrator" || user?.role === "editor";
-  const canDelete = user?.role === "adminstrator";
+  const canCreate = user?.role === "administrator" || user?.role === "editor";
+  const canEdit = user?.role === "administrator" || user?.role === "editor";
+  const canDelete = user?.role === "administrator";
 
   return (
     <AdminLayout
@@ -470,56 +470,119 @@ export default function ContentEntries() {
 
 // Utility function to format field values based on their type
 function formatFieldValue(value: any, type: string): React.ReactNode {
-  if (value === null || value === undefined) {
+  if (value === null || value === undefined || value === "") {
     return <span className="text-muted-foreground">-</span>;
   }
 
   switch (type) {
     case "boolean":
-      return value ? "Yes" : "No";
+      return (
+        <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
+          value ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"
+        }`}>
+          {value ? "Yes" : "No"}
+        </span>
+      );
     case "date":
+      try {
+        return new Date(value).toLocaleDateString();
+      } catch {
+        return String(value);
+      }
     case "datetime":
-      return new Date(value).toLocaleString();
+      try {
+        return new Date(value).toLocaleString();
+      } catch {
+        return String(value);
+      }
+    case "number":
+      return typeof value === "number" ? value.toLocaleString() : String(value);
+    case "email":
+      return (
+        <a 
+          href={`mailto:${value}`} 
+          className="text-blue-600 hover:text-blue-800 underline"
+        >
+          {value}
+        </a>
+      );
+    case "url":
+      return (
+        <a 
+          href={value} 
+          target="_blank" 
+          rel="noopener noreferrer"
+          className="text-blue-600 hover:text-blue-800 underline"
+        >
+          {String(value).length > 30 ? `${String(value).substring(0, 30)}...` : value}
+        </a>
+      );
     case "json":
-      return <span className="text-muted-foreground">[Object]</span>;
+      return (
+        <span className="text-muted-foreground font-mono text-xs">
+          {typeof value === "object" ? "[Object]" : String(value)}
+        </span>
+      );
     case "media":
       // Check if media is multiple (array) or single value
       if (Array.isArray(value)) {
-        // For multiple media files
-        return <MediaPreview mediaIds={value} small={true} />;
+        return value.length > 0 ? (
+          <MediaPreview mediaIds={value} small={true} />
+        ) : (
+          <span className="text-muted-foreground">No media</span>
+        );
       } else {
-        // For single media file
-        return <MediaPreview mediaIds={value} small={true} />;
+        return value ? (
+          <MediaPreview mediaIds={[value]} small={true} />
+        ) : (
+          <span className="text-muted-foreground">No media</span>
+        );
       }
     case "relation":
       // Display relation differently based on whether it's a single or multiple relation
       if (Array.isArray(value)) {
         return (
           <div className="flex items-center">
-            <span className="text-accent text-sm font-medium">
-              {value.length} related {value.length === 1 ? "item" : "items"}
+            <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+              {value.length} {value.length === 1 ? "relation" : "relations"}
             </span>
           </div>
         );
       } else {
-        return (
+        return value ? (
           <div className="flex items-center">
-            <span className="text-accent text-sm font-medium">
-              {value ? "Related item" : "No relation"}
+            <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+              Related
             </span>
-            {value && (
-              <span className="text-xs text-muted-foreground ml-1">
-                ID: {value}
-              </span>
-            )}
           </div>
+        ) : (
+          <span className="text-muted-foreground">No relation</span>
         );
       }
     case "richtext":
-      return value.length > 50 ? `${value.substring(0, 50)}...` : value;
+    case "text":
+      const textValue = String(value);
+      if (textValue.length > 100) {
+        return (
+          <div className="max-w-xs">
+            <span className="block truncate" title={textValue}>
+              {textValue.substring(0, 100)}...
+            </span>
+          </div>
+        );
+      }
+      return textValue;
     default:
-      return String(value).length > 50
-        ? `${String(value).substring(0, 50)}...`
-        : String(value);
+      const stringValue = String(value);
+      if (stringValue.length > 50) {
+        return (
+          <div className="max-w-xs">
+            <span className="block truncate" title={stringValue}>
+              {stringValue.substring(0, 50)}...
+            </span>
+          </div>
+        );
+      }
+      return stringValue;
   }
 }
