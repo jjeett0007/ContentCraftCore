@@ -51,15 +51,15 @@ export default function Register() {
         password: data.password,
         role: data.role,
       });
-      
+
       // Login after successful registration
       await login(data.username, data.password);
-      
+
       toast({
         title: "Registration successful",
         description: "Welcome to Corebase CMS",
       });
-      
+
       navigate("/");
     } catch (error) {
       toast({

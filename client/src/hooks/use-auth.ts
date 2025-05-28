@@ -48,7 +48,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
       const response = await fetch("/api/auth/me", {
         credentials: "include",
       });
-      
+
       if (response.ok) {
         const userData = await response.json();
         setUser(userData);
@@ -71,7 +71,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
         username,
         password,
       });
-      
+
       const data = await response.json();
       setUser(data.user);
     } catch (error) {
@@ -121,10 +121,10 @@ export function AuthProvider({ children }: AuthProviderProps) {
 // Auth hook
 export const useAuth = () => {
   const context = useContext(AuthContext);
-  
+
   if (!context) {
     throw new Error("useAuth must be used within an AuthProvider");
   }
-  
+
   return context;
 };
