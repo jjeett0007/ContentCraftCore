@@ -62,7 +62,7 @@ export default function UserManagement() {
   const { isAuthenticated, user } = useAuth();
   const [, navigate] = useLocation();
   const { toast } = useToast();
-  
+
   // State
   const [showForm, setShowForm] = useState(false);
   const [editingUser, setEditingUser] = useState<any>(null);
@@ -270,7 +270,7 @@ export default function UserManagement() {
                       </TableCell>
                       <TableCell>
                         <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                          user.role === "admin" 
+                          user.role === "administrator" 
                             ? "bg-primary/10 text-primary" 
                             : user.role === "editor"
                             ? "bg-secondary/10 text-secondary"
@@ -331,7 +331,7 @@ export default function UserManagement() {
               }
             </DialogDescription>
           </DialogHeader>
-          
+
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
               <FormField
@@ -350,7 +350,7 @@ export default function UserManagement() {
                   </FormItem>
                 )}
               />
-              
+
               <FormField
                 control={form.control}
                 name="password"
@@ -370,7 +370,7 @@ export default function UserManagement() {
                   </FormItem>
                 )}
               />
-              
+
               <FormField
                 control={form.control}
                 name="role"
@@ -396,7 +396,7 @@ export default function UserManagement() {
                   </FormItem>
                 )}
               />
-              
+
               <DialogFooter>
                 <Button 
                   type="button" 

@@ -67,8 +67,8 @@ export const authorize = (roles: string[] = []) => {
     
     if (roles.length) {
       // Check if user has admin/administrator privileges
-      const hasAdminAccess = user.role === "admin" || user.role === "administrator";
-      const hasRequiredRole = roles.includes(user.role) || (roles.includes("admin") && hasAdminAccess);
+      const hasAdminAccess = user.role === "administrator" || user.role === "administrator";
+      const hasRequiredRole = roles.includes(user.role) || (roles.includes("administrator") && hasAdminAccess);
       
       if (!hasRequiredRole) {
         return res.status(403).json({ 

@@ -46,7 +46,7 @@ export default function Settings() {
     defaultRole: "viewer",
     contentApproval: false,
     mediaUploadRoles: {
-      admin: true,
+      administrator: true,
       editor: true,
       viewer: false,
     },
@@ -91,7 +91,7 @@ export default function Settings() {
         defaultRole: settings.permissions?.defaultRole || "viewer",
         contentApproval: settings.permissions?.contentApproval || false,
         mediaUploadRoles: settings.permissions?.mediaUploadRoles || {
-          admin: true,
+          administrator: true,
           editor: true,
           viewer: false,
         },
@@ -372,13 +372,13 @@ export default function Settings() {
                   <div className="flex items-center space-x-2">
                     <Checkbox
                       id="admin-upload"
-                      checked={permissions.mediaUploadRoles.admin}
+                      checked={permissions.mediaUploadRoles.administrator}
                       onCheckedChange={(checked) =>
                         setPermissions({
                           ...permissions,
                           mediaUploadRoles: {
                             ...permissions.mediaUploadRoles,
-                            admin: checked === true,
+                            administrator: checked === true,
                           },
                         })
                       }

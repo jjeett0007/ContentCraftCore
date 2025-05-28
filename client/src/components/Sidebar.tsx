@@ -33,7 +33,7 @@ export function Sidebar({ open, onClose, collapsed: externalCollapsed }: Sidebar
   const [location, navigate] = useLocation();
   const { user } = useAuth();
   const [internalCollapsed, setInternalCollapsed] = useState(false);
-  
+
   // Use externally provided collapsed state if provided, otherwise use internal state
   const collapsed = externalCollapsed !== undefined ? externalCollapsed : internalCollapsed;
 
@@ -56,7 +56,7 @@ export function Sidebar({ open, onClose, collapsed: externalCollapsed }: Sidebar
           name: "Content-Type Builder",
           icon: <Database className="h-5 w-5" />,
           path: "/content-type-builder",
-          requiredRole: "admin",
+          requiredRole: "administrator",
         },
         {
           name: "Content Manager",
@@ -67,7 +67,7 @@ export function Sidebar({ open, onClose, collapsed: externalCollapsed }: Sidebar
           name: "Deployment Templates",
           icon: <Rocket className="h-5 w-5" />,
           path: "/deployment-templates",
-          requiredRole: "admin",
+          requiredRole: "administrator",
         },
       ],
     },
@@ -98,19 +98,19 @@ export function Sidebar({ open, onClose, collapsed: externalCollapsed }: Sidebar
           name: "User Management",
           icon: <Users className="h-5 w-5" />,
           path: "/users",
-          requiredRole: "admin",
+          requiredRole: "administrator",
         },
         {
           name: "Settings",
           icon: <Settings className="h-5 w-5" />,
           path: "/settings",
-          requiredRole: "admin",
+          requiredRole: "administrator",
         },
         {
           name: "API Documentation",
           icon: <Code className="h-5 w-5" />,
           path: "/api-docs",
-          requiredRole: "admin",
+          requiredRole: "administrator",
         },
       ],
     },
@@ -121,10 +121,10 @@ export function Sidebar({ open, onClose, collapsed: externalCollapsed }: Sidebar
     if (!item.requiredRole) return true;
     if (!user) return false;
 
-    if (item.requiredRole === "admin") {
-      return user.role === "admin" || user.role === "administrator";
+    if (item.requiredRole === "administrator") {
+      return user.role === "administrator" || user.role === "administrator";
     } else if (item.requiredRole === "editor") {
-      return user.role === "admin" || user.role === "administrator" || user.role === "editor";
+      return user.role === "administrator" || user.role === "administrator" || user.role === "editor";
     }
 
     return true;
@@ -204,7 +204,7 @@ export function Sidebar({ open, onClose, collapsed: externalCollapsed }: Sidebar
               <h1 className="text-lg font-bold">Corebase</h1>
             </div>
           )}
-          
+
           {collapsed && (
             <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-primary">
               <span className="text-primary-foreground text-sm font-bold">C</span>
@@ -223,7 +223,7 @@ export function Sidebar({ open, onClose, collapsed: externalCollapsed }: Sidebar
                 <X className="h-5 w-5" />
                 <span className="sr-only">Close sidebar</span>
               </Button>
-              
+
               {/* Collapse button (desktop only) */}
               <Button
                 variant="ghost"
@@ -236,7 +236,7 @@ export function Sidebar({ open, onClose, collapsed: externalCollapsed }: Sidebar
               </Button>
             </div>
           )}
-          
+
           {/* Expand button when collapsed (desktop only) */}
           {collapsed && (
             <Button
@@ -337,14 +337,14 @@ export function Sidebar({ open, onClose, collapsed: externalCollapsed }: Sidebar
                       </span>
                     </div>
                   </div>
-                  
+
                   {!collapsed && (
                     <>
                       <div className="ml-3 overflow-hidden">
                         <p className="text-sm font-medium truncate">{user.username}</p>
                         <p className="text-xs text-muted-foreground capitalize">{user.role}</p>
                       </div>
-                      
+
                       <Button
                         variant="ghost"
                         size="icon"
@@ -359,7 +359,7 @@ export function Sidebar({ open, onClose, collapsed: externalCollapsed }: Sidebar
                       </Button>
                     </>
                   )}
-                  
+
                   {collapsed && (
                     <Button
                       variant="ghost"

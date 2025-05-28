@@ -99,7 +99,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/users", authenticate, authorize(["admin"]), async (req, res) => {
+  app.post("/api/users", authenticate, authorize(["administrator"]), async (req, res) => {
     try {
       const { username, password, role } = req.body;
       const { storage } = await import("./storage");

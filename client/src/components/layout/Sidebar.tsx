@@ -56,7 +56,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
               Dashboard
             </a>
           </Link>
-          {user?.role === 'admin' && (
+          {user?.role === 'administrator' && (
             <Link href="/content-type-builder">
               <a className={`sidebar-item flex items-center px-3 py-2 text-sm font-medium rounded-md mt-1 ${isActive('/content-type-builder') ? 'active' : ''}`}>
                 <span className="material-icons mr-3 text-xl">build</span>
@@ -86,7 +86,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
           </div>
         )}
 
-        {user?.role === 'admin' && (
+        {user?.role === 'administrator' && (
           <div className="mb-6">
             <p className="px-3 text-xs font-semibold text-gray-400 uppercase tracking-wider">Settings</p>
             <Link href="/users">

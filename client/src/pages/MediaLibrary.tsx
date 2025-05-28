@@ -92,8 +92,8 @@ export default function MediaLibrary() {
     return null;
   }
 
-  const canUpload = user?.role === "admin" || user?.role === "editor";
-  const canDelete = user?.role === "admin";
+  const canUpload = user?.role === "administrator" || user?.role === "editor";
+  const canDelete = user?.role === "administrator";
 
   return (
     <AdminLayout pageTitle="Media Library">
