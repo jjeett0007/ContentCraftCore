@@ -72,7 +72,7 @@ export default function UserManagement() {
   useEffect(() => {
     if (!isAuthenticated) {
       navigate("/login");
-    } else if (user?.role !== "admin") {
+    } else if (user?.role !== "admin" && user?.role !== "administrator") {
       toast({
         title: "Access Denied",
         description: "Only administrators can access User Management",
@@ -211,7 +211,7 @@ export default function UserManagement() {
     }
   };
 
-  if (!isAuthenticated || user?.role !== "admin") {
+  if (!isAuthenticated || (user?.role !== "admin" && user?.role !== "administrator")) {
     return null;
   }
 

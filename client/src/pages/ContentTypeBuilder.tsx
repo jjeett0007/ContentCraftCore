@@ -23,7 +23,7 @@ export default function ContentTypeBuilder() {
   useEffect(() => {
     if (!isAuthenticated) {
       navigate("/login");
-    } else if (user?.role !== "admin") {
+    } else if (user?.role !== "admin" && user?.role !== "administrator") {
       toast({
         title: "Access Denied",
         description: "Only administrators can access the Content Type Builder",
@@ -36,7 +36,7 @@ export default function ContentTypeBuilder() {
   // Fetch content types
   const { data: contentTypes, isLoading } = useQuery({
     queryKey: ["/api/content-types"],
-    enabled: isAuthenticated && user?.role === "admin",
+    enabled: isAuthenticated && (user?.role === "admin" || user?.role === "administrator"),
   });
 
   // Create content type mutation
@@ -125,7 +125,7 @@ export default function ContentTypeBuilder() {
     }
   };
 
-  if (!isAuthenticated || user?.role !== "admin") {
+  if (!isAuthenticated || (user?.role !== "admin" && user?.role !== "administrator")) {
     return null;
   }
 

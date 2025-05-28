@@ -129,7 +129,7 @@ export default function Settings() {
     saveMutation.mutate(settingsData);
   };
 
-  if (!isAuthenticated || user?.role !== "admin") {
+  if (!isAuthenticated || (user?.role !== "admin" && user?.role !== "administrator")) {
     return null;
   }
 

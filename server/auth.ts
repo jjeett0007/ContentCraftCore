@@ -140,13 +140,10 @@ export const register = async (req: Request, res: Response) => {
       return res.status(409).json({ message: "Username already exists" });
     }
     
-    // Hash password
-    const hashedPassword = await bcrypt.hash(password, 10);
-    
-    // Create user
+    // Create user (password will be hashed in storage layer)
     const newUser = await storage.createUser({
       username,
-      password: hashedPassword,
+      password,
       role: role || "viewer"
     });
     
