@@ -65,10 +65,16 @@ export const authorize = (roles: string[] = []) => {
       return res.status(401).json({ message: "Authentication required" });
     }
     
-    if (roles.length && !roles.includes(user.role)) {
-      return res.status(403).json({ 
-        message: "Access denied - insufficient permissions" 
-      });
+    if (roles.length) {
+      // Check if user has admin/administrator privileges
+      const hasAdminAccess = user.role === "admin" || user.role === "administrator";
+      const hasRequiredRole = roles.includes(user.role) || (roles.includes("admin") && hasAdminAccess);
+      
+      if (!hasRequiredRole) {
+        return res.status(403).json({ 
+          message: "Access denied - insufficient permissions" 
+        });
+      }
     }
     
     next();

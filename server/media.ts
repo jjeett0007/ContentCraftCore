@@ -151,7 +151,7 @@ export const getMedia = async (req: Request, res: Response) => {
     const type = req.query.type as string;
     const search = req.query.search as string;
     
-    const media = await storage.getMediaList({ type, search });
+    const media = await storage.getMedia();
     res.status(200).json(media);
   } catch (error) {
     console.error("Get media error:", error);
