@@ -53,6 +53,10 @@ export function AuthProvider({ children }: AuthProviderProps) {
         const userData = await response.json();
         setUser(userData);
       } else {
+        if (response.status === 401) {
+          // Clear any stale auth data
+          document.cookie = 'auth-token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+        }
         setUser(null);
       }
     } catch (error) {
@@ -67,10 +71,22 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const login = async (username: string, password: string) => {
     try {
       setIsLoading(true);
-      const response = await apiRequest("POST", "/api/auth/login", {
-        username,
-        password,
+      const response = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify({
+          username,
+          password,
+        }),
       });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Login failed");
+      }
 
       const data = await response.json();
       setUser(data.user);
