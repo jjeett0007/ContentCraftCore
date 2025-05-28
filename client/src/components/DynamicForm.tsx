@@ -159,6 +159,7 @@ export function DynamicForm({ fields, initialData, onSubmit, onCancel, isSubmitt
 
   // Format data before submission
   const handleSubmit = (data: any) => {
+    console.log("Form submission data:", data);
     const formattedData: any = { ...data };
 
     // Format dates to ISO strings
@@ -176,8 +177,14 @@ export function DynamicForm({ fields, initialData, onSubmit, onCancel, isSubmitt
           console.error("JSON parse error:", error);
         }
       }
+
+      // Clean up empty values for optional fields
+      if (!field.required && (formattedData[field.name] === "" || formattedData[field.name] === null || formattedData[field.name] === undefined)) {
+        delete formattedData[field.name];
+      }
     });
 
+    console.log("Formatted data for submission:", formattedData);
     onSubmit(formattedData);
   };
 
@@ -782,23 +789,25 @@ export function DynamicForm({ fields, initialData, onSubmit, onCancel, isSubmitt
           {fields.map(renderField)}
         </div>
 
-        <div className="flex justify-end space-x-2">
+        <div className="flex justify-end space-x-2 pt-4 border-t">
           <Button 
             type="button" 
             variant="outline" 
             onClick={onCancel}
+            disabled={isSubmitting}
           >
             Cancel
           </Button>
           <Button 
             type="submit"
             disabled={isSubmitting}
+            className="bg-primary text-primary-foreground hover:bg-primary/90"
           >
             {isSubmitting 
               ? "Saving..." 
               : initialData 
-                ? "Update" 
-                : "Create"
+                ? "Update Entry" 
+                : "Create Entry"
             }
           </Button>
         </div>

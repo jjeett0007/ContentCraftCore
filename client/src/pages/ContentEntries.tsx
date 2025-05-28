@@ -114,9 +114,11 @@ export default function ContentEntries() {
   // Create entry mutation
   const createMutation = useMutation({
     mutationFn: async (formData: any) => {
+      console.log("Creating entry with data:", formData);
       return apiRequest("POST", `/api/content/${contentType}`, formData);
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
+      console.log("Entry created successfully:", data);
       queryClient.invalidateQueries({
         queryKey: [`/api/content/${contentType}`],
       });
@@ -127,6 +129,7 @@ export default function ContentEntries() {
       setShowForm(false);
     },
     onError: (error) => {
+      console.error("Create entry error:", error);
       toast({
         title: "Error",
         description:
@@ -189,9 +192,12 @@ export default function ContentEntries() {
   });
 
   const handleSubmit = (formData: any) => {
+    console.log("ContentEntries handleSubmit called with:", formData);
     if (editingEntry) {
+      console.log("Updating entry with ID:", editingEntry.id);
       updateMutation.mutate({ id: editingEntry.id, formData });
     } else {
+      console.log("Creating new entry");
       createMutation.mutate(formData);
     }
   };
@@ -412,9 +418,9 @@ export default function ContentEntries() {
 
       {/* Entry Form Dialog */}
       <Dialog open={showForm} onOpenChange={setShowForm}>
-        <DialogContent className="max-w-xl max-h-[80vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader className="pb-4">
+            <DialogTitle className="text-xl">
               {editingEntry ? "Edit Entry" : "Create New Entry"}
             </DialogTitle>
             <DialogDescription>
@@ -424,18 +430,20 @@ export default function ContentEntries() {
             </DialogDescription>
           </DialogHeader>
           {contentTypeData && (
-            <DynamicForm
-              fields={contentTypeData.fields}
-              initialData={editingEntry}
-              onSubmit={handleSubmit}
-              onCancel={() => {
-                setShowForm(false);
-                setEditingEntry(null);
-              }}
-              isSubmitting={
-                createMutation.isPending || updateMutation.isPending
-              }
-            />
+            <div className="mt-4">
+              <DynamicForm
+                fields={contentTypeData.fields}
+                initialData={editingEntry}
+                onSubmit={handleSubmit}
+                onCancel={() => {
+                  setShowForm(false);
+                  setEditingEntry(null);
+                }}
+                isSubmitting={
+                  createMutation.isPending || updateMutation.isPending
+                }
+              />
+            </div>
           )}
         </DialogContent>
       </Dialog>
