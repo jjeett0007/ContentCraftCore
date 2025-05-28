@@ -72,7 +72,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/auth/me", authenticate, getCurrentUser);
 
   // User routes
-  app.get("/api/users", authenticate, authorize(["admin"]), async (req, res) => {
+  app.get("/api/users", authenticate, authorize(["administrator"]), async (req, res) => {
     try {
       const { storage } = await import("./storage");
       const users = await storage.getUsers();
@@ -134,7 +134,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.put("/api/users/:id", authenticate, authorize(["admin"]), async (req, res) => {
+  app.put("/api/users/:id", authenticate, authorize(["administrator"]), async (req, res) => {
     try {
       const { id } = req.params;
       const { username, password, role } = req.body;
@@ -180,7 +180,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.delete("/api/users/:id", authenticate, authorize(["admin"]), async (req, res) => {
+  app.delete("/api/users/:id", authenticate, authorize(["administrator"]), async (req, res) => {
     try {
       const { id } = req.params;
       const user = (req as any).user;
@@ -206,24 +206,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Content type routes
   app.get("/api/content-types", authenticate, getContentTypes);
-  app.post("/api/content-types", authenticate, authorize(["admin"]), createContentType);
+  app.post("/api/content-types", authenticate, authorize(["administrator"]), createContentType);
   app.get("/api/content-types/:id", authenticate, getContentTypeById);
-  app.put("/api/content-types/:id", authenticate, authorize(["admin"]), updateContentType);
-  app.delete("/api/content-types/:id", authenticate, authorize(["admin"]), deleteContentType);
+  app.put("/api/content-types/:id", authenticate, authorize(["administrator"]), updateContentType);
+  app.delete("/api/content-types/:id", authenticate, authorize(["administrator"]), deleteContentType);
 
   // Dynamic content routes
   app.get("/api/content/:contentType", authenticate, getContentEntries);
-  app.post("/api/content/:contentType", authenticate, authorize(["admin", "editor"]), createContent);
+  app.post("/api/content/:contentType", authenticate, authorize(["administrator", "editor"]), createContent);
   app.get("/api/content/:contentType/:id", authenticate, getContentEntryById);
-  app.put("/api/content/:contentType/:id", authenticate, authorize(["admin", "editor"]), updateContentEntry);
-  app.delete("/api/content/:contentType/:id", authenticate, authorize(["admin"]), deleteContentEntry);
+  app.put("/api/content/:contentType/:id", authenticate, authorize(["administrator", "editor"]), updateContentEntry);
+  app.delete("/api/content/:contentType/:id", authenticate, authorize(["administrator"]), deleteContentEntry);
 
   // Media routes
   app.get("/api/media", authenticate, getMedia);
-  app.post("/api/media", authenticate, authorize(["admin", "editor"]), uploadMedia);
+  app.post("/api/media", authenticate, authorize(["administrator", "editor"]), uploadMedia);
   app.get("/api/media/count", authenticate, getMediaCount);
   app.get("/api/media/:id", authenticate, getMediaById);
-  app.delete("/api/media/:id", authenticate, authorize(["admin"]), deleteMedia);
+  app.delete("/api/media/:id", authenticate, authorize(["administrator"]), deleteMedia);
 
   // Activity routes
   app.get("/api/activity", authenticate, async (req, res) => {
@@ -253,7 +253,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Settings routes
-  app.get("/api/settings", authenticate, authorize(["admin"]), async (req, res) => {
+  app.get("/api/settings", authenticate, authorize(["administrator"]), async (req, res) => {
     try {
       // Combine all settings into one response
       const { storage } = await import("./storage");
@@ -274,7 +274,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.put("/api/settings", authenticate, authorize(["admin"]), async (req, res) => {
+  app.put("/api/settings", authenticate, authorize(["administrator"]), async (req, res) => {
     try {
       const { 
         siteName, 

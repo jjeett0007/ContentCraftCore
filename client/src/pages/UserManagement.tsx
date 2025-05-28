@@ -112,7 +112,7 @@ export default function UserManagement() {
   // Fetch users
   const { data: users, isLoading } = useQuery({
     queryKey: ["/api/users"],
-    enabled: isAuthenticated && user?.role === "admin",
+    enabled: isAuthenticated && user?.role === "administrator",
   });
 
   // Create user mutation
@@ -211,7 +211,7 @@ export default function UserManagement() {
     }
   };
 
-  if (!isAuthenticated || (user?.role !== "admin" && user?.role !== "administrator")) {
+  if (!isAuthenticated || (user?.role !== "administrator" && user?.role !== "administrator")) {
     return null;
   }
 

@@ -72,7 +72,7 @@ export default function Settings() {
   // Fetch settings
   const { data: settings, isLoading } = useQuery({
     queryKey: ["/api/settings"],
-    enabled: isAuthenticated && user?.role === "admin",
+    enabled: isAuthenticated && user?.role === "administrator",
   });
 
   // Update settings on load
@@ -139,7 +139,7 @@ export default function Settings() {
 
   if (
     !isAuthenticated ||
-    (user?.role !== "admin" && user?.role !== "administrator")
+    (user?.role !== "administrator" && user?.role !== "administrator")
   ) {
     return null;
   }
