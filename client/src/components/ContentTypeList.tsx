@@ -19,7 +19,7 @@ export function ContentTypeList({
   showActions = false
 }: ContentTypeListProps) {
   const { user } = useAuth();
-  const canEdit = user?.role === "admin";
+  const canEdit = user?.role === "admin" || user?.role === "administrator";
   
   return (
     <Card>
