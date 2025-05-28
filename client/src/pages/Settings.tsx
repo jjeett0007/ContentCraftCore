@@ -6,7 +6,14 @@ import { useAuth } from "@/hooks/use-auth";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import { queryClient } from "@/lib/queryClient";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -22,7 +29,7 @@ export default function Settings() {
   const [, navigate] = useLocation();
   const { toast } = useToast();
   const { theme, setTheme } = useTheme();
-  
+
   // State for general settings
   const [siteName, setSiteName] = useState("Corebase CMS");
   const [apiPrefix, setApiPrefix] = useState("/api");
@@ -32,7 +39,7 @@ export default function Settings() {
     apiKey: "",
     apiSecret: "",
   });
-  
+
   // State for permission settings
   const [permissions, setPermissions] = useState({
     publicRegistration: false,
@@ -44,7 +51,7 @@ export default function Settings() {
       viewer: false,
     },
   });
-  
+
   // Saving state
   const [isSaving, setIsSaving] = useState(false);
 
@@ -52,7 +59,7 @@ export default function Settings() {
   useEffect(() => {
     if (!isAuthenticated) {
       navigate("/login");
-    } else if (user?.role !== "admin") {
+    } else if (user?.role !== "administrator") {
       toast({
         title: "Access Denied",
         description: "Only administrators can access Settings",
@@ -108,16 +115,17 @@ export default function Settings() {
     onError: (error) => {
       toast({
         title: "Error",
-        description: error instanceof Error ? error.message : "Failed to save settings",
+        description:
+          error instanceof Error ? error.message : "Failed to save settings",
         variant: "destructive",
       });
       setIsSaving(false);
-    }
+    },
   });
 
   const handleSaveSettings = () => {
     setIsSaving(true);
-    
+
     const settingsData = {
       siteName,
       apiPrefix,
@@ -125,11 +133,14 @@ export default function Settings() {
       cloudinary: mediaProvider === "cloudinary" ? cloudinaryConfig : undefined,
       permissions,
     };
-    
+
     saveMutation.mutate(settingsData);
   };
 
-  if (!isAuthenticated || (user?.role !== "admin" && user?.role !== "administrator")) {
+  if (
+    !isAuthenticated ||
+    (user?.role !== "admin" && user?.role !== "administrator")
+  ) {
     return null;
   }
 
@@ -148,8 +159,8 @@ export default function Settings() {
             <TabsTrigger value="permissions">Permissions</TabsTrigger>
             <TabsTrigger value="appearance">Appearance</TabsTrigger>
           </TabsList>
-          
-          <Button 
+
+          <Button
             className="bg-primary text-dark hover:bg-primary/90"
             onClick={handleSaveSettings}
             disabled={isSaving}
@@ -167,7 +178,7 @@ export default function Settings() {
             )}
           </Button>
         </div>
-        
+
         <TabsContent value="general">
           <Card>
             <CardHeader>
@@ -179,19 +190,19 @@ export default function Settings() {
             <CardContent className="space-y-4">
               <div className="grid gap-2">
                 <Label htmlFor="site-name">Site Name</Label>
-                <Input 
-                  id="site-name" 
-                  value={siteName} 
+                <Input
+                  id="site-name"
+                  value={siteName}
                   onChange={(e) => setSiteName(e.target.value)}
                   placeholder="Enter site name"
                 />
               </div>
-              
+
               <div className="grid gap-2">
                 <Label htmlFor="api-prefix">API Prefix</Label>
-                <Input 
-                  id="api-prefix" 
-                  value={apiPrefix} 
+                <Input
+                  id="api-prefix"
+                  value={apiPrefix}
                   onChange={(e) => setApiPrefix(e.target.value)}
                   placeholder="Enter API prefix"
                 />
@@ -202,7 +213,7 @@ export default function Settings() {
             </CardContent>
           </Card>
         </TabsContent>
-        
+
         <TabsContent value="media">
           <Card>
             <CardHeader>
@@ -215,60 +226,79 @@ export default function Settings() {
               <div className="grid gap-2">
                 <Label>Media Provider</Label>
                 <div className="flex items-center space-x-2">
-                  <input 
-                    type="radio" 
-                    id="local-storage" 
+                  <input
+                    type="radio"
+                    id="local-storage"
                     name="media-provider"
                     checked={mediaProvider === "local"}
                     onChange={() => setMediaProvider("local")}
                     className="rounded border-gray-300 text-primary focus:ring-primary"
                   />
-                  <Label htmlFor="local-storage" className="cursor-pointer">Local Storage</Label>
+                  <Label htmlFor="local-storage" className="cursor-pointer">
+                    Local Storage
+                  </Label>
                 </div>
                 <div className="flex items-center space-x-2">
-                  <input 
-                    type="radio" 
-                    id="cloudinary" 
+                  <input
+                    type="radio"
+                    id="cloudinary"
                     name="media-provider"
                     checked={mediaProvider === "cloudinary"}
                     onChange={() => setMediaProvider("cloudinary")}
                     className="rounded border-gray-300 text-primary focus:ring-primary"
                   />
-                  <Label htmlFor="cloudinary" className="cursor-pointer">Cloudinary</Label>
+                  <Label htmlFor="cloudinary" className="cursor-pointer">
+                    Cloudinary
+                  </Label>
                 </div>
               </div>
-              
+
               {mediaProvider === "cloudinary" && (
                 <div className="space-y-4 border rounded-md p-4 bg-muted/20">
                   <h3 className="font-medium">Cloudinary Configuration</h3>
-                  
+
                   <div className="grid gap-2">
                     <Label htmlFor="cloud-name">Cloud Name</Label>
-                    <Input 
-                      id="cloud-name" 
-                      value={cloudinaryConfig.cloudName} 
-                      onChange={(e) => setCloudinaryConfig({...cloudinaryConfig, cloudName: e.target.value})}
+                    <Input
+                      id="cloud-name"
+                      value={cloudinaryConfig.cloudName}
+                      onChange={(e) =>
+                        setCloudinaryConfig({
+                          ...cloudinaryConfig,
+                          cloudName: e.target.value,
+                        })
+                      }
                       placeholder="Enter Cloudinary cloud name"
                     />
                   </div>
-                  
+
                   <div className="grid gap-2">
                     <Label htmlFor="api-key">API Key</Label>
-                    <Input 
-                      id="api-key" 
-                      value={cloudinaryConfig.apiKey} 
-                      onChange={(e) => setCloudinaryConfig({...cloudinaryConfig, apiKey: e.target.value})}
+                    <Input
+                      id="api-key"
+                      value={cloudinaryConfig.apiKey}
+                      onChange={(e) =>
+                        setCloudinaryConfig({
+                          ...cloudinaryConfig,
+                          apiKey: e.target.value,
+                        })
+                      }
                       placeholder="Enter Cloudinary API key"
                     />
                   </div>
-                  
+
                   <div className="grid gap-2">
                     <Label htmlFor="api-secret">API Secret</Label>
-                    <Input 
-                      id="api-secret" 
+                    <Input
+                      id="api-secret"
                       type="password"
-                      value={cloudinaryConfig.apiSecret} 
-                      onChange={(e) => setCloudinaryConfig({...cloudinaryConfig, apiSecret: e.target.value})}
+                      value={cloudinaryConfig.apiSecret}
+                      onChange={(e) =>
+                        setCloudinaryConfig({
+                          ...cloudinaryConfig,
+                          apiSecret: e.target.value,
+                        })
+                      }
                       placeholder="Enter Cloudinary API secret"
                     />
                   </div>
@@ -277,7 +307,7 @@ export default function Settings() {
             </CardContent>
           </Card>
         </TabsContent>
-        
+
         <TabsContent value="permissions">
           <Card>
             <CardHeader>
@@ -289,92 +319,101 @@ export default function Settings() {
             <CardContent className="space-y-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <Label htmlFor="public-registration" className="text-base">Public Registration</Label>
+                  <Label htmlFor="public-registration" className="text-base">
+                    Public Registration
+                  </Label>
                   <p className="text-sm text-muted-foreground">
                     Allow users to register accounts without admin approval
                   </p>
                 </div>
-                <Switch 
+                <Switch
                   id="public-registration"
                   checked={permissions.publicRegistration}
-                  onCheckedChange={(checked) => 
-                    setPermissions({...permissions, publicRegistration: checked})
+                  onCheckedChange={(checked) =>
+                    setPermissions({
+                      ...permissions,
+                      publicRegistration: checked,
+                    })
                   }
                 />
               </div>
-              
+
               <Separator />
-              
+
               <div className="flex items-center justify-between">
                 <div>
-                  <Label htmlFor="content-approval" className="text-base">Content Approval</Label>
+                  <Label htmlFor="content-approval" className="text-base">
+                    Content Approval
+                  </Label>
                   <p className="text-sm text-muted-foreground">
                     Require admin approval before content is published
                   </p>
                 </div>
-                <Switch 
+                <Switch
                   id="content-approval"
                   checked={permissions.contentApproval}
-                  onCheckedChange={(checked) => 
-                    setPermissions({...permissions, contentApproval: checked})
+                  onCheckedChange={(checked) =>
+                    setPermissions({ ...permissions, contentApproval: checked })
                   }
                 />
               </div>
-              
+
               <Separator />
-              
+
               <div>
-                <h3 className="text-base font-medium mb-2">Media Upload Permissions</h3>
+                <h3 className="text-base font-medium mb-2">
+                  Media Upload Permissions
+                </h3>
                 <p className="text-sm text-muted-foreground mb-4">
                   Select which roles can upload media files
                 </p>
-                
+
                 <div className="space-y-2">
                   <div className="flex items-center space-x-2">
-                    <Checkbox 
+                    <Checkbox
                       id="admin-upload"
                       checked={permissions.mediaUploadRoles.admin}
-                      onCheckedChange={(checked) => 
+                      onCheckedChange={(checked) =>
                         setPermissions({
-                          ...permissions, 
+                          ...permissions,
                           mediaUploadRoles: {
                             ...permissions.mediaUploadRoles,
-                            admin: checked === true
-                          }
+                            admin: checked === true,
+                          },
                         })
                       }
                     />
                     <Label htmlFor="admin-upload">Administrator</Label>
                   </div>
-                  
+
                   <div className="flex items-center space-x-2">
-                    <Checkbox 
+                    <Checkbox
                       id="editor-upload"
                       checked={permissions.mediaUploadRoles.editor}
-                      onCheckedChange={(checked) => 
+                      onCheckedChange={(checked) =>
                         setPermissions({
-                          ...permissions, 
+                          ...permissions,
                           mediaUploadRoles: {
                             ...permissions.mediaUploadRoles,
-                            editor: checked === true
-                          }
+                            editor: checked === true,
+                          },
                         })
                       }
                     />
                     <Label htmlFor="editor-upload">Editor</Label>
                   </div>
-                  
+
                   <div className="flex items-center space-x-2">
-                    <Checkbox 
+                    <Checkbox
                       id="viewer-upload"
                       checked={permissions.mediaUploadRoles.viewer}
-                      onCheckedChange={(checked) => 
+                      onCheckedChange={(checked) =>
                         setPermissions({
-                          ...permissions, 
+                          ...permissions,
                           mediaUploadRoles: {
                             ...permissions.mediaUploadRoles,
-                            viewer: checked === true
-                          }
+                            viewer: checked === true,
+                          },
                         })
                       }
                     />
@@ -385,7 +424,7 @@ export default function Settings() {
             </CardContent>
           </Card>
         </TabsContent>
-        
+
         <TabsContent value="appearance">
           <Card>
             <CardHeader>
@@ -398,9 +437,11 @@ export default function Settings() {
               <div>
                 <h3 className="text-base font-medium mb-4">Theme</h3>
                 <div className="flex gap-4">
-                  <div 
+                  <div
                     className={`flex flex-col items-center gap-2 p-4 rounded-md cursor-pointer border-2 ${
-                      theme === "light" ? "border-primary" : "border-transparent"
+                      theme === "light"
+                        ? "border-primary"
+                        : "border-transparent"
                     }`}
                     onClick={() => setTheme("light")}
                   >
@@ -409,8 +450,8 @@ export default function Settings() {
                     </div>
                     <span className="font-medium">Light</span>
                   </div>
-                  
-                  <div 
+
+                  <div
                     className={`flex flex-col items-center gap-2 p-4 rounded-md cursor-pointer border-2 ${
                       theme === "dark" ? "border-primary" : "border-transparent"
                     }`}
@@ -423,42 +464,54 @@ export default function Settings() {
                   </div>
                 </div>
               </div>
-              
+
               <Separator />
-              
+
               <div>
                 <h3 className="text-base font-medium mb-2">Brand Colors</h3>
                 <p className="text-sm text-muted-foreground mb-4">
                   These are the default brand colors for Corebase CMS
                 </p>
-                
+
                 <div className="grid grid-cols-4 gap-2">
                   <div className="flex flex-col items-center">
                     <div className="w-12 h-12 rounded-md bg-primary" />
                     <span className="text-xs mt-1">Primary</span>
-                    <span className="text-xs text-muted-foreground">#FFB200</span>
+                    <span className="text-xs text-muted-foreground">
+                      #FFB200
+                    </span>
                   </div>
                   <div className="flex flex-col items-center">
                     <div className="w-12 h-12 rounded-md bg-secondary" />
                     <span className="text-xs mt-1">Secondary</span>
-                    <span className="text-xs text-muted-foreground">#EB5B00</span>
+                    <span className="text-xs text-muted-foreground">
+                      #EB5B00
+                    </span>
                   </div>
                   <div className="flex flex-col items-center">
                     <div className="w-12 h-12 rounded-md bg-accent" />
                     <span className="text-xs mt-1">Accent</span>
-                    <span className="text-xs text-muted-foreground">#D91656</span>
+                    <span className="text-xs text-muted-foreground">
+                      #D91656
+                    </span>
                   </div>
                   <div className="flex flex-col items-center">
-                    <div className="w-12 h-12 rounded-md" style={{ backgroundColor: "#640D5F" }} />
+                    <div
+                      className="w-12 h-12 rounded-md"
+                      style={{ backgroundColor: "#640D5F" }}
+                    />
                     <span className="text-xs mt-1">Dark</span>
-                    <span className="text-xs text-muted-foreground">#640D5F</span>
+                    <span className="text-xs text-muted-foreground">
+                      #640D5F
+                    </span>
                   </div>
                 </div>
               </div>
             </CardContent>
             <CardFooter className="border-t px-6 py-4">
               <p className="text-sm text-muted-foreground">
-                Custom color themes can be configured by modifying the CSS variables.
+                Custom color themes can be configured by modifying the CSS
+                variables.
               </p>
             </CardFooter>
           </Card>
