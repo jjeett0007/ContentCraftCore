@@ -8,41 +8,47 @@ import { useAuth } from "@/hooks/use-auth";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import { queryClient } from "@/lib/queryClient";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { 
-  Table, 
-  TableBody, 
-  TableCell, 
-  TableHead, 
-  TableHeader, 
-  TableRow 
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
 } from "@/components/ui/table";
-import { 
-  Card, 
-  CardContent, 
-  CardHeader, 
+import {
+  Card,
+  CardContent,
+  CardHeader,
   CardTitle,
-  CardDescription
+  CardDescription,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Pagination } from "@/components/ui/pagination";
-import { 
-  ChevronLeft, 
-  ChevronRight, 
-  Edit, 
-  Trash2, 
-  Plus, 
+import {
+  ChevronLeft,
+  ChevronRight,
+  Edit,
+  Trash2,
+  Plus,
   Search,
   X,
-  AlertCircle
+  AlertCircle,
 } from "lucide-react";
-import { 
-  Dialog, 
-  DialogContent, 
-  DialogDescription, 
-  DialogHeader, 
-  DialogTitle 
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
 } from "@/components/ui/dialog";
 import {
   AlertDialog,
@@ -60,7 +66,7 @@ export default function ContentEntries() {
   const { isAuthenticated, user } = useAuth();
   const [, navigate] = useLocation();
   const { toast } = useToast();
-  
+
   // State
   const [page, setPage] = useState(1);
   const [sortField, setSortField] = useState("createdAt");
@@ -69,7 +75,7 @@ export default function ContentEntries() {
   const [showForm, setShowForm] = useState(false);
   const [editingEntry, setEditingEntry] = useState<any>(null);
   const [deletingEntry, setDeletingEntry] = useState<string | null>(null);
-  
+
   const limit = 10;
 
   // Redirect to login if not authenticated
@@ -87,11 +93,19 @@ export default function ContentEntries() {
 
   // Fetch content entries
   const { data: entriesData, isLoading: entriesLoading } = useQuery({
-    queryKey: [`/api/content/${contentType}`, page, search, sortField, sortOrder],
+    queryKey: [
+      `/api/content/${contentType}`,
+      page,
+      search,
+      sortField,
+      sortOrder,
+    ],
     queryFn: async () => {
-      const searchParam = search ? `&search=${encodeURIComponent(search)}` : '';
+      const searchParam = search ? `&search=${encodeURIComponent(search)}` : "";
       const sortParams = `&sortField=${sortField}&sortOrder=${sortOrder}`;
-      const response = await fetch(`/api/content/${contentType}?page=${page}&limit=${limit}${searchParam}${sortParams}`);
+      const response = await fetch(
+        `/api/content/${contentType}?page=${page}&limit=${limit}${searchParam}${sortParams}`,
+      );
       return response.json();
     },
     enabled: isAuthenticated && !!contentType,
@@ -103,7 +117,9 @@ export default function ContentEntries() {
       return apiRequest("POST", `/api/content/${contentType}`, formData);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [`/api/content/${contentType}`] });
+      queryClient.invalidateQueries({
+        queryKey: [`/api/content/${contentType}`],
+      });
       toast({
         title: "Success",
         description: "Entry created successfully",
@@ -113,19 +129,22 @@ export default function ContentEntries() {
     onError: (error) => {
       toast({
         title: "Error",
-        description: error instanceof Error ? error.message : "Failed to create entry",
+        description:
+          error instanceof Error ? error.message : "Failed to create entry",
         variant: "destructive",
       });
-    }
+    },
   });
 
   // Update entry mutation
   const updateMutation = useMutation({
-    mutationFn: async ({ id, formData }: { id: string, formData: any }) => {
+    mutationFn: async ({ id, formData }: { id: string; formData: any }) => {
       return apiRequest("PUT", `/api/content/${contentType}/${id}`, formData);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [`/api/content/${contentType}`] });
+      queryClient.invalidateQueries({
+        queryKey: [`/api/content/${contentType}`],
+      });
       toast({
         title: "Success",
         description: "Entry updated successfully",
@@ -136,10 +155,11 @@ export default function ContentEntries() {
     onError: (error) => {
       toast({
         title: "Error",
-        description: error instanceof Error ? error.message : "Failed to update entry",
+        description:
+          error instanceof Error ? error.message : "Failed to update entry",
         variant: "destructive",
       });
-    }
+    },
   });
 
   // Delete entry mutation
@@ -148,7 +168,9 @@ export default function ContentEntries() {
       return apiRequest("DELETE", `/api/content/${contentType}/${id}`);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [`/api/content/${contentType}`] });
+      queryClient.invalidateQueries({
+        queryKey: [`/api/content/${contentType}`],
+      });
       toast({
         title: "Success",
         description: "Entry deleted successfully",
@@ -158,11 +180,12 @@ export default function ContentEntries() {
     onError: (error) => {
       toast({
         title: "Error",
-        description: error instanceof Error ? error.message : "Failed to delete entry",
+        description:
+          error instanceof Error ? error.message : "Failed to delete entry",
         variant: "destructive",
       });
       setDeletingEntry(null);
-    }
+    },
   });
 
   const handleSubmit = (formData: any) => {
@@ -177,7 +200,7 @@ export default function ContentEntries() {
     // Ensure we use the correct ID field (_id for MongoDB, id for other)
     const entryWithId = {
       ...entry,
-      id: entry.id || entry._id
+      id: entry.id || entry._id,
     };
     setEditingEntry(entryWithId);
     setShowForm(true);
@@ -185,7 +208,7 @@ export default function ContentEntries() {
 
   const handleDelete = (id: string) => {
     // Ensure we have a valid ID
-    if (id && id !== 'undefined' && id !== 'null') {
+    if (id && id !== "undefined" && id !== "null") {
       setDeletingEntry(id);
     } else {
       toast({
@@ -211,16 +234,23 @@ export default function ContentEntries() {
     return null;
   }
 
-  const canCreate = user?.role === "admin" || user?.role === "editor";
-  const canEdit = user?.role === "admin" || user?.role === "editor";
-  const canDelete = user?.role === "admin";
+  const canCreate = user?.role === "adminstrator" || user?.role === "editor";
+  const canEdit = user?.role === "adminstrator" || user?.role === "editor";
+  const canDelete = user?.role === "adminstrator";
 
   return (
-    <AdminLayout pageTitle={`${contentTypeData?.displayName || contentType} Entries`}>
+    <AdminLayout
+      pageTitle={`${contentTypeData?.displayName || contentType} Entries`}
+    >
       <div className="mb-6 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-gray-800">{contentTypeData?.displayName || contentType}</h1>
-          <p className="text-gray-600">Manage your {contentTypeData?.displayName?.toLowerCase() || contentType} entries</p>
+          <h1 className="text-2xl font-bold text-gray-800">
+            {contentTypeData?.displayName || contentType}
+          </h1>
+          <p className="text-gray-600">
+            Manage your{" "}
+            {contentTypeData?.displayName?.toLowerCase() || contentType} entries
+          </p>
         </div>
         <div className="flex flex-col sm:flex-row gap-2">
           <div className="relative">
@@ -243,7 +273,7 @@ export default function ContentEntries() {
             )}
           </div>
           {canCreate && (
-            <Button 
+            <Button
               className="bg-secondary text-white hover:bg-secondary/90"
               onClick={() => {
                 setEditingEntry(null);
@@ -276,7 +306,9 @@ export default function ContentEntries() {
                 <TableHeader>
                   <TableRow>
                     {contentTypeData.fields.slice(0, 5).map((field: any) => (
-                      <TableHead key={field.name}>{field.displayName}</TableHead>
+                      <TableHead key={field.name}>
+                        {field.displayName}
+                      </TableHead>
                     ))}
                     <TableHead className="text-right">Actions</TableHead>
                   </TableRow>
@@ -305,7 +337,9 @@ export default function ContentEntries() {
                             <Button
                               variant="ghost"
                               size="icon"
-                              onClick={() => handleDelete(entry.id || entry._id)}
+                              onClick={() =>
+                                handleDelete(entry.id || entry._id)
+                              }
                               title="Delete entry"
                             >
                               <Trash2 className="h-4 w-4 text-destructive" />
@@ -351,10 +385,12 @@ export default function ContentEntries() {
             <AlertCircle className="h-12 w-12 text-muted-foreground mb-4" />
             <h3 className="text-lg font-medium mb-2">No Entries Found</h3>
             <p className="text-sm text-muted-foreground text-center mb-6">
-              {search ? `No results found for "${search}"` : "Start by creating your first entry"}
+              {search
+                ? `No results found for "${search}"`
+                : "Start by creating your first entry"}
             </p>
             {canCreate && !search && (
-              <Button 
+              <Button
                 onClick={() => {
                   setEditingEntry(null);
                   setShowForm(true);
@@ -366,10 +402,7 @@ export default function ContentEntries() {
               </Button>
             )}
             {search && (
-              <Button 
-                variant="outline"
-                onClick={() => setSearch("")}
-              >
+              <Button variant="outline" onClick={() => setSearch("")}>
                 Clear Search
               </Button>
             )}
@@ -385,10 +418,9 @@ export default function ContentEntries() {
               {editingEntry ? "Edit Entry" : "Create New Entry"}
             </DialogTitle>
             <DialogDescription>
-              {editingEntry 
+              {editingEntry
                 ? `Update this ${contentTypeData?.displayName?.toLowerCase() || contentType} entry`
-                : `Add a new ${contentTypeData?.displayName?.toLowerCase() || contentType} entry`
-              }
+                : `Add a new ${contentTypeData?.displayName?.toLowerCase() || contentType} entry`}
             </DialogDescription>
           </DialogHeader>
           {contentTypeData && (
@@ -400,24 +432,30 @@ export default function ContentEntries() {
                 setShowForm(false);
                 setEditingEntry(null);
               }}
-              isSubmitting={createMutation.isPending || updateMutation.isPending}
+              isSubmitting={
+                createMutation.isPending || updateMutation.isPending
+              }
             />
           )}
         </DialogContent>
       </Dialog>
 
       {/* Delete Confirmation Dialog */}
-      <AlertDialog open={!!deletingEntry} onOpenChange={(open) => !open && setDeletingEntry(null)}>
+      <AlertDialog
+        open={!!deletingEntry}
+        onOpenChange={(open) => !open && setDeletingEntry(null)}
+      >
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Are you sure?</AlertDialogTitle>
             <AlertDialogDescription>
-              This action cannot be undone. This will permanently delete this entry.
+              This action cannot be undone. This will permanently delete this
+              entry.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction 
+            <AlertDialogAction
               onClick={confirmDelete}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
@@ -437,14 +475,14 @@ function formatFieldValue(value: any, type: string): React.ReactNode {
   }
 
   switch (type) {
-    case 'boolean':
-      return value ? 'Yes' : 'No';
-    case 'date':
-    case 'datetime':
+    case "boolean":
+      return value ? "Yes" : "No";
+    case "date":
+    case "datetime":
       return new Date(value).toLocaleString();
-    case 'json':
+    case "json":
       return <span className="text-muted-foreground">[Object]</span>;
-    case 'media':
+    case "media":
       // Check if media is multiple (array) or single value
       if (Array.isArray(value)) {
         // For multiple media files
@@ -453,13 +491,13 @@ function formatFieldValue(value: any, type: string): React.ReactNode {
         // For single media file
         return <MediaPreview mediaIds={value} small={true} />;
       }
-    case 'relation':
+    case "relation":
       // Display relation differently based on whether it's a single or multiple relation
       if (Array.isArray(value)) {
         return (
           <div className="flex items-center">
             <span className="text-accent text-sm font-medium">
-              {value.length} related {value.length === 1 ? 'item' : 'items'}
+              {value.length} related {value.length === 1 ? "item" : "items"}
             </span>
           </div>
         );
@@ -467,15 +505,21 @@ function formatFieldValue(value: any, type: string): React.ReactNode {
         return (
           <div className="flex items-center">
             <span className="text-accent text-sm font-medium">
-              {value ? 'Related item' : 'No relation'}
+              {value ? "Related item" : "No relation"}
             </span>
-            {value && <span className="text-xs text-muted-foreground ml-1">ID: {value}</span>}
+            {value && (
+              <span className="text-xs text-muted-foreground ml-1">
+                ID: {value}
+              </span>
+            )}
           </div>
         );
       }
-    case 'richtext':
+    case "richtext":
       return value.length > 50 ? `${value.substring(0, 50)}...` : value;
     default:
-      return String(value).length > 50 ? `${String(value).substring(0, 50)}...` : String(value);
+      return String(value).length > 50
+        ? `${String(value).substring(0, 50)}...`
+        : String(value);
   }
 }
