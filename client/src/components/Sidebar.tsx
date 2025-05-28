@@ -122,9 +122,9 @@ export function Sidebar({ open, onClose, collapsed: externalCollapsed }: Sidebar
     if (!user) return false;
 
     if (item.requiredRole === "admin") {
-      return user.role === "admin";
+      return user.role === "admin" || user.role === "administrator";
     } else if (item.requiredRole === "editor") {
-      return user.role === "admin" || user.role === "editor";
+      return user.role === "admin" || user.role === "administrator" || user.role === "editor";
     }
 
     return true;
