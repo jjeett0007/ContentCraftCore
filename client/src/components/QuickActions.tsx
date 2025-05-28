@@ -1,5 +1,6 @@
-import { useLocation } from "wouter";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useLocation } from "wouter";
+import { Plus, Upload, UserPlus, Settings } from "lucide-react";
 
 export function QuickActions() {
   const [, navigate] = useLocation();
@@ -19,13 +20,13 @@ export function QuickActions() {
           }}
         >
           <div className="flex-shrink-0 p-2 rounded-md bg-primary/10">
-            <span className="material-icons text-primary">add</span>
+            <Plus className="text-primary"/>
           </div>
           <div className="ml-3">
             <p className="text-sm font-medium text-gray-700 dark:text-gray-300">Create Content Type</p>
           </div>
         </a>
-        
+
         <a 
           href="#" 
           className="flex items-center p-3 bg-gray-50 hover:bg-gray-100 dark:bg-gray-800 dark:hover:bg-gray-700 rounded-md transition-colors"
@@ -35,13 +36,13 @@ export function QuickActions() {
           }}
         >
           <div className="flex-shrink-0 p-2 rounded-md bg-secondary/10">
-            <span className="material-icons text-secondary">upload_file</span>
+            <Upload className="text-secondary"/>
           </div>
           <div className="ml-3">
             <p className="text-sm font-medium text-gray-700 dark:text-gray-300">Upload Media</p>
           </div>
         </a>
-        
+
         <a 
           href="#" 
           className="flex items-center p-3 bg-gray-50 hover:bg-gray-100 dark:bg-gray-800 dark:hover:bg-gray-700 rounded-md transition-colors"
@@ -51,13 +52,13 @@ export function QuickActions() {
           }}
         >
           <div className="flex-shrink-0 p-2 rounded-md bg-accent/10">
-            <span className="material-icons text-accent">person_add</span>
+            <UserPlus className="text-accent"/>
           </div>
           <div className="ml-3">
             <p className="text-sm font-medium text-gray-700 dark:text-gray-300">Add User</p>
           </div>
         </a>
-        
+
         <a 
           href="#" 
           className="flex items-center p-3 bg-gray-50 hover:bg-gray-100 dark:bg-gray-800 dark:hover:bg-gray-700 rounded-md transition-colors"
@@ -67,7 +68,7 @@ export function QuickActions() {
           }}
         >
           <div className="flex-shrink-0 p-2 rounded-md bg-dark/10">
-            <span className="material-icons text-dark">settings</span>
+            <Settings className="text-dark"/>
           </div>
           <div className="ml-3">
             <p className="text-sm font-medium text-gray-700 dark:text-gray-300">Configure Settings</p>
