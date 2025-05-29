@@ -77,9 +77,6 @@ export function MediaUploader({ open, onOpenChange }: MediaUploaderProps) {
       // Upload each file
       for (let i = 0; i < files.length; i++) {
         const file = files[i];
-        const formData = new FormData();
-        formData.append("file", file);
-
         try {
           // Create a unique key for tracking progress
           const fileKey = `${file.name}-${Date.now()}`;
@@ -96,14 +93,22 @@ export function MediaUploader({ open, onOpenChange }: MediaUploaderProps) {
             });
           }, 300);
 
-          // Upload the file
+          // Convert file to base64 for upload
+          const fileBuffer = await file.arrayBuffer();
+          const base64File = btoa(String.fromCharCode(...new Uint8Array(fileBuffer)));
+          
+          // Upload the file using the new approach
           const token = localStorage.getItem("auth-token");
           const response = await fetch("/api/media", {
             method: "POST",
             headers: {
+              "Content-Type": "application/json",
               ...(token && { Authorization: `Bearer ${token}` }),
             },
-            body: formData,
+            body: JSON.stringify({
+              file: base64File,
+              fileName: file.name
+            }),
             credentials: "include",
           });
 
