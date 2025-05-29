@@ -15,7 +15,7 @@ export default function ApiDocumentation() {
   const { toast } = useToast();
   
   // Get all content types
-  const { data: contentTypes = [], isLoading: isLoadingContentTypes } = useQuery({
+  const { data: contentTypes = [], isLoading: isLoadingContentTypes } = useQuery<any[]>({
     queryKey: ['/api/content-types'],
   });
 
@@ -26,8 +26,16 @@ export default function ApiDocumentation() {
     }
   }, [contentTypes, selectedContentType]);
 
+  // Define a type for content type details
+  type ContentTypeDetails = {
+    apiId: string;
+    displayName: string;
+    fields: any[];
+    [key: string]: any;
+  };
+
   // Get selected content type details
-  const { data: contentTypeDetails } = useQuery({
+  const { data: contentTypeDetails } = useQuery<ContentTypeDetails>({
     queryKey: ['/api/content-types', selectedContentType],
     enabled: !!selectedContentType,
   });

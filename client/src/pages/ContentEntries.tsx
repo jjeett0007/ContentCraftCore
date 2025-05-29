@@ -85,8 +85,15 @@ export default function ContentEntries() {
     }
   }, [isAuthenticated, navigate]);
 
+  // Define a type for content type schema
+  type ContentTypeSchema = {
+    displayName?: string;
+    fields: Array<{ name: string; displayName: string; type: string }>;
+    [key: string]: any;
+  };
+
   // Fetch content type schema
-  const { data: contentTypeData, isLoading: contentTypeLoading } = useQuery({
+  const { data: contentTypeData, isLoading: contentTypeLoading } = useQuery<ContentTypeSchema>({
     queryKey: [`/api/content-types/${contentType}`],
     enabled: isAuthenticated,
   });

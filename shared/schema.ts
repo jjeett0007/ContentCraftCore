@@ -31,6 +31,7 @@ export const insertContentTypeSchema = z.object({
 export type InsertContentType = z.infer<typeof insertContentTypeSchema>;
 
 export interface ContentType {
+  name?: string;
   _id?: string;
   id?: string;
   displayName: string;

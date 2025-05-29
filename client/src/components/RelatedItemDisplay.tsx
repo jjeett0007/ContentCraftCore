@@ -15,14 +15,27 @@ export function RelatedItemDisplay({
   onRemove, 
   showRemoveButton = true 
 }: RelatedItemDisplayProps) {
+  // Define a type for content type data
+  interface ContentTypeField {
+    name: string;
+    type: string;
+    [key: string]: any;
+  }
+
+  interface ContentTypeData {
+    fields: ContentTypeField[];
+    displayName?: string;
+    [key: string]: any;
+  }
+
   // Fetch the related content type to get field information
-  const { data: contentTypeData } = useQuery({
+  const { data: contentTypeData } = useQuery<ContentTypeData>({
     queryKey: [`/api/content-types/${contentType}`],
     enabled: !!contentType,
   });
 
   // Fetch the actual related item data
-  const { data: itemData, isLoading } = useQuery({
+  const { data: itemData, isLoading } = useQuery<Record<string, any>>({
     queryKey: [`/api/content/${contentType}/${itemId}`],
     enabled: !!contentType && !!itemId,
   });

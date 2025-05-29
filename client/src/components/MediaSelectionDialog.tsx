@@ -46,8 +46,17 @@ export function MediaSelectionDialog({
     }
   }, [open, currentSelection, multiple]);
 
+  // Define the type for a media item
+  interface MediaItem {
+    id: string | number;
+    name: string;
+    url: string;
+    size?: number;
+    [key: string]: any;
+  }
+
   // Fetch media items
-  const { data: mediaItems = [], isLoading } = useQuery({
+  const { data: mediaItems = [], isLoading } = useQuery<MediaItem[]>({
     queryKey: ["/api/media"],
     enabled: open,
   });

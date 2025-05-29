@@ -42,7 +42,7 @@ export default function MediaLibrary() {
   }, [isAuthenticated, navigate]);
 
   // Fetch media files
-  const { data: media, isLoading } = useQuery({
+  const { data: media, isLoading } = useQuery<any[]>({
     queryKey: ["/api/media", mediaType, search],
     enabled: isAuthenticated,
   });

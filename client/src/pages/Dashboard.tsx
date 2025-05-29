@@ -26,6 +26,7 @@ export default function Dashboard() {
   const { data: contentTypes, isLoading: contentTypesLoading } = useQuery({
     queryKey: ["/api/content-types"],
     enabled: isAuthenticated,
+    select: (data) => Array.isArray(data) ? data : [],
   });
 
   // Fetch recent activity
@@ -72,7 +73,7 @@ export default function Dashboard() {
         {/* Activity & Quick Actions */}
         <div className="space-y-6">
           <QuickActions />
-          <ActivityFeed activity={activity || []} isLoading={activityLoading} />
+          <ActivityFeed activity={Array.isArray(activity) ? activity : []} isLoading={activityLoading} />
         </div>
       </div>
     </AdminLayout>

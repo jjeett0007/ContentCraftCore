@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Link } from "wouter";
 import { ContentType } from "@shared/schema";
 import { Button } from "@/components/ui/button";
-import { useAuth } from "@/context/AuthContext";
+import { useAuth } from "@/hooks/use-auth";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 
@@ -16,9 +16,9 @@ const ContentTypeTable: React.FC = () => {
     queryKey: ['/api/content-types'],
   });
 
-  const handleDelete = async (id: number) => {
+  const handleDelete = async (id: string) => {
     if (!isAdmin) return;
-    
+
     if (!confirm("Are you sure you want to delete this content type? All associated content will be permanently removed.")) {
       return;
     }
@@ -102,7 +102,7 @@ const ContentTypeTable: React.FC = () => {
                       <span className="material-icons text-primary text-sm">article</span>
                     </div>
                     <div className="ml-4">
-                      <div className="text-sm font-medium text-gray-900">{contentType.name}</div>
+                      <div className="text-sm font-medium text-gray-900">{contentType.name || contentType.displayName}</div>
                     </div>
                   </div>
                 </td>
@@ -123,9 +123,9 @@ const ContentTypeTable: React.FC = () => {
                             <span className="material-icons">edit</span>
                           </button>
                         </Link>
-                        <button 
+                        <button
                           className="text-destructive hover:text-destructive/80"
-                          onClick={() => handleDelete(contentType.id)}
+                          onClick={() => handleDelete(contentType.id!)}
                         >
                           <span className="material-icons">delete</span>
                         </button>

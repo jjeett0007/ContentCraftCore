@@ -46,8 +46,20 @@ export function RelationSelectionDialog({
     }
   }, [open, currentSelection, multiple]);
 
+  // Define a type for content type schema
+  interface ContentTypeField {
+    name: string;
+    type: string;
+    [key: string]: any;
+  }
+  interface ContentTypeData {
+    displayName?: string;
+    fields: ContentTypeField[];
+    [key: string]: any;
+  }
+
   // Fetch related content type schema
-  const { data: contentTypeData } = useQuery({
+  const { data: contentTypeData } = useQuery<ContentTypeData>({
     queryKey: [`/api/content-types/${relationTo}`],
     enabled: open && !!relationTo,
   });

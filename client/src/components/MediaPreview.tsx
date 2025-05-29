@@ -24,8 +24,11 @@ export function MediaPreview({ mediaIds, small = false }: MediaPreviewProps) {
   // Convert single ID to array for consistent handling
   const ids = isMultiple ? mediaIds : [mediaIds];
   
+  // Define a type for media items
+  type MediaItem = { id: string | number; name: string; url: string };
+
   // Fetch media data
-  const { data: mediaItems = [] } = useQuery({
+  const { data: mediaItems = [] } = useQuery<MediaItem[]>({
     queryKey: ["/api/media"],
   });
   

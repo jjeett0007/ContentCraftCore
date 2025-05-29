@@ -69,8 +69,30 @@ export default function Settings() {
     }
   }, [isAuthenticated, navigate, user, toast]);
 
+  // Define a type for settings
+  type SettingsType = {
+    siteName?: string;
+    apiPrefix?: string;
+    mediaProvider?: string;
+    cloudinary?: {
+      cloudName?: string;
+      apiKey?: string;
+      apiSecret?: string;
+    };
+    permissions?: {
+      publicRegistration?: boolean;
+      defaultRole?: string;
+      contentApproval?: boolean;
+      mediaUploadRoles?: {
+        administrator?: boolean;
+        editor?: boolean;
+        viewer?: boolean;
+      };
+    };
+  };
+
   // Fetch settings
-  const { data: settings, isLoading } = useQuery({
+  const { data: settings, isLoading } = useQuery<SettingsType>({
     queryKey: ["/api/settings"],
     enabled: isAuthenticated && user?.role === "administrator",
   });
@@ -90,10 +112,11 @@ export default function Settings() {
         publicRegistration: settings.permissions?.publicRegistration || false,
         defaultRole: settings.permissions?.defaultRole || "viewer",
         contentApproval: settings.permissions?.contentApproval || false,
-        mediaUploadRoles: settings.permissions?.mediaUploadRoles || {
-          administrator: true,
-          editor: true,
-          viewer: false,
+        mediaUploadRoles: {
+          administrator:
+            settings.permissions?.mediaUploadRoles?.administrator ?? true,
+          editor: settings.permissions?.mediaUploadRoles?.editor ?? true,
+          viewer: settings.permissions?.mediaUploadRoles?.viewer ?? false,
         },
       });
     }

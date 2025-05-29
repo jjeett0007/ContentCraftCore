@@ -33,7 +33,7 @@ export function FieldTypeSelector({ fieldIndex, control, contentTypes, fieldType
     control._formValues.fields[fieldIndex].options = [...currentOptions, newEnumValue.trim()];
     control._subjects.state.next({
       name: `fields.${fieldIndex}.options`,
-      value: [...currentOptions, newEnumValue.trim()],
+      values: [...currentOptions, newEnumValue.trim()],
     });
     
     setNewEnumValue("");
@@ -42,12 +42,12 @@ export function FieldTypeSelector({ fieldIndex, control, contentTypes, fieldType
   // Remove enum option
   const removeEnumOption = (index: number) => {
     const currentOptions = control._getWatch(`fields.${fieldIndex}.options`) || [];
-    const newOptions = currentOptions.filter((_, i) => i !== index);
+    const newOptions = currentOptions.filter((_: any, i: number) => i !== index);
     
     control._formValues.fields[fieldIndex].options = newOptions;
     control._subjects.state.next({
       name: `fields.${fieldIndex}.options`,
-      value: newOptions,
+      values: newOptions,
     });
   };
   

@@ -40,6 +40,11 @@ export function Sidebar({ open, onClose, collapsed: externalCollapsed }: Sidebar
   // Get content types for sidebar
   const { data: contentTypes = [] } = useQuery({
     queryKey: ["/api/content-types"],
+    queryFn: async () => {
+      const res = await fetch("/api/content-types");
+      const data = await res.json();
+      return Array.isArray(data) ? data : [];
+    },
     enabled: !!user,
   });
 
@@ -136,7 +141,7 @@ export function Sidebar({ open, onClose, collapsed: externalCollapsed }: Sidebar
       // On mobile, automatically collapse the sidebar when the screen is small
       if (window.innerWidth < 768) {
         if (!collapsed && !open) {
-          setCollapsed(true);
+          setInternalCollapsed(true);
         }
       }
     };

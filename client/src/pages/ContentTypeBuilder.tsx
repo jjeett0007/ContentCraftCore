@@ -162,7 +162,7 @@ export default function ContentTypeBuilder() {
         />
       ) : (
         <ContentTypeList 
-          contentTypes={contentTypes || []} 
+          contentTypes={Array.isArray(contentTypes) ? contentTypes : []} 
           isLoading={isLoading}
           onEdit={handleEdit}
           onDelete={handleDelete}

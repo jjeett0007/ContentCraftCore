@@ -67,7 +67,7 @@ export function ContentTypeForm({ initialData, onSubmit, onCancel, isSubmitting 
   const [activeTab, setActiveTab] = useState("general");
   
   // Fetch content types for relation fields
-  const { data: contentTypes = [] } = useQuery({
+  const { data: contentTypes = [] } = useQuery<any[]>({
     queryKey: ['/api/content-types'],
     staleTime: 60000,
   });

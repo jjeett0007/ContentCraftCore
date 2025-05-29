@@ -6,13 +6,18 @@ interface DashboardCardsProps {
 }
 
 export function DashboardCards({ contentTypes }: DashboardCardsProps) {
+  // Define the expected shape of the count response
+  interface CountResponse {
+    count: number;
+  }
+
   // Fetch media count
-  const { data: mediaData, isLoading: mediaLoading } = useQuery({
+  const { data: mediaData, isLoading: mediaLoading } = useQuery<CountResponse>({
     queryKey: ["/api/media/count"],
   });
   
   // Fetch user count
-  const { data: userData, isLoading: userLoading } = useQuery({
+  const { data: userData, isLoading: userLoading } = useQuery<CountResponse>({
     queryKey: ["/api/users/count"],
   });
   

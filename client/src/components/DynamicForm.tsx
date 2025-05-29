@@ -103,13 +103,16 @@ export function DynamicForm({ fields, initialData, onSubmit, onCancel, isSubmitt
           // Boolean fields don't need required modifier
         } else if ((field.type === "relation" && field.relationMany) || (field.type === "media" && field.multiple)) {
           fieldSchema = z.array(z.string()).min(1, `At least one ${field.displayName} is required`);
-        } else if (typeof fieldSchema.min === 'function') {
-          fieldSchema = fieldSchema.min(1, `${field.displayName} is required`);
+        } else if (fieldSchema && typeof (fieldSchema as z.ZodString).min === 'function' && field.type === "text") {
+          // Only use .min for ZodString (text/richtext/email)
+          fieldSchema = (fieldSchema as z.ZodString).min(1, `${field.displayName} is required`);
         } else {
-          // If min isn't available, use refine instead
-          fieldSchema = fieldSchema.refine(val => !!val, {
-            message: `${field.displayName} is required`
-          });
+          // If min isn't available, use refine only if supported
+          if (typeof (fieldSchema as any).refine === "function") {
+            fieldSchema = (fieldSchema as any).refine((val: any) => !!val, {
+              message: `${field.displayName} is required`
+            });
+          }
         }
       }
 
@@ -647,7 +650,11 @@ export function DynamicForm({ fields, initialData, onSubmit, onCancel, isSubmitt
             name={field.name}
             render={({ field: formField }) => {
               const [relationDialogOpen, setRelationDialogOpen] = useState(false);
-              const { data: relatedContentType } = useQuery({
+              interface ContentType {
+                displayName?: string;
+                // add other properties if needed
+              }
+              const { data: relatedContentType } = useQuery<ContentType>({
                 queryKey: [`/api/content-types/${field.relationTo}`],
                 enabled: !!field.relationTo,
               });

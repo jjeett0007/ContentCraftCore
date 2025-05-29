@@ -255,7 +255,7 @@ export default function UserManagement() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {users && users.length > 0 ? (
+                {Array.isArray(users) && users.length > 0 ? (
                   users.map((user: any) => (
                     <TableRow key={user.id}>
                       <TableCell className="font-medium">
