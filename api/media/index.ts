@@ -1,9 +1,15 @@
-
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { requireAuth, type AuthenticatedRequest } from '../../lib/auth-middleware';
 import { connectToDatabase } from '../../server/storage';
 import { storage } from '../../server/storage';
 import { put } from '@vercel/blob';
+import formidable from 'formidable';
+
+export const config = {
+  api: {
+    bodyParser: false,
+  },
+};
 
 export default requireAuth(async function handler(req: AuthenticatedRequest, res: VercelResponse) {
   try {
@@ -14,83 +20,59 @@ export default requireAuth(async function handler(req: AuthenticatedRequest, res
       res.status(200).json(media);
     } else if (req.method === 'POST') {
       try {
-        const { file, fileName } = req.body;
-        
-        console.log('Upload request received:', {
-          hasFile: !!file,
-          fileType: typeof file,
-          fileName,
-          fileLength: file ? file.length : 0
+        // Parse the form data
+        const form = formidable({
+          maxFileSize: 50 * 1024 * 1024, // 50MB
         });
         
-        if (!file || !fileName) {
+        const [fields, files] = await form.parse(req);
+        const file = Array.isArray(files.file) ? files.file[0] : files.file;
+        
+        if (!file) {
           return res.status(400).json({ message: "No file uploaded" });
         }
         
-        // Validate file type based on filename extension
-        const allowedExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.mp4', '.webm', '.mp3', '.wav', '.ogg', '.pdf', '.doc', '.docx', '.xls', '.xlsx', '.ppt', '.pptx', '.txt'];
-        const fileExtension = fileName.toLowerCase().substring(fileName.lastIndexOf('.'));
+        console.log('Upload request received:', {
+          fileName: file.originalFilename,
+          fileSize: file.size,
+          mimeType: file.mimetype
+        });
         
-        if (!allowedExtensions.includes(fileExtension)) {
-          return res.status(400).json({ message: "File type not supported" });
+        // Validate file type
+        const allowedMimeTypes = [
+          'image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp',
+          'video/mp4', 'video/webm',
+          'audio/mp3', 'audio/wav', 'audio/ogg',
+          'application/pdf',
+          'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+          'application/vnd.ms-excel', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+          'application/vnd.ms-powerpoint', 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+          'text/plain'
+        ];
+        
+        if (!allowedMimeTypes.includes(file.mimetype || '')) {
+          return res.status(400).json({ message: "Invalid file type" });
         }
         
-        // Convert base64 back to buffer if needed
-        let fileBuffer;
-        let fileSize;
-        
-        if (typeof file === 'string') {
-          // Handle base64 string
-          fileBuffer = Buffer.from(file, 'base64');
-          fileSize = fileBuffer.length;
-        } else if (file instanceof Buffer) {
-          fileBuffer = file;
-          fileSize = file.length;
-        } else if (file.constructor && file.constructor.name === 'File') {
-          // Handle File object directly
-          fileBuffer = file;
-          fileSize = file.size;
-        } else {
-          return res.status(400).json({ message: "Invalid file format" });
-        }
-        
-        // Check file size (10MB limit)
-        if (fileSize > 10 * 1024 * 1024) {
-          return res.status(400).json({ message: "File size too large (max 10MB)" });
-        }
+        // Read file buffer
+        const fs = require('fs');
+        const buffer = fs.readFileSync(file.filepath);
         
         // Upload to Vercel Blob
-        const blob = await put(fileName, fileBuffer, {
+        const { url } = await put(file.originalFilename || 'unnamed-file', buffer, {
           access: 'public',
-          addRandomSuffix: true,
         });
         
-        // Determine MIME type from extension
-        const mimeTypes: { [key: string]: string } = {
-          '.jpg': 'image/jpeg',
-          '.jpeg': 'image/jpeg',
-          '.png': 'image/png',
-          '.gif': 'image/gif',
-          '.webp': 'image/webp',
-          '.mp4': 'video/mp4',
-          '.webm': 'video/webm',
-          '.mp3': 'audio/mp3',
-          '.wav': 'audio/wav',
-          '.ogg': 'audio/ogg',
-          '.pdf': 'application/pdf',
-          '.txt': 'text/plain'
+        // Save media metadata to database
+        const mediaData = {
+          name: file.originalFilename || 'unnamed-file',
+          url: url,
+          type: file.mimetype?.split('/')[1] || 'unknown',
+          size: file.size || 0,
+          uploadedBy: req.user!.userId,
         };
         
-        const mimeType = mimeTypes[fileExtension] || 'application/octet-stream';
-        
-        // Save media to database
-        const media = await storage.createMedia({
-          name: fileName,
-          url: blob.url,
-          type: mimeType,
-          size: fileSize,
-          uploadedBy: req.user!.userId,
-        });
+        const media = await storage.createMedia(mediaData);
         
         // Create activity log
         await storage.createActivity({
