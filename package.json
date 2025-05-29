@@ -4,9 +4,9 @@
   "type": "module",
   "license": "MIT",
   "scripts": {
-    "dev": "NODE_ENV=development tsx server/index.ts",
-    "build": "vite build && esbuild server/index.ts --platform=node --packages=external --bundle --format=esm --outdir=dist",
-    "start": "NODE_ENV=production node dist/index.js",
+    "dev": "node api.js && NODE_ENV=development tsx server/index.ts",
+    "build": "node api.js && vite build && esbuild server/index.ts --platform=node --packages=external --bundle --format=esm --outdir=dist",
+    "start": "node api.js && NODE_ENV=production node dist/index.js",
     "check": "tsc",
     "db:push": "drizzle-kit push"
   },
@@ -44,6 +44,7 @@
     "@tanstack/react-query": "^5.60.5",
     "@types/cookie-parser": "^1.4.8",
     "@types/cors": "^2.8.18",
+    "@types/formidable": "^3.4.5",
     "@vercel/blob": "^1.1.1",
     "@vercel/node": "^5.1.16",
     "bcryptjs": "^3.0.2",

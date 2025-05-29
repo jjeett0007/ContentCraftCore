@@ -93,30 +93,17 @@ export function MediaUploader({ open, onOpenChange }: MediaUploaderProps) {
             });
           }, 300);
 
-          // Convert file to base64 for upload
-          const base64File = await new Promise<string>((resolve) => {
-            const reader = new FileReader();
-            reader.onloadend = () => {
-              const result = reader.result as string;
-              // Remove data URL prefix (data:image/png;base64,)
-              const base64 = result.split(',')[1];
-              resolve(base64);
-            };
-            reader.readAsDataURL(file);
-          });
+          // Upload the file using FormData
+          const formData = new FormData();
+          formData.append('file', file);
           
-          // Upload the file using the new approach
           const token = localStorage.getItem("auth-token");
           const response = await fetch("/api/media", {
             method: "POST",
             headers: {
-              "Content-Type": "application/json",
               ...(token && { Authorization: `Bearer ${token}` }),
             },
-            body: JSON.stringify({
-              file: base64File,
-              fileName: file.name
-            }),
+            body: formData,
             credentials: "include",
           });
 
