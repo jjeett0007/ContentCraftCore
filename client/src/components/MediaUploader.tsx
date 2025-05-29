@@ -94,8 +94,16 @@ export function MediaUploader({ open, onOpenChange }: MediaUploaderProps) {
           }, 300);
 
           // Convert file to base64 for upload
-          const fileBuffer = await file.arrayBuffer();
-          const base64File = btoa(String.fromCharCode(...new Uint8Array(fileBuffer)));
+          const base64File = await new Promise<string>((resolve) => {
+            const reader = new FileReader();
+            reader.onloadend = () => {
+              const result = reader.result as string;
+              // Remove data URL prefix (data:image/png;base64,)
+              const base64 = result.split(',')[1];
+              resolve(base64);
+            };
+            reader.readAsDataURL(file);
+          });
           
           // Upload the file using the new approach
           const token = localStorage.getItem("auth-token");

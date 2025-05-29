@@ -16,6 +16,13 @@ export default requireAuth(async function handler(req: AuthenticatedRequest, res
       try {
         const { file, fileName } = req.body;
         
+        console.log('Upload request received:', {
+          hasFile: !!file,
+          fileType: typeof file,
+          fileName,
+          fileLength: file ? file.length : 0
+        });
+        
         if (!file || !fileName) {
           return res.status(400).json({ message: "No file uploaded" });
         }
