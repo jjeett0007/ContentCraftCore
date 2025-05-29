@@ -65,6 +65,8 @@ const MediaSchema = new mongoose.Schema(
     type: { type: String, required: true },
     size: { type: Number, required: true },
     uploadedBy: { type: String, required: true },
+    blobPathname: { type: String }, // For Vercel Blob deletion
+    createdAt: { type: Date, default: Date.now },
   },
   { timestamps: true },
 );
@@ -460,6 +462,7 @@ export class MongoStorage {
       type: media.type,
       size: media.size,
       uploadedBy: media.uploadedBy,
+      blobPathname: media.blobPathname,
       createdAt: media.createdAt,
       updatedAt: media.updatedAt,
     };

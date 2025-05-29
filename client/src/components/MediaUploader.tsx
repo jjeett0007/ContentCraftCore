@@ -37,7 +37,7 @@ export function MediaUploader({ open, onOpenChange }: MediaUploaderProps) {
     if (e.target.files) {
       const selectedFiles = Array.from(e.target.files);
       setFiles([...files, ...selectedFiles]);
-      
+
       // Reset the input to allow selecting the same file again
       if (fileInputRef.current) {
         fileInputRef.current.value = "";
@@ -69,22 +69,22 @@ export function MediaUploader({ open, onOpenChange }: MediaUploaderProps) {
   // Upload files
   const uploadFiles = async () => {
     if (files.length === 0) return;
-    
+
     setUploading(true);
     let successful = 0;
-    
+
     try {
       // Upload each file
       for (let i = 0; i < files.length; i++) {
         const file = files[i];
         const formData = new FormData();
         formData.append("file", file);
-        
+
         try {
           // Create a unique key for tracking progress
           const fileKey = `${file.name}-${Date.now()}`;
           setUploadProgress(prev => ({ ...prev, [fileKey]: 0 }));
-          
+
           // Simulate progress during upload
           const progressInterval = setInterval(() => {
             setUploadProgress(prev => {
@@ -95,21 +95,25 @@ export function MediaUploader({ open, onOpenChange }: MediaUploaderProps) {
               return prev;
             });
           }, 300);
-          
+
           // Upload the file
+          const token = localStorage.getItem("auth-token");
           const response = await fetch("/api/media", {
             method: "POST",
+            headers: {
+              ...(token && { Authorization: `Bearer ${token}` }),
+            },
             body: formData,
             credentials: "include",
           });
-          
+
           clearInterval(progressInterval);
-          
+
           if (!response.ok) {
             const errorData = await response.json();
             throw new Error(errorData.message || "Upload failed");
           }
-          
+
           // Set progress to 100%
           setUploadProgress(prev => ({ ...prev, [fileKey]: 100 }));
           successful++;
@@ -122,11 +126,11 @@ export function MediaUploader({ open, onOpenChange }: MediaUploaderProps) {
           });
         }
       }
-      
+
       // Invalidate queries to refresh the media library
       queryClient.invalidateQueries({ queryKey: ["/api/media"] });
       queryClient.invalidateQueries({ queryKey: ["/api/media/count"] });
-      
+
       // Show success message
       if (successful > 0) {
         toast({
@@ -134,7 +138,7 @@ export function MediaUploader({ open, onOpenChange }: MediaUploaderProps) {
           description: `Successfully uploaded ${successful} of ${files.length} files`,
         });
       }
-      
+
       // Close dialog if all files were uploaded successfully
       if (successful === files.length) {
         setTimeout(() => {
@@ -162,13 +166,13 @@ export function MediaUploader({ open, onOpenChange }: MediaUploaderProps) {
             Upload images, videos, audio, or documents to your media library
           </DialogDescription>
         </DialogHeader>
-        
+
         <Tabs defaultValue="upload" className="mt-4">
           <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="upload">Upload Files</TabsTrigger>
             <TabsTrigger value="url" disabled>From URL</TabsTrigger>
           </TabsList>
-          
+
           <TabsContent value="upload" className="mt-4">
             {/* Drag & drop area */}
             <div
@@ -196,7 +200,7 @@ export function MediaUploader({ open, onOpenChange }: MediaUploaderProps) {
                 disabled={uploading}
               />
             </div>
-            
+
             {/* Selected files list */}
             {files.length > 0 && (
               <div className="mt-6">
@@ -241,7 +245,7 @@ export function MediaUploader({ open, onOpenChange }: MediaUploaderProps) {
                 </div>
               </div>
             )}
-            
+
             {/* Upload button */}
             <div className="mt-6 flex justify-end space-x-2">
               <Button
@@ -260,7 +264,7 @@ export function MediaUploader({ open, onOpenChange }: MediaUploaderProps) {
               </Button>
             </div>
           </TabsContent>
-          
+
           <TabsContent value="url">
             {/* URL upload (disabled for now) */}
             <div className="flex flex-col items-center justify-center py-10">
