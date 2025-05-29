@@ -96,14 +96,48 @@ export function MediaUploader({ open, onOpenChange }: MediaUploaderProps) {
           // Upload the file using FormData
           const formData = new FormData();
           formData.append('file', file);
-          
+
+          // Convert file to base64 for debugging/demo purposes
+          const toBase64 = (file: File) =>
+            new Promise<string>((resolve, reject) => {
+              const reader = new FileReader();
+              reader.readAsDataURL(file);
+              reader.onload = () => resolve(reader.result as string);
+              reader.onerror = error => reject(error);
+            });
+
+          const base64String = await toBase64(file);
+          const mimeType = file.type;
+
+          console.log({
+            // file: base64String,
+            name: file.name,
+            mimeType: mimeType,
+            size: file.size,
+          });
+
+          // const upload = await apiRequest("POST", "/api/media", {
+          //   file: base64String,
+          //   name: file.name,
+          //   mimeType: mimeType,
+          //   size: file.size,
+          // });
+
+
+
           const token = localStorage.getItem("auth-token");
           const response = await fetch("/api/media", {
             method: "POST",
             headers: {
               ...(token && { Authorization: `Bearer ${token}` }),
+              "Content-Type": "application/json",
             },
-            body: formData,
+            body: JSON.stringify({
+              file: base64String,
+              name: file.name,
+              mimeType: mimeType,
+              size: file.size,
+            }),
             credentials: "include",
           });
 
@@ -221,9 +255,9 @@ export function MediaUploader({ open, onOpenChange }: MediaUploaderProps) {
                           </div>
                         </div>
                         {uploadProgress[`${file.name}-${Date.now()}`] !== undefined ? (
-                          <Progress 
-                            value={uploadProgress[`${file.name}-${Date.now()}`]} 
-                            className="w-20 h-2" 
+                          <Progress
+                            value={uploadProgress[`${file.name}-${Date.now()}`]}
+                            className="w-20 h-2"
                           />
                         ) : (
                           <Button

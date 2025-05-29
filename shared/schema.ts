@@ -62,6 +62,7 @@ export interface Media {
   uploadedBy: string;
   createdAt?: Date;
   updatedAt?: Date;
+  blobPathname?: string;
 }
 
 // Activity model schema
@@ -105,7 +106,7 @@ export interface Setting {
 // Field type enum for content type fields
 export const FieldTypes = {
   TEXT: "text",
-  RICHTEXT: "richtext", 
+  RICHTEXT: "richtext",
   NUMBER: "number",
   BOOLEAN: "boolean",
   DATE: "date",

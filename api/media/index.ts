@@ -3,13 +3,13 @@ import { requireAuth, type AuthenticatedRequest } from '../../lib/auth-middlewar
 import { connectToDatabase } from '../../server/storage';
 import { storage } from '../../server/storage';
 import { put } from '@vercel/blob';
-import formidable from 'formidable';
+// import formidable from 'formidable';
 
-export const config = {
-  api: {
-    bodyParser: false,
-  },
-};
+// export const config = {
+//   api: {
+//     bodyParser: false,
+//   },
+// };
 
 export default requireAuth(async function handler(req: AuthenticatedRequest, res: VercelResponse) {
   try {
@@ -21,23 +21,25 @@ export default requireAuth(async function handler(req: AuthenticatedRequest, res
     } else if (req.method === 'POST') {
       try {
         // Parse the form data
-        const form = formidable({
-          maxFileSize: 50 * 1024 * 1024, // 50MB
-        });
-        
-        const [fields, files] = await form.parse(req);
-        const file = Array.isArray(files.file) ? files.file[0] : files.file;
-        
-        if (!file) {
-          return res.status(400).json({ message: "No file uploaded" });
+        // const form = formidable({
+        //   maxFileSize: 50 * 1024 * 1024, // 50MB
+        // });
+
+        // const [fields, files] = await form.parse(req);
+        // const file = Array.isArray(files.file) ? files.file[0] : files.file;
+
+        const { file, name, mimetype, size } = req.body;
+
+        if (!mimetype) {
+          return res.status(400).json({ message: "No mimetype uploaded" });
         }
-        
-        console.log('Upload request received:', {
-          fileName: file.originalFilename,
-          fileSize: file.size,
-          mimeType: file.mimetype
-        });
-        
+
+        // console.log('Upload request received:', {
+        //   fileName: file.originalFilename,
+        //   fileSize: file.size,
+        //   mimeType: file.mimetype
+        // });
+
         // Validate file type
         const allowedMimeTypes = [
           'image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp',
@@ -49,31 +51,32 @@ export default requireAuth(async function handler(req: AuthenticatedRequest, res
           'application/vnd.ms-powerpoint', 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
           'text/plain'
         ];
-        
-        if (!allowedMimeTypes.includes(file.mimetype || '')) {
+
+        if (!allowedMimeTypes.includes(mimetype || '')) {
           return res.status(400).json({ message: "Invalid file type" });
         }
-        
+
         // Read file buffer
-        const fs = require('fs');
-        const buffer = fs.readFileSync(file.filepath);
-        
+        const base64Body = file.split(',')[1]; // Remove "data:image/...;base64,"
+        const buffer = Buffer.from(base64Body, 'base64');
+
+
         // Upload to Vercel Blob
-        const { url } = await put(file.originalFilename || 'unnamed-file', buffer, {
+        const { url } = await put(name || 'unnamed-file', buffer, {
           access: 'public',
         });
-        
+
         // Save media metadata to database
         const mediaData = {
-          name: file.originalFilename || 'unnamed-file',
+          name: name || 'unnamed-file',
           url: url,
-          type: file.mimetype?.split('/')[1] || 'unknown',
-          size: file.size || 0,
+          type: mimetype?.split('/')[1] || 'unknown',
+          size: size || 0,
           uploadedBy: req.user!.userId,
         };
-        
+
         const media = await storage.createMedia(mediaData);
-        
+
         // Create activity log
         await storage.createActivity({
           userId: req.user!.userId,
