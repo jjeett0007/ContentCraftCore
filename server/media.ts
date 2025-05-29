@@ -7,16 +7,10 @@ import { v4 as uuidv4 } from "uuid";
 export const uploadMedia = async (req: Request, res: Response) => {
   try {
     const user = (req as any).user;
+    const file = (req as any).file;
 
-    // Check if file was uploaded
-    if (!req.body.file) {
+    if (!file) {
       return res.status(400).json({ message: "No file uploaded" });
-    }
-
-    const file = req.body.file as File;
-
-    if (!file || !file.name) {
-      return res.status(400).json({ message: "Invalid file" });
     }
 
     // Validate file type
@@ -30,7 +24,7 @@ export const uploadMedia = async (req: Request, res: Response) => {
       'text/plain'
     ];
 
-    if (!allowedTypes.includes(file.type)) {
+    if (!allowedTypes.includes(file.mimetype)) {
       return res.status(400).json({ message: "File type not supported" });
     }
 
@@ -41,19 +35,18 @@ export const uploadMedia = async (req: Request, res: Response) => {
 
     try {
       // Upload to Vercel Blob
-      const blob = await put(file.name, file, {
+      const blob = await put(file.originalname, file.buffer, {
         access: 'public',
         addRandomSuffix: true,
       });
 
       // Save media to database
       const media = await storage.createMedia({
-        name: file.name,
+        name: file.originalname,
         url: blob.url,
-        type: file.type,
+        type: file.mimetype,
         size: file.size,
         uploadedBy: user.id,
-        blobPathname: blob.pathname, // Store blob pathname for deletion
       });
 
       // Create activity entry

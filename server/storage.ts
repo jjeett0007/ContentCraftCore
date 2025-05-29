@@ -117,6 +117,7 @@ const initializeModels = () => {
 
 // Storage class for MongoDB operations
 export class MongoStorage {
+  getMediaList: any;
   constructor() {
     initializeModels();
   }

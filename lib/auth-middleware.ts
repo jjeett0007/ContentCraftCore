@@ -4,6 +4,7 @@ import jwt from 'jsonwebtoken';
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-in-production';
 
 export interface AuthenticatedRequest extends VercelRequest {
+  [x: string]: any;
   user?: {
     userId: number;
     username: string;
