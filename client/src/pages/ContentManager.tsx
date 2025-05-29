@@ -20,7 +20,7 @@ export default function ContentManager() {
   }, [isAuthenticated, navigate]);
 
   // Fetch content types
-  const { data: contentTypes, isLoading } = useQuery({
+  const { data: contentTypes, isLoading } = useQuery<any[]>({
     queryKey: ["/api/content-types"],
     enabled: isAuthenticated,
   });
@@ -43,6 +43,10 @@ export default function ContentManager() {
         </TabsList>
         
         <TabsContent value="collections" className="space-y-4">
+
+
+
+
           {isLoading ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {[1, 2, 3].map((i) => (
@@ -111,7 +115,23 @@ export default function ContentManager() {
               </CardContent>
             </Card>
           )}
+
+
+
+
+
+
+
+
+
+          
         </TabsContent>
+
+
+
+
+
+
         
         <TabsContent value="singleTypes">
           <Card>
