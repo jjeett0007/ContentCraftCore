@@ -18,7 +18,7 @@ export const uploadMedia = async (req: Request, res: Response) => {
     const allowedTypes = [
       'image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp',
       'video/mp4', 'video/webm',
-      'audio/mp3', 'audio/wav', 'audio/ogg',
+      'audio/mp3', 'audio/mpeg', 'audio/wav', 'audio/ogg',
       'application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
       'application/vnd.ms-excel', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
       'application/vnd.ms-powerpoint', 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
@@ -81,7 +81,7 @@ export const getMedia = async (req: Request, res: Response) => {
     const type = req.query.type as string;
     const search = req.query.search as string;
 
-    const media = await storage.getMedia();
+    const media = await storage.getMedia(type, search);
     res.status(200).json(media);
   } catch (error) {
     console.error("Get media error:", error);
@@ -130,9 +130,11 @@ export const deleteMedia = async (req: Request, res: Response) => {
     }
 
     // Delete from Vercel Blob if pathname is available
-    if (media.blobPathname) {
+    if (media.url) {
       try {
-        await del(media.url);
+        await del(media.url, {
+          token: "vercel_blob_rw_R3lQvFxNdAB7AQl2_9D0Z7A5PZ1DuUnjIiJ71qf5mJGErkm"
+        });
       } catch (blobError) {
         console.error("Error deleting from Vercel Blob:", blobError);
         // Continue even if blob delete fails

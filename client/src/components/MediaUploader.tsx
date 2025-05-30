@@ -14,9 +14,10 @@ import { cn } from "@/lib/utils";
 interface MediaUploaderProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  onUploadComplete: () => void;
 }
 
-export function MediaUploader({ open, onOpenChange }: MediaUploaderProps) {
+export function MediaUploader({ open, onOpenChange, onUploadComplete }: MediaUploaderProps) {
   const [files, setFiles] = useState<File[]>([]);
   const [uploading, setUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState<{ [key: string]: number }>({});
@@ -161,9 +162,7 @@ export function MediaUploader({ open, onOpenChange }: MediaUploaderProps) {
         }
       }
 
-      // Invalidate queries to refresh the media library
-      queryClient.invalidateQueries({ queryKey: ["/api/media"] });
-      queryClient.invalidateQueries({ queryKey: ["/api/media/count"] });
+      onUploadComplete();
 
       // Show success message
       if (successful > 0) {
@@ -193,7 +192,7 @@ export function MediaUploader({ open, onOpenChange }: MediaUploaderProps) {
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogContent className="max-w-md sm:max-w-xl">
+      <DialogContent className="max-w-md sm:max-w-xl overflow-hidden max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Upload Media</DialogTitle>
           <DialogDescription>
@@ -211,7 +210,7 @@ export function MediaUploader({ open, onOpenChange }: MediaUploaderProps) {
             {/* Drag & drop area */}
             <div
               className={cn(
-                "border-2 border-dashed rounded-lg p-8 text-center cursor-pointer transition-colors",
+                "border-2 border-dashed rounded-lg p-8 text-center cursor-pointer transition-colors h-40",
                 "hover:border-primary hover:bg-primary/5",
                 "flex flex-col items-center justify-center"
               )}
@@ -239,15 +238,15 @@ export function MediaUploader({ open, onOpenChange }: MediaUploaderProps) {
             {files.length > 0 && (
               <div className="mt-6">
                 <h3 className="text-sm font-medium mb-2">Selected Files ({files.length})</h3>
-                <div className="space-y-2 max-h-60 overflow-y-auto pr-2">
+                <div className="space-y-2 max-h-28 overflow-y-auto pr-2">
                   {files.map((file, index) => (
-                    <Card key={index} className="p-0">
+                    <Card key={index} className="p-0 hover:bg-secondary/5 transition-colors cursor-pointer w-full">
                       <CardContent className="p-3 flex items-center justify-between">
                         <div className="flex items-center space-x-3">
                           <File className="h-5 w-5 text-primary" />
                           <div className="overflow-hidden">
                             <p className="text-sm font-medium truncate" title={file.name}>
-                              {file.name}
+                              {file.name.slice(0, 30)}{file.name.length > 30 ? '...' : ''}
                             </p>
                             <p className="text-xs text-muted-foreground">
                               {formatFileSize(file.size)}

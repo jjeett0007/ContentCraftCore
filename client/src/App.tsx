@@ -64,3 +64,7 @@ function App() {
 }
 
 export default App;
+
+
+    // "dev": "NODE_ENV=development tsx server/index.ts",
+    

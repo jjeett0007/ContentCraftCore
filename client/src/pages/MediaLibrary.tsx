@@ -27,7 +27,7 @@ export default function MediaLibrary() {
   const { isAuthenticated, user } = useAuth();
   const [, navigate] = useLocation();
   const { toast } = useToast();
-  
+
   // State
   const [search, setSearch] = useState("");
   const [uploaderOpen, setUploaderOpen] = useState(false);
@@ -43,9 +43,22 @@ export default function MediaLibrary() {
 
   // Fetch media files
   const { data: media, isLoading } = useQuery<any[]>({
-    queryKey: ["/api/media", mediaType, search],
+    queryKey: ["media", mediaType, search],
+    queryFn: async () => {
+      const params = new URLSearchParams({
+        type: mediaType || "",
+        search: search || "",
+      });
+
+      const res = await fetch(`/api/media?${params.toString()}`);
+      if (!res.ok) throw new Error("Network response was not ok");
+      return res.json();
+    },
     enabled: isAuthenticated,
+    staleTime: 0, // Always considered stale to trigger refetch
+    refetchOnWindowFocus: true, // Refetch when window regains focus
   });
+
 
   // Delete media mutation
   const deleteMutation = useMutation({
@@ -53,7 +66,7 @@ export default function MediaLibrary() {
       return apiRequest("DELETE", `/api/media/${id}`);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/media"] });
+      queryClient.invalidateQueries({ queryKey: ["media"] }); // FIXED
       toast({
         title: "Success",
         description: "Media file deleted successfully",
@@ -67,8 +80,9 @@ export default function MediaLibrary() {
         variant: "destructive",
       });
       setDeletingMedia(null);
-    }
+    },
   });
+
 
   const handleDelete = (id: string) => {
     setDeletingMedia(id);
@@ -123,7 +137,7 @@ export default function MediaLibrary() {
             )}
           </div>
           {canUpload && (
-            <Button 
+            <Button
               className="bg-secondary text-white hover:bg-secondary/90"
               onClick={() => setUploaderOpen(true)}
             >
@@ -142,7 +156,7 @@ export default function MediaLibrary() {
           <TabsTrigger value="audio">Audio</TabsTrigger>
           <TabsTrigger value="document">Documents</TabsTrigger>
         </TabsList>
-        
+
         <TabsContent value={mediaType}>
           {isLoading ? (
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
@@ -162,8 +176,8 @@ export default function MediaLibrary() {
                 <Card key={item.id} className="overflow-hidden group">
                   <div className="aspect-square bg-muted/30 relative">
                     {item.type.startsWith("image/") ? (
-                      <img 
-                        src={item.url} 
+                      <img
+                        src={item.url}
                         alt={item.name}
                         className="w-full h-full object-cover"
                       />
@@ -172,20 +186,20 @@ export default function MediaLibrary() {
                         {getMediaIcon(item.type)}
                       </div>
                     )}
-                    
+
                     {/* Hover overlay with actions */}
                     <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                       <div className="flex gap-2">
-                        <Button 
-                          size="icon" 
+                        <Button
+                          size="icon"
                           variant="secondary"
                           onClick={() => window.open(item.url, '_blank')}
                         >
                           <File className="h-4 w-4" />
                         </Button>
                         {canDelete && (
-                          <Button 
-                            size="icon" 
+                          <Button
+                            size="icon"
                             variant="destructive"
                             onClick={() => handleDelete(item.id)}
                           >
@@ -215,7 +229,7 @@ export default function MediaLibrary() {
                   {search ? `No results found for "${search}"` : "Start by uploading your first media file"}
                 </p>
                 {canUpload && !search && (
-                  <Button 
+                  <Button
                     onClick={() => setUploaderOpen(true)}
                     className="bg-secondary text-white hover:bg-secondary/90"
                   >
@@ -224,7 +238,7 @@ export default function MediaLibrary() {
                   </Button>
                 )}
                 {search && (
-                  <Button 
+                  <Button
                     variant="outline"
                     onClick={() => setSearch("")}
                   >
@@ -238,9 +252,15 @@ export default function MediaLibrary() {
       </Tabs>
 
       {/* Media Uploader */}
-      <MediaUploader 
-        open={uploaderOpen} 
-        onOpenChange={setUploaderOpen}
+      <MediaUploader
+        open={uploaderOpen}
+        onOpenChange={() => {
+          setUploaderOpen(false)
+        }}
+        onUploadComplete={() => {
+          queryClient.invalidateQueries({ queryKey: ["/api/media/count"] });
+          queryClient.invalidateQueries({ queryKey: ["media", mediaType, search] });
+        }}
       />
 
       {/* Delete Confirmation Dialog */}
@@ -254,7 +274,7 @@ export default function MediaLibrary() {
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction 
+            <AlertDialogAction
               onClick={confirmDelete}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >

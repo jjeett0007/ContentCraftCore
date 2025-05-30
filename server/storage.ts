@@ -230,8 +230,37 @@ export class MongoStorage {
     return this.convertMongoMedia(savedMedia);
   }
 
-  async getMedia(): Promise<Media[]> {
-    const media = await MediaModel.find({});
+  async getMedia(type: string = "all", search?: string): Promise<Media[]> {
+    let query: any = {};
+
+    if (type && type !== "all") {
+      if (type === "image") {
+        query.type = { $regex: /^image\// };
+      } else if (type === "video") {
+        query.type = { $regex: /^video\// };
+      } else if (type === "audio") {
+        query.type = { $regex: /^audio\// };
+      } else if (type === "document") {
+        query.type = {
+          $in: [
+            "application/pdf",
+            "application/msword",
+            "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+            "application/vnd.ms-excel",
+            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            "application/vnd.ms-powerpoint",
+            "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+            "text/plain",
+          ],
+        };
+      }
+    }
+
+    if (search) {
+      query.name = { $regex: search, $options: "i" };
+    }
+
+    const media = await MediaModel.find(query);
     return media.map((m) => this.convertMongoMedia(m));
   }
 
