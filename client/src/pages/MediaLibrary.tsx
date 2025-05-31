@@ -22,6 +22,8 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Search, Plus, Trash2, File, Image, Film, FileAudio, FileText, X, AlertCircle } from "lucide-react";
+import { FaFilePdf } from "react-icons/fa";
+import { BiSolidFileTxt } from "react-icons/bi";
 
 export default function MediaLibrary() {
   const { isAuthenticated, user } = useAuth();
@@ -98,7 +100,8 @@ export default function MediaLibrary() {
     if (type.startsWith("image/")) return <Image className="h-6 w-6" />;
     if (type.startsWith("video/")) return <Film className="h-6 w-6" />;
     if (type.startsWith("audio/")) return <FileAudio className="h-6 w-6" />;
-    if (type.startsWith("text/")) return <FileText className="h-6 w-6" />;
+    if (type.startsWith("text/")) return <BiSolidFileTxt className="h-6 w-6" />;
+    if (type.startsWith("application/pd")) return <FaFilePdf className="h-6 w-6" />;
     return <File className="h-6 w-6" />;
   };
 
