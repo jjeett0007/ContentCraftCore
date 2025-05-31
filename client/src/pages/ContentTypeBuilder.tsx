@@ -11,6 +11,16 @@ import { Plus } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 import { useEffect } from "react";
 import { useLocation } from "wouter";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 export default function ContentTypeBuilder() {
   const { isAuthenticated, user } = useAuth();
@@ -18,6 +28,7 @@ export default function ContentTypeBuilder() {
   const { toast } = useToast();
   const [showForm, setShowForm] = useState(false);
   const [editingContentType, setEditingContentType] = useState<any>(null);
+  const [deleteingId, setDeleteingId] = useState<string | null>(null);
 
   // Redirect to login if not authenticated
   useEffect(() => {
@@ -120,10 +131,18 @@ export default function ContentTypeBuilder() {
   };
 
   const handleDelete = (contentTypeId: string) => {
-    if (confirm("Are you sure you want to delete this content type? All associated content will be permanently removed.")) {
-      deleteMutation.mutate(contentTypeId);
-    }
+    setDeleteingId(contentTypeId)
+    // if (confirm("Are you sure you want to delete this content type? All associated content will be permanently removed.")) {
+    //   deleteMutation.mutate(contentTypeId);
+    // }
   };
+
+  const confirmDelete = () => {
+    if (deleteingId) {
+      deleteMutation.mutate(deleteingId);
+      setDeleteingId(null);
+    }
+  }
 
   if (!isAuthenticated || (user?.role !== "admin" && user?.role !== "administrator")) {
     return null;
@@ -137,7 +156,7 @@ export default function ContentTypeBuilder() {
           <p className="text-gray-600">Define the structure of your content types</p>
         </div>
         {!showForm && (
-          <Button 
+          <Button
             className="bg-secondary text-white hover:bg-secondary/90"
             onClick={() => {
               setEditingContentType(null);
@@ -151,7 +170,7 @@ export default function ContentTypeBuilder() {
       </div>
 
       {showForm ? (
-        <ContentTypeForm 
+        <ContentTypeForm
           initialData={editingContentType}
           onSubmit={handleSubmit}
           onCancel={() => {
@@ -161,14 +180,34 @@ export default function ContentTypeBuilder() {
           isSubmitting={createMutation.isPending || updateMutation.isPending}
         />
       ) : (
-        <ContentTypeList 
-          contentTypes={Array.isArray(contentTypes) ? contentTypes : []} 
+        <ContentTypeList
+          contentTypes={Array.isArray(contentTypes) ? contentTypes : []}
           isLoading={isLoading}
           onEdit={handleEdit}
           onDelete={handleDelete}
           showActions={true}
         />
       )}
+
+      <AlertDialog open={!!deleteingId} onOpenChange={(open) => !open && setDeleteingId(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action cannot be undone. This will permanently delete this content.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={confirmDelete}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </AdminLayout>
   );
 }

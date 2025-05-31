@@ -2868,8 +2868,8 @@ function TemplateCard({ template, onSelect, conflicts }: TemplateCardProps) {
           </div>
           <span>{template.name}</span>
           {isEcommerce && (
-            <Badge className="ml-2 bg-blue-100 text-blue-600 hover:bg-blue-200 dark:bg-blue-900/50 dark:text-blue-300">
-              E-commerce
+            <Badge className="bg-blue-100 text-blue-600 hover:bg-blue-200 dark:bg-blue-900/50 dark:text-blue-300 text-[10px]">
+              E_Commerces
             </Badge>
           )}
         </CardTitle>
